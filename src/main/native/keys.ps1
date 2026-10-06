@@ -13,9 +13,10 @@ $KEYUP = 2
 $VK_CONTROL = 0x11
 
 function Release-HeldModifiers {
-    # The global hotkey (e.g. Alt+Shift+D) may still be physically held. Left alone, Ctrl+C would reach the
-    # target application as Ctrl+Alt+Shift+C, so we synthesise "key up" for Alt / Shift / Win first.
-    foreach ($vk in 0x12, 0x10, 0xA4, 0xA5, 0xA0, 0xA1, 0x5B, 0x5C) {
+    # The global hotkey (e.g. Ctrl+S or Alt+Shift+D) may still be physically held.
+    # We synthesise "key up" for all modifiers and letter keys so they do not collide with our injected Ctrl combo.
+    $keys = @(0x11, 0x12, 0x10, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0x5B, 0x5C) + (0x41..0x5A)
+    foreach ($vk in $keys) {
         if ([Win.Keys]::GetAsyncKeyState($vk) -band 0x8000) {
             $scan = [byte][Win.Keys]::MapVirtualKey($vk, 0)
             [Win.Keys]::keybd_event([byte]$vk, $scan, $KEYUP, [UIntPtr]::Zero)

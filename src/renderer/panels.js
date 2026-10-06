@@ -168,7 +168,15 @@
     window.App.updateEngineUI();
     window.App.refreshCompactPreview();
     closeModal(el.settingsModal);
-    showToast(res.hotkeyOk ? 'تنظیمات با موفقیت ذخیره شد' : 'کلید میانبر در دسترس نبود؛ کلید قبلی حفظ شد', res.hotkeyOk ? 2200 : 4500);
+    if (!res.hotkeyOk && !res.inlineHotkeyOk) {
+      showToast('کلیدهای میانبر در دسترس نبودند؛ کلیدهای قبلی حفظ شدند', 4500);
+    } else if (!res.hotkeyOk) {
+      showToast('کلید میانبر جزیره در دسترس نبود؛ کلید قبلی حفظ شد', 4500);
+    } else if (!res.inlineHotkeyOk) {
+      showToast('کلید میانبر درجا در دسترس نبود؛ کلید قبلی حفظ شد', 4500);
+    } else {
+      showToast('تنظیمات با موفقیت ذخیره شد', 2200);
+    }
   });
 
   // ------------------------------------------------------------------ history

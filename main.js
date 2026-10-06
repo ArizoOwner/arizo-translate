@@ -191,8 +191,8 @@ function registerHotkey(hotkey) {
 async function onInlineTranslate() {
   const settings = loadSettings();
   try {
-    // Give physical modifiers (Alt, Shift, etc.) a moment to release
-    await new Promise((resolve) => setTimeout(resolve, 70));
+    // Give physical modifiers and keys (Ctrl, Alt, Shift, letters) a moment to release
+    await new Promise((resolve) => setTimeout(resolve, 120));
 
     const { text } = await captureTextOrActiveInput({ restore: false });
     if (!text || text.trim().length === 0) return;
