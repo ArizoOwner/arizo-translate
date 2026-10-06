@@ -42,18 +42,7 @@ public class CredHelperUpload {
 
 $token = [CredHelperUpload]::GetPassword("git:https://ArizoTeam@github.com")
 
-# 1. Delete old Aphra assets if still present
-$oldAssetIds = @(615795644, 615799727)
-foreach ($id in $oldAssetIds) {
-    try {
-        & curl.exe -s -X DELETE -H "Authorization: Bearer $token" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/ArizoOwner/arizo-translate/releases/assets/$id"
-        Write-Host "Cleaned old asset $id"
-    } catch {
-        Write-Host "Asset $id already removed or not found"
-    }
-}
-
-# 2. Upload new Arizo Translate assets using curl streaming
+$releaseId = "404830086"
 $items = @(
     @{ local = "dist\Arizo Translate Setup 2.0.0.exe"; remote = "Arizo.Translate.Setup.2.0.0.exe" },
     @{ local = "dist\Arizo Translate-Portable-2.0.0.exe"; remote = "Arizo.Translate-Portable-2.0.0.exe" }
@@ -61,20 +50,46 @@ $items = @(
 
 foreach ($item in $items) {
     $fullPath = Resolve-Path $item.local
+    $fileBytes = (Get-Item $fullPath).Length
     $remoteName = [Uri]::EscapeDataString($item.remote)
-    $uploadUrl = "https://uploads.github.com/repos/ArizoOwner/arizo-translate/releases/404830086/assets?name=$remoteName"
 
-    Write-Host "Uploading $($item.remote)..."
-    & curl.exe --retry 3 --retry-delay 3 -f -s -S -X POST `
-        -H "Authorization: Bearer $token" `
-        -H "Content-Type: application/octet-stream" `
-        -H "Accept: application/vnd.github+json" `
-        --data-binary "@$fullPath" `
-        $uploadUrl
+    # First delete if already exists on release
+    $rel = (& curl.exe --resolve api.github.com:443:140.82.121.6 -s -H "Authorization: Bearer $token" "https://api.github.com/repos/ArizoOwner/arizo-translate/releases/$releaseId") | ConvertFrom-Json
+    foreach ($a in $rel.assets) {
+        if ($a.name -eq $item.remote) {
+            Write-Host "Deleting existing asset $($a.name) ($($a.id))..."
+            & curl.exe -s -X DELETE -H "Authorization: Bearer $token" "https://api.github.com/repos/ArizoOwner/arizo-translate/releases/assets/$($a.id)"
+            Start-Sleep -Seconds 2
+        }
+    }
 
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "Successfully uploaded $($item.remote)!"
-    } else {
-        Write-Host "Warning: curl upload returned exit code $LASTEXITCODE for $($item.remote)"
+    $uploadUrl = "https://uploads.github.com/repos/ArizoOwner/arizo-translate/releases/$releaseId/assets?name=$remoteName"
+    Write-Host "Uploading $($item.remote) ($([math]::round($fileBytes / 1MB, 2)) MB)..."
+
+    $uploaded = $false
+    for ($attempt = 1; $attempt -le 4; $attempt++) {
+        Write-Host "Attempt $attempt..."
+        & curl.exe --resolve uploads.github.com:443:140.82.121.14 `
+            --http1.1 `
+            --connect-timeout 60 `
+            -H "Expect:" `
+            -H "Authorization: Bearer $token" `
+            -H "Content-Type: application/octet-stream" `
+            -H "Accept: application/vnd.github+json" `
+            --data-binary "@$fullPath" `
+            $uploadUrl
+
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "Successfully uploaded $($item.remote)!"
+            $uploaded = $true
+            break
+        } else {
+            Write-Host "Upload failed with exit code $LASTEXITCODE. Retrying in 5 seconds..."
+            Start-Sleep -Seconds 5
+        }
+    }
+
+    if (-not $uploaded) {
+        Write-Error "Failed to upload $($item.remote) after 4 attempts."
     }
 }
