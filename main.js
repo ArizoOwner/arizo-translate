@@ -6,7 +6,7 @@ const { initCapture, shutdownCapture, captureSelectedText, captureTextOrActiveIn
 const { loadSettings, saveSettings, publicSettings, loadHistory, clearHistory, deleteHistoryItem, toggleFavoriteItem, addHistoryItem } = require('./src/main/store');
 const { mouseMonitor } = require('./src/main/mouse');
 const { translateText } = require('./src/engine/translator');
-const { testConnection } = require('./src/engine/aphra');
+const { testConnection, fetchAvailableModels } = require('./src/engine/aphra');
 const { synthesize } = require('./src/engine/tts');
 const { LANGUAGES } = require('./src/engine/languages');
 const { iconPng } = require('./src/main/icon');
@@ -584,6 +584,19 @@ ipcMain.handle('test-aphra', async (event, cfg = {}) => {
       model: cfg.model || stored.model,
       apiKey: cfg.apiKey || stored.apiKey
     });
+  } catch (err) {
+    return { ok: false, error: err.message === 'MISSING_API_KEY' ? 'ابتدا کلید API را وارد کنید.' : err.message };
+  }
+});
+
+ipcMain.handle('fetch-models', async (event, cfg = {}) => {
+  const stored = loadSettings().aphra;
+  try {
+    const models = await fetchAvailableModels({
+      baseUrl: cfg.baseUrl || stored.baseUrl,
+      apiKey: cfg.apiKey || stored.apiKey
+    });
+    return { ok: true, models };
   } catch (err) {
     return { ok: false, error: err.message === 'MISSING_API_KEY' ? 'ابتدا کلید API را وارد کنید.' : err.message };
   }

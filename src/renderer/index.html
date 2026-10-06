@@ -370,9 +370,12 @@
           <div class="setting-item">
             <div class="setting-text">
               <label for="setting-model" data-i18n="settingModelLabel">نام مدل (Model Name)</label>
-              <span data-i18n="settingModelDesc">مثال: gemini-3.8-flash یا deepseek/deepseek-chat یا llama-3.3-70b-versatile</span>
+              <span data-i18n="settingModelDesc">مثال: gemini-3.8-flash یا انتخاب از لیست مدل‌های API</span>
             </div>
-            <input type="text" id="setting-model" list="model-suggestions" placeholder="gemini-3.8-flash" class="sleek-input ltr-input" spellcheck="false">
+            <div class="model-input-box">
+              <input type="text" id="setting-model" list="model-suggestions" placeholder="gemini-3.8-flash" class="sleek-input ltr-input" spellcheck="false">
+              <button id="btn-fetch-models" class="btn-mini-action" type="button" title="دریافت لیست تمام مدل‌های موجود از API" data-i18n="settingFetchModelsBtn">🔄 دریافت مدل‌ها</button>
+            </div>
             <datalist id="model-suggestions"></datalist>
           </div>
 

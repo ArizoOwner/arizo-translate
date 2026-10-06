@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { detectLanguage, resolveTarget, normalizeCode } = require('../src/engine/languages');
 const { splitText } = require('../src/engine/google');
-const { extractPartialTranslation, parseModelOutput, isLocalUrl, buildPrompts, normalizeBaseUrl, normalizeModel, getCandidateModels } = require('../src/engine/aphra');
+const { extractPartialTranslation, parseModelOutput, isLocalUrl, buildPrompts, normalizeBaseUrl, normalizeModel, getCandidateModels, fetchAvailableModels } = require('../src/engine/aphra');
 
 test('detectLanguage recognises scripts', () => {
   assert.equal(detectLanguage('Hello, how are you?'), 'en');
@@ -123,4 +123,76 @@ test('getCandidateModels provides active Gemini family and excludes retired mode
   assert.ok(models.includes('gemini-3.8-flash'), 'should include gemini-3.8-flash');
   assert.ok(models.includes('gemini-3.8-pro'), 'should include gemini-3.8-pro');
   assert.ok(models.includes('gemini-3.5-flash'), 'should include gemini-3.5-flash');
+});
+
+test('fetchAvailableModels rejects missing API key for Gemini', async () => {
+  await assert.rejects(
+    () => fetchAvailableModels({ baseUrl: 'https://generativelanguage.googleapis.com', apiKey: '' }),
+    (err) => err.code === 'MISSING_API_KEY'
+  );
+});
+
+test('fetchAvailableModels correctly parses and filters Gemini ModelService response', async () => {
+  const originalFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = async (url) => {
+      assert.ok(url.includes('generativelanguage.googleapis.com'));
+      assert.ok(url.includes('key=test-key'));
+      return {
+        ok: true,
+        json: async () => ({
+          models: [
+            { name: 'models/gemini-embedding-001', supportedGenerationMethods: ['embedContent'] },
+            { name: 'models/gemini-2.5-pro', displayName: 'Gemini 2.5 Pro', supportedGenerationMethods: ['generateContent'] },
+            { name: 'models/gemini-2.5-flash', displayName: 'Gemini 2.5 Flash', supportedGenerationMethods: ['generateContent'] },
+            { name: 'models/gemini-3.8-flash', displayName: 'Gemini 3.8 Flash', supportedGenerationMethods: ['generateContent', 'countTokens'] }
+          ]
+        })
+      };
+    };
+
+    const models = await fetchAvailableModels({
+      baseUrl: 'https://generativelanguage.googleapis.com',
+      apiKey: 'test-key'
+    });
+
+    assert.equal(models.length, 3);
+    assert.ok(!models.some((m) => m.id === 'gemini-embedding-001'), 'embedding-only model must be excluded');
+    // Flash models prioritized at top
+    assert.equal(models[0].id, 'gemini-2.5-flash');
+    assert.equal(models[1].id, 'gemini-3.8-flash');
+    assert.equal(models[2].id, 'gemini-2.5-pro');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('fetchAvailableModels correctly parses OpenAI compatible /models response', async () => {
+  const originalFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = async (url, opts) => {
+      assert.ok(url.endsWith('/models'));
+      assert.equal(opts.headers.Authorization, 'Bearer test-bearer');
+      return {
+        ok: true,
+        json: async () => ({
+          data: [
+            { id: 'deepseek-chat', name: 'DeepSeek Chat' },
+            { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner' }
+          ]
+        })
+      };
+    };
+
+    const models = await fetchAvailableModels({
+      baseUrl: 'https://api.deepseek.com/v1',
+      apiKey: 'test-bearer'
+    });
+
+    assert.equal(models.length, 2);
+    assert.equal(models[0].id, 'deepseek-chat');
+    assert.equal(models[1].id, 'deepseek-reasoner');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });

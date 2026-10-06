@@ -19,7 +19,7 @@
     native: $('setting-native-lang'), second: $('setting-second-lang'),
     preset: $('setting-provider-preset'), baseUrl: $('setting-base-url'), apiKey: $('setting-api-key'),
     keyHint: $('api-key-hint'), eye: $('btn-toggle-apikey-visibility'), model: $('setting-model'),
-    models: $('model-suggestions'), test: $('btn-test-aphra'), testResult: $('test-result'),
+    models: $('model-suggestions'), btnFetchModels: $('btn-fetch-models'), test: $('btn-test-aphra'), testResult: $('test-result'),
     clearKey: $('btn-clear-apikey'), breakdown: $('setting-show-breakdown'), autoCopy: $('setting-auto-copy'),
     restore: $('setting-restore-clipboard'), hideBlur: $('setting-hide-on-blur'),
     startup: $('setting-launch-startup'), saveHistory: $('setting-save-history'), save: $('btn-save-settings')
@@ -45,11 +45,61 @@
 
   function setSuggestions(models) {
     f.models.textContent = '';
-    models.forEach((m) => {
+    (models || []).forEach((m) => {
       const o = document.createElement('option');
-      o.value = m;
+      if (typeof m === 'string') {
+        o.value = m;
+        o.textContent = m;
+      } else if (m && m.id) {
+        o.value = m.id;
+        o.textContent = m.displayName && m.displayName !== m.id ? `${m.displayName} (${m.id})` : m.id;
+      }
       f.models.appendChild(o);
     });
+  }
+
+  async function fetchAndPopulateModels(silent = false) {
+    let baseUrl = f.baseUrl.value.trim();
+    const apiKey = f.apiKey.value.trim();
+    if (/generativelanguage\.googleapis\.com/i.test(baseUrl)) {
+      baseUrl = PROVIDERS.gemini.url;
+    }
+    if (!f.btnFetchModels) return;
+    const originalText = f.btnFetchModels.textContent;
+    f.btnFetchModels.disabled = true;
+    f.btnFetchModels.textContent = window.I18n ? window.I18n.t('settingFetchingModels') : 'در حال دریافت…';
+
+    try {
+      const res = await api.fetchModels({ baseUrl, apiKey });
+      if (res.ok && Array.isArray(res.models) && res.models.length > 0) {
+        setSuggestions(res.models);
+        if (!f.model.value.trim() && res.models[0]?.id) {
+          f.model.value = res.models[0].id;
+        }
+        const countMsg = `${res.models.length} ${window.I18n ? window.I18n.t('settingModelsLoadedSuccess') : 'مدل از API بارگذاری شد'}`;
+        if (!silent) {
+          showToast(`✓ ${countMsg}`);
+          f.testResult.className = 'test-result ok';
+          f.testResult.textContent = `✓ ${countMsg}: ${res.models.slice(0, 3).map((m) => m.id).join(', ')}`;
+        }
+      } else {
+        const err = res.error || (window.I18n ? window.I18n.t('settingModelsLoadError') : 'خطا در دریافت مدل‌ها');
+        if (!silent) {
+          showToast(err);
+          f.testResult.className = 'test-result bad';
+          f.testResult.textContent = `✗ ${err}`;
+        }
+      }
+    } catch (err) {
+      if (!silent) {
+        showToast(err.message || 'خطا در برقراری ارتباط');
+        f.testResult.className = 'test-result bad';
+        f.testResult.textContent = `✗ ${err.message}`;
+      }
+    } finally {
+      f.btnFetchModels.disabled = false;
+      f.btnFetchModels.textContent = originalText;
+    }
   }
 
   function detectPreset(url) {
@@ -77,7 +127,7 @@
     let initialModel = a.model || PROVIDERS.openrouter.model;
     if (/generativelanguage\.googleapis\.com/i.test(initialBase)) {
       initialBase = PROVIDERS.gemini.url;
-      if (/gemini-(?:1\.[0-9]+|2\.[0-9]+)-(?:pro|flash)/i.test(initialModel) || /gemini-1\.[0-9]+/i.test(initialModel) || /gemini-2\.[0-9]+/i.test(initialModel) || !initialModel || initialModel === 'gemini') {
+      if (!initialModel || initialModel === 'gemini') {
         initialModel = 'gemini-3.8-flash';
       }
     }
@@ -190,7 +240,14 @@
     f.testResult.className = `test-result ${r.ok ? 'ok' : 'bad'}`;
     const okPrefix = window.I18n ? window.I18n.t('settingTestSuccess') : '✓ اتصال موفق';
     f.testResult.textContent = r.ok ? `${okPrefix} (${r.ms}ms) – ${r.model}` : `✗ ${r.error}`;
+    if (r.ok) {
+      fetchAndPopulateModels(true);
+    }
   });
+
+  if (f.btnFetchModels) {
+    f.btnFetchModels.addEventListener('click', () => fetchAndPopulateModels(false));
+  }
 
   f.save.addEventListener('click', async () => {
     const engine = [...document.getElementsByName('setting-engine')].find((r) => r.checked);
@@ -198,7 +255,7 @@
     let aphraModel = f.model.value.trim();
     if (/generativelanguage\.googleapis\.com/i.test(aphraBase)) {
       aphraBase = PROVIDERS.gemini.url;
-      if (/gemini-(?:1\.[0-9]+|2\.[0-9]+)-(?:pro|flash)/i.test(aphraModel) || /gemini-1\.[0-9]+/i.test(aphraModel) || /gemini-2\.[0-9]+/i.test(aphraModel) || !aphraModel || aphraModel === 'gemini') {
+      if (!aphraModel || aphraModel === 'gemini') {
         aphraModel = 'gemini-3.8-flash';
       }
     }

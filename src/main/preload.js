@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld('api', {
   readClipboardText: () => ipcRenderer.invoke('read-clipboard-text'),
   speak: (text, lang) => ipcRenderer.invoke('tts', { text, lang }),
   testAphra: (config) => ipcRenderer.invoke('test-aphra', config),
+  fetchModels: (config) => ipcRenderer.invoke('fetch-models', config),
 
   // window
   hideWindow: () => ipcRenderer.send('hide-window'),
