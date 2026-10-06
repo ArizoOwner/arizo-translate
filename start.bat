@@ -1,4 +1,4 @@
 @echo off
-title Aphra Dynamic Island Translate
+set ELECTRON_RUN_AS_NODE=
 cd /d "%~dp0"
-npm start
+start "" ".\node_modules\electron\dist\electron.exe" .

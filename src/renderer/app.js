@@ -20,6 +20,7 @@ const btnSpeak = document.getElementById('btn-speak');
 const btnClose = document.getElementById('btn-close');
 const btnHistory = document.getElementById('btn-history');
 const btnSettings = document.getElementById('btn-settings');
+const activityIndicator = document.getElementById('activity-indicator');
 const progressBar = document.getElementById('progress-bar');
 const progressText = document.getElementById('progress-text');
 const fallbackNotice = document.getElementById('fallback-notice');
@@ -58,6 +59,7 @@ let currentTargetLang = 'auto';
 let currentTranslation = '';
 let debounceTimer = null;
 let lastQueriedText = '';
+const originalCopyIconSvg = copyIcon.innerHTML;
 
 // ========================================================
 // INITIALIZATION
@@ -87,6 +89,12 @@ function updateEngineUI() {
   }
 }
 
+function updateInputDirection(text) {
+  const isFa = /[؀-ۿ]/.test(text);
+  inputText.style.direction = isFa ? 'rtl' : 'ltr';
+  inputText.style.textAlign = isFa ? 'right' : 'left';
+}
+
 function showToast(message) {
   toastEl.textContent = message;
   toastEl.classList.remove('hidden');
@@ -105,6 +113,7 @@ async function triggerTranslation(text) {
     aphraBreakdownContainer.classList.add('hidden');
     fallbackNotice.classList.add('hidden');
     progressBar.classList.add('hidden');
+    activityIndicator.classList.add('hidden');
     currentTranslation = '';
     return;
   }
@@ -112,7 +121,8 @@ async function triggerTranslation(text) {
   const query = text.trim();
   lastQueriedText = query;
 
-  // Show loading state
+  // Show loading state with smooth wave indicator
+  activityIndicator.classList.remove('hidden');
   progressBar.classList.remove('hidden');
   progressText.textContent = currentEngine === 'aphra' ? 'در حال اجرای فرآیند ایجنتیک Aphra...' : 'در حال دریافت ترجمه...';
   outputPlaceholder.classList.add('hidden');
@@ -126,6 +136,7 @@ async function triggerTranslation(text) {
       tone: selectTone.value
     });
 
+    activityIndicator.classList.add('hidden');
     progressBar.classList.add('hidden');
 
     if (res.success && res.data) {
@@ -136,6 +147,7 @@ async function triggerTranslation(text) {
       // Adjust text direction
       const isPersian = /[؀-ۿ]/.test(currentTranslation);
       outputText.setAttribute('dir', isPersian ? 'rtl' : 'ltr');
+      outputText.style.textAlign = isPersian ? 'right' : 'left';
 
       // Update language badges
       labelSourceLang.textContent = (data.detectedLang || 'EN').toUpperCase();
@@ -166,6 +178,7 @@ async function triggerTranslation(text) {
       outputText.textContent = res.error || 'خطا در ارتباط با سرور ترجمه';
     }
   } catch (err) {
+    activityIndicator.classList.add('hidden');
     progressBar.classList.add('hidden');
     outputText.textContent = 'خطا: ' + err.message;
   }
@@ -190,9 +203,9 @@ function renderBreakdown(breakdown, critiqueNotes) {
   if (critiqueNotes) {
     const notesEl = document.createElement('div');
     notesEl.className = 'breakdown-item';
-    notesEl.style.borderRightColor = '#58a6ff';
+    notesEl.style.borderRightColor = '#60a5fa';
     notesEl.innerHTML = `
-      <div style="color: #79c0ff; font-weight: 600;">نکته نگارش و لحن:</div>
+      <div style="color: #93c5fd; font-weight: 600;">نکته نگارش و لحن:</div>
       <div class="breakdown-desc">${escapeHtml(critiqueNotes)}</div>
     `;
     breakdownList.appendChild(notesEl);
@@ -213,6 +226,7 @@ function escapeHtml(text) {
 inputText.addEventListener('input', () => {
   const val = inputText.value;
   btnClearInput.classList.toggle('hidden', !val);
+  updateInputDirection(val);
 
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
@@ -272,14 +286,19 @@ btnCopy.addEventListener('click', handleCopy);
 function handleCopy() {
   if (!currentTranslation) return;
   navigator.clipboard.writeText(currentTranslation);
+
+  // Tactical visual feedback
+  btnCopy.classList.add('copied');
   copyLabel.textContent = 'کپی شد!';
-  copyIcon.style.color = '#3fb950';
+  copyIcon.innerHTML = `<polyline points="20 6 9 17 4 12" stroke="#6ee7b7" stroke-width="2.5" fill="none"/>`;
   showToast('متن کپی شد');
+
   setTimeout(() => {
+    btnCopy.classList.remove('copied');
     copyLabel.textContent = 'کپی';
-    copyIcon.style.color = '';
+    copyIcon.innerHTML = originalCopyIconSvg;
     ipcRenderer.send('hide-window');
-  }, 400);
+  }, 450);
 }
 
 btnReplace.addEventListener('click', handleReplace);
@@ -343,6 +362,7 @@ ipcRenderer.on('captured-text', (event, captured) => {
   if (captured && captured.trim()) {
     inputText.value = captured.trim();
     btnClearInput.classList.remove('hidden');
+    updateInputDirection(captured.trim());
     triggerTranslation(captured.trim());
   } else {
     // If no text was captured, clear and focus for typing
@@ -477,19 +497,20 @@ async function loadAndRenderHistory(filter = '') {
     : history;
 
   if (filtered.length === 0) {
-    historyList.innerHTML = '<div style="color: #6e7681; text-align: center; padding: 20px;">موردی یافت نشد.</div>';
+    historyList.innerHTML = '<div style="color: #64748b; text-align: center; padding: 24px; font-size: 12.5px;">موردی در تاریخچه یافت نشد.</div>';
     return;
   }
 
   filtered.forEach((item) => {
     const el = document.createElement('div');
-    el.className = 'history-item';
+    el.className = 'history-card-item';
     el.innerHTML = `
-      <div class="history-query">${escapeHtml(item.query)}</div>
-      <div class="history-translation">${escapeHtml(item.translation)}</div>
+      <div class="history-card-query">${escapeHtml(item.query)}</div>
+      <div class="history-card-trans">${escapeHtml(item.translation)}</div>
     `;
     el.addEventListener('click', () => {
       inputText.value = item.query;
+      updateInputDirection(item.query);
       outputText.textContent = item.translation;
       currentTranslation = item.translation;
       historyModal.classList.add('hidden');

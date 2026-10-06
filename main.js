@@ -1,5 +1,7 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, screen, Tray, Menu } = require('electron');
+delete process.env.ELECTRON_RUN_AS_NODE;
+const { app, BrowserWindow, globalShortcut, ipcMain, screen, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const { captureSelectedText, replaceSelectedText } = require('./src/main/capture');
 const { loadSettings, saveSettings, loadHistory, clearHistory, deleteHistoryItem } = require('./src/main/store');
 const { translateText } = require('./src/engine/translator');
@@ -18,8 +20,8 @@ function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width: screenWidth } = primaryDisplay.workAreaSize;
 
-  const winWidth = 600;
-  const winHeight = 360;
+  const winWidth = 620;
+  const winHeight = 460;
   const x = Math.round((screenWidth - winWidth) / 2);
   const y = 16; // Pin near top of screen like Dynamic Island
 
@@ -94,27 +96,54 @@ function registerHotkey(hotkey) {
 }
 
 function createTray() {
-  const iconPath = path.join(__dirname, 'src', 'assets', 'tray.png');
-  tray = new Tray(iconPath);
-
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: `باز کردن جزیره ترجمه (${currentHotkey})`,
-      click: () => showIsland('')
-    },
-    { type: 'separator' },
-    {
-      label: 'خروج',
-      click: () => {
-        app.isQuitting = true;
-        app.quit();
+  try {
+    const iconPath = path.join(__dirname, 'src', 'assets', 'tray.png');
+    let icon;
+    if (fs.existsSync(iconPath)) {
+      try {
+        const buf = fs.readFileSync(iconPath);
+        icon = nativeImage.createFromBuffer(buf);
+      } catch (err) {
+        console.warn('Could not read tray icon buffer:', err);
       }
     }
-  ]);
 
-  tray.setToolTip('Aphra Translation Assistant');
-  tray.setContextMenu(contextMenu);
-  tray.on('click', () => showIsland(''));
+    if (!icon || icon.isEmpty()) {
+      // Fallback 16x16 icon bitmap
+      const size = 16;
+      const buffer = Buffer.alloc(size * size * 4);
+      for (let i = 0; i < size * size; i++) {
+        buffer[i * 4] = 99;     // R
+        buffer[i * 4 + 1] = 102; // G
+        buffer[i * 4 + 2] = 241; // B
+        buffer[i * 4 + 3] = 255; // A
+      }
+      icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
+    }
+
+    tray = new Tray(icon);
+
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: `باز کردن جزیره ترجمه (${currentHotkey})`,
+        click: () => showIsland('')
+      },
+      { type: 'separator' },
+      {
+        label: 'خروج',
+        click: () => {
+          app.isQuitting = true;
+          app.quit();
+        }
+      }
+    ]);
+
+    tray.setToolTip('Aphra Translation Assistant');
+    tray.setContextMenu(contextMenu);
+    tray.on('click', () => showIsland(''));
+  } catch (err) {
+    console.error('Tray creation failed:', err);
+  }
 }
 
 // ========================================================
@@ -182,6 +211,11 @@ app.whenReady().then(() => {
 
   const settings = loadSettings();
   registerHotkey(settings.hotkey || 'Alt+D');
+
+  // Open the island on initial startup so the user immediately sees it ready!
+  setTimeout(() => {
+    showIsland('');
+  }, 400);
 });
 
 app.on('will-quit', () => {

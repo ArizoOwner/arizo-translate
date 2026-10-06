@@ -4,7 +4,7 @@
   "description": "Dynamic Island AI Translation Assistant for Windows inspired by Aphra",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "cmd /c \"set ELECTRON_RUN_AS_NODE= && electron .\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
