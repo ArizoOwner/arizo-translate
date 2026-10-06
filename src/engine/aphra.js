@@ -216,7 +216,16 @@ async function readProviderError(res) {
     const text = await res.text();
     try {
       const json = JSON.parse(text);
-      return json?.error?.message || json?.message || json?.error || text.slice(0, 200);
+      if (Array.isArray(json) && json.length > 0) {
+        const item = json[0];
+        if (item?.error?.message) return item.error.message;
+        if (item?.message) return item.message;
+        if (typeof item?.error === 'string') return item.error;
+      }
+      if (json?.error?.message) return json.error.message;
+      if (json?.message) return json.message;
+      if (typeof json?.error === 'string') return json.error;
+      return text.slice(0, 200);
     } catch (_) {
       return text.slice(0, 200);
     }
