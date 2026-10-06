@@ -532,7 +532,9 @@
   if (el.pasteBtn) {
     el.pasteBtn.addEventListener('click', async () => {
       try {
-        const text = await navigator.clipboard.readText();
+        const text = api && typeof api.readClipboardText === 'function'
+          ? await api.readClipboardText()
+          : await navigator.clipboard.readText();
         if (text && text.trim()) {
           setInput(text.trim());
           translate(text.trim());
@@ -594,11 +596,19 @@
   });
 
   el.swap.addEventListener('click', () => {
-    // Translate back into the language the text was detected in.
-    const back = langByCode(state.resultSource) ? langByCode(state.resultSource).code : 'auto';
+    // Translate back into the language the text was detected in, or flip current translation to input
+    const curTrans = state.translation;
+    const curSource = state.resultSource;
+    const back = langByCode(curSource) ? langByCode(curSource).code : 'auto';
     state.targetLang = back === state.targetLang ? 'auto' : back;
     el.target.value = state.targetLang;
-    if (el.input.value.trim()) translate(el.input.value);
+
+    if (curTrans && curTrans.trim()) {
+      setInput(curTrans.trim());
+      translate(curTrans.trim());
+    } else if (el.input.value.trim()) {
+      translate(el.input.value);
+    }
   });
 
   el.breakdownToggle.addEventListener('click', toggleBreakdown);

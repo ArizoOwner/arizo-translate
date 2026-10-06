@@ -11,7 +11,7 @@ const { synthesize } = require('./src/engine/tts');
 const { LANGUAGES } = require('./src/engine/languages');
 const { iconPng } = require('./src/main/icon');
 
-const WIN_WIDTH = 750;
+const WIN_WIDTH = 780;
 const COMPACT_WIDTH = 300;
 const TOP_MARGIN = 16;
 const MIN_HEIGHT = 72;
@@ -562,6 +562,10 @@ ipcMain.handle('copy-text', (event, text) => {
   return true;
 });
 
+ipcMain.handle('read-clipboard-text', () => {
+  return clipboard.readText().slice(0, MAX_TEXT);
+});
+
 ipcMain.handle('tts', async (event, { text, lang } = {}) => {
   try {
     if (typeof text !== 'string' || !text.trim()) return { ok: false };
@@ -691,6 +695,24 @@ if (gotTheLock) {
 
     registerInlineHotkey(settings.inlineHotkey || 'Alt+Shift+D');
     mouseMonitor.start(handleMouseSelectionEvent);
+
+    // Global cursor tracking so the mascot tracks the mouse everywhere on screen
+    let lastTrackedX = -9999;
+    let lastTrackedY = -9999;
+    setInterval(() => {
+      if (!mainWindow || !mainWindow.isVisible() || mainWindow.isMinimized()) return;
+      const pt = screen.getCursorScreenPoint();
+      if (pt.x === lastTrackedX && pt.y === lastTrackedY) return;
+      lastTrackedX = pt.x;
+      lastTrackedY = pt.y;
+
+      const b = mainWindow.getBounds();
+      const localX = pt.x - b.x;
+      const localY = pt.y - b.y;
+      if (mainWindow.webContents && !mainWindow.webContents.isDestroyed()) {
+        mainWindow.webContents.send('global-mouse-pos', { x: localX, y: localY });
+      }
+    }, 30);
 
     refreshTray();
 

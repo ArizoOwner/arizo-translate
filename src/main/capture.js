@@ -2,10 +2,11 @@ const { clipboard } = require('electron');
 const { spawn, execFile } = require('child_process');
 const readline = require('readline');
 const path = require('path');
+const { getScriptPath } = require('./native-helper');
 
-const helperScript = path.join(__dirname, 'native', 'keys.ps1');
-const copyScriptPath = path.join(__dirname, 'vbs', 'copy.vbs');
-const pasteScriptPath = path.join(__dirname, 'vbs', 'paste.vbs');
+const helperScript = getScriptPath('native', 'keys.ps1');
+const copyScriptPath = getScriptPath('vbs', 'copy.vbs');
+const pasteScriptPath = getScriptPath('vbs', 'paste.vbs');
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));

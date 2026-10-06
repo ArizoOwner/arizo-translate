@@ -1,8 +1,9 @@
 const { spawn } = require('child_process');
 const readline = require('readline');
 const path = require('path');
+const { getScriptPath } = require('./native-helper');
 
-const monitorScript = path.join(__dirname, 'native', 'mouse-monitor.ps1');
+const monitorScript = getScriptPath('native', 'mouse-monitor.ps1');
 
 class MouseMonitor {
   constructor() {

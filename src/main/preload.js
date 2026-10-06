@@ -26,6 +26,7 @@ contextBridge.exposeInMainWorld('api', {
   cancelTranslate: () => ipcRenderer.send('translate-cancel'),
   replaceText: (text) => ipcRenderer.invoke('replace-text', text),
   copyText: (text) => ipcRenderer.invoke('copy-text', text),
+  readClipboardText: () => ipcRenderer.invoke('read-clipboard-text'),
   speak: (text, lang) => ipcRenderer.invoke('tts', { text, lang }),
   testAphra: (config) => ipcRenderer.invoke('test-aphra', config),
 
@@ -46,6 +47,7 @@ contextBridge.exposeInMainWorld('api', {
   onBubbleInit: (cb) => subscribe('bubble-init', cb),
 
   // events pushed by the main process
+  onGlobalMousePos: (cb) => subscribe('global-mouse-pos', cb),
   onCapturedText: (cb) => subscribe('captured-text', cb),
   onPartial: (cb) => subscribe('translate-partial', cb),
   onSettingsChanged: (cb) => subscribe('settings-changed', cb),

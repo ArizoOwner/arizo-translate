@@ -129,10 +129,37 @@ btnReplaceTrans.addEventListener('click', async () => {
 });
 
 // Speak translation
+let bubbleAudio = null;
 btnSpeakTrans.addEventListener('click', async () => {
   if (!currentTranslated) return;
+  if (bubbleAudio) {
+    bubbleAudio.pause();
+    bubbleAudio = null;
+    btnSpeakTrans.textContent = '🔊';
+    return;
+  }
+  btnSpeakTrans.textContent = '⏳';
   const isPersian = /[؀-ۿ]/.test(currentTranslated);
-  await window.api.speak(currentTranslated, isPersian ? 'fa' : 'en');
+  const lang = isPersian ? 'fa' : 'en';
+  try {
+    const res = await window.api.speak(currentTranslated, lang);
+    if (res && res.ok && res.audio) {
+      bubbleAudio = new Audio(`data:audio/mpeg;base64,${res.audio}`);
+      btnSpeakTrans.textContent = '⏹️';
+      bubbleAudio.onended = bubbleAudio.onerror = () => {
+        bubbleAudio = null;
+        btnSpeakTrans.textContent = '🔊';
+      };
+      await bubbleAudio.play();
+    } else {
+      btnSpeakTrans.textContent = '🔊';
+      const u = new SpeechSynthesisUtterance(currentTranslated);
+      u.lang = lang;
+      window.speechSynthesis.speak(u);
+    }
+  } catch (_) {
+    btnSpeakTrans.textContent = '🔊';
+  }
 });
 
 // Open in main island

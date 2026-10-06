@@ -24,6 +24,10 @@
       "src/**/*",
       "package.json"
     ],
+    "asarUnpack": [
+      "src/main/native/**/*",
+      "src/main/vbs/**/*"
+    ],
     "win": {
       "target": [
         {

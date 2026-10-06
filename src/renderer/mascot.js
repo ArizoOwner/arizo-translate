@@ -94,6 +94,17 @@
     if (!frame) frame = requestAnimationFrame(update);
   });
 
+  // Track cursor globally across entire screen even when mouse is outside the island window
+  if (window.api && typeof window.api.onGlobalMousePos === 'function') {
+    window.api.onGlobalMousePos((pos) => {
+      if (pos && typeof pos.x === 'number') {
+        mouseX = pos.x;
+        mouseY = pos.y;
+        if (!frame) frame = requestAnimationFrame(update);
+      }
+    });
+  }
+
   if (mascot) {
     mascot.addEventListener('mouseenter', () => {
       isHovered = true;

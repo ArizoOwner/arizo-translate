@@ -79,7 +79,7 @@ body {
 
 .island-card {
   width: 100%;
-  max-width: 726px;
+  max-width: 756px;
   background: var(--bg-island);
   border: 1px solid var(--border-island);
   border-radius: var(--radius-island);
@@ -365,7 +365,10 @@ body {
   border-bottom: 1px solid var(--border-card);
   background: rgba(255, 255, 255, 0.015);
   -webkit-app-region: drag; /* Easy drag to move */
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: nowrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header-start {
@@ -380,7 +383,7 @@ body {
 .header-end {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0 !important; /* Never push close/minimize out */
   margin-inline-start: auto;
   -webkit-app-region: no-drag; /* Buttons remain clickable */
@@ -466,6 +469,11 @@ body {
 }
 
 /* Tone Selector Pill */
+.tone-pill {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
 .tone-pill select {
   background: rgba(168, 85, 247, 0.12);
   border: 1px solid rgba(168, 85, 247, 0.25);
@@ -477,9 +485,14 @@ body {
   outline: none;
   cursor: pointer;
   transition: all 0.15s ease;
-  max-width: 105px;
+  max-width: 95px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.tone-pill select option {
+  background: #1e2230;
+  color: #fff;
 }
 
 .tone-pill select:hover {
@@ -500,6 +513,8 @@ body {
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.3px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .swap-icon-btn {
@@ -534,6 +549,8 @@ body {
   cursor: pointer;
   width: 28px;
   height: 28px;
+  min-width: 28px;
+  flex-shrink: 0 !important;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -544,6 +561,16 @@ body {
 .nav-btn:hover {
   background: rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
+}
+
+.nav-btn.active-pin {
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.16);
+}
+
+.nav-btn.active-pin:hover {
+  background: rgba(59, 130, 246, 0.28);
+  color: #93c5fd;
 }
 
 .close-btn:hover {
