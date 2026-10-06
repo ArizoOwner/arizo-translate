@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Translate</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background: transparent;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+    }
+
+    body.expanded {
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 0;
+    }
+
+    /* ----------------------------------------------------
+       STATE A: FLOATING BUBBLE BUTTON (COMPACT ICON)
+       ---------------------------------------------------- */
+    .bubble-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #111422;
+      border: 1.5px solid #a855f7;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75), 0 0 16px rgba(168, 85, 247, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .bubble-btn:hover {
+      transform: scale(1.08);
+      border-color: #c084fc;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85), 0 0 22px rgba(168, 85, 247, 0.75);
+    }
+
+    .bubble-icon {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: #c084fc;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 4px rgba(192, 132, 252, 0.6));
+    }
+
+    /* ----------------------------------------------------
+       STATE B: EXPANDED TRANSLATION POPOVER CARD
+       ---------------------------------------------------- */
+    .popover-card {
+      width: 320px;
+      background: #0d0f18;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), 0 0 24px rgba(99, 102, 241, 0.3);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      animation: popoverSlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.6); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes popoverSlideIn {
+      from { opacity: 0; transform: translateY(6px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .popover-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+    }
+
+    .lang-pill {
+      font-size: 11px;
+      font-weight: 700;
+      color: #93c5fd;
+      background: rgba(59, 130, 246, 0.15);
+      padding: 2px 8px;
+      border-radius: 12px;
+      letter-spacing: 0.3px;
+    }
+
+    .popover-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: none;
+      color: #cbd5e1;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: all 0.15s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .popover-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .source-preview {
+      font-size: 11px;
+      color: #94a3b8;
+      max-height: 38px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      direction: auto;
+      border-right: 2px solid rgba(168, 85, 247, 0.5);
+      padding-right: 6px;
+    }
+
+    .trans-result {
+      font-size: 13.5px;
+      color: #ffffff;
+      line-height: 1.5;
+      max-height: 110px;
+      overflow-y: auto;
+      direction: auto;
+      user-select: text;
+      -webkit-user-select: text;
+      padding: 4px 2px;
+    }
+
+    .popover-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #f1f5f9;
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .btn-action.primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+      border: none;
+      box-shadow: 0 3px 10px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn-action.primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .loading-pulse {
+      font-size: 12px;
+      color: #a78bfa;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FLOATING BUBBLE BUTTON (INITIAL STATE) -->
+  <div id="bubble-btn" class="bubble-btn" title="ترجمه متن انتخاب شده">
+    <svg class="bubble-icon" viewBox="0 0 24 24">
+      <path d="M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6"/>
+    </svg>
+  </div>
+
+  <!-- EXPANDED TRANSLATION CARD -->
+  <div id="popover-card" class="popover-card hidden">
+    <div class="popover-header">
+      <span id="lang-direction" class="lang-pill">AUTO → FA</span>
+      <div class="popover-actions">
+        <button id="btn-open-island" class="icon-btn" title="باز کردن در جزیره کامل">↗</button>
+        <button id="btn-close-popover" class="icon-btn" title="بستن">✕</button>
+      </div>
+    </div>
+
+    <div class="popover-body">
+      <div id="source-preview" class="source-preview"></div>
+      <div id="loading-state" class="loading-pulse hidden">
+        <span>✦ در حال ترجمه هوشمند...</span>
+      </div>
+      <div id="trans-result" class="trans-result"></div>
+    </div>
+
+    <div class="popover-footer">
+      <button id="btn-speak-trans" class="icon-btn" title="تلفظ صوتی">🔊</button>
+      <button id="btn-copy-trans" class="btn-action">📋 کپی</button>
+      <button id="btn-replace-trans" class="btn-action primary">⚡ جایگزینی در برنامه</button>
+    </div>
+  </div>
+
+  <script src="bubble.js"></script>
+</body>
+</html>

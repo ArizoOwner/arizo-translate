@@ -1,2 +1,8 @@
 node_modules/
 .aphra-translate/
+dist/
+release/
+build/
+*.exe
+*.zip
+*.blockmap

@@ -1,18 +1,59 @@
 {
   "name": "aphra-translate",
-  "version": "1.0.0",
-  "description": "Dynamic Island AI Translation Assistant for Windows inspired by Aphra",
+  "version": "2.0.0",
+  "description": "دستیار هوشمند ترجمه داینامیک آیلند برای ویندوز | Dynamic Island AI Translation Assistant for Windows",
+  "author": "AmirHossein (ArizoOwner)",
+  "license": "MIT",
   "main": "main.js",
   "scripts": {
-    "start": "cmd /c \"set ELECTRON_RUN_AS_NODE= && electron .\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cmd /c \"set ELECTRON_RUN_AS_NODE=&& electron .\"",
+    "test": "node --test test/*.test.js",
+    "prebuild": "node -e \"const fs=require('fs');const {iconPng}=require('./src/main/icon');fs.mkdirSync('./build',{recursive:true});const p=iconPng(256);fs.writeFileSync('./build/icon.png',p);const h=Buffer.alloc(6);h.writeUInt16LE(0,0);h.writeUInt16LE(1,2);h.writeUInt16LE(1,4);const d=Buffer.alloc(16);d.writeUInt8(0,0);d.writeUInt8(0,1);d.writeUInt8(0,2);d.writeUInt8(0,3);d.writeUInt16LE(1,4);d.writeUInt16LE(32,6);d.writeUInt32LE(p.length,8);d.writeUInt32LE(22,12);fs.writeFileSync('./build/icon.ico',Buffer.concat([h,d,p]));\"",
+    "build": "npm run prebuild && electron-builder --win",
+    "dist": "npm run prebuild && electron-builder --win portable nsis"
   },
-  "keywords": [],
-  "type": "commonjs",
+  "build": {
+    "appId": "com.arizo.aphra-translate",
+    "productName": "Aphra Translate",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Aphra Translate"
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}.${ext}"
+    }
+  },
   "devDependencies": {
-    "electron": "^44.5.1"
-  },
-  "dependencies": {
-    "axios": "^1.20.0"
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3"
   }
 }
