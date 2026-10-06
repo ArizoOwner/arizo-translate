@@ -120,7 +120,7 @@ switch ($Action) {
         } catch {
             $body = @{
                 tag_name = $Tag
-                target_commitish = "master"
+                target_commitish = "main"
                 name = "Aphra Translate v2.0.0 - Dynamic Island Windows Release"
                 body = @"
 ## 🌟 Aphra Translate v2.0.0 (Windows Release)
