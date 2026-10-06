@@ -20,12 +20,18 @@ class MouseMonitor {
       this.proc = spawn(
         'powershell.exe',
         ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', monitorScript],
-        { windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] }
+        { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] }
       );
     } catch (err) {
       console.warn('Mouse monitor could not start:', err.message);
       this.proc = null;
       return;
+    }
+
+    if (this.proc.stderr) {
+      this.proc.stderr.on('data', (d) => {
+        console.warn('Mouse monitor stderr:', d.toString().trim());
+      });
     }
 
     const rl = readline.createInterface({ input: this.proc.stdout });

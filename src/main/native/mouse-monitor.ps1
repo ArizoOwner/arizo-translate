@@ -1,11 +1,31 @@
 $ErrorActionPreference = 'Stop'
 
 # High-precision Win32 mouse monitor detecting text selection gestures and right-click release
-Add-Type -Namespace Win -Name MouseListener -MemberDefinition @'
-[DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey);
-[DllImport("user32.dll")] public static extern bool GetCursorPos(out POINT lpPoint);
-public struct POINT { public int X; public int Y; }
+$typeDef = @'
+using System;
+using System.Runtime.InteropServices;
+
+namespace WinMouse {
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT {
+        public int X;
+        public int Y;
+    }
+
+    public static class Listener {
+        [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey);
+        [DllImport("user32.dll")] public static extern bool GetCursorPos(out POINT lpPoint);
+
+        public static POINT GetPos() {
+            POINT pt;
+            GetCursorPos(out pt);
+            return pt;
+        }
+    }
+}
 '@
+
+Add-Type -TypeDefinition $typeDef
 
 $leftDown = $false
 $rightDown = $false
@@ -20,15 +40,14 @@ $lastUpTime = 0
 while ($true) {
     Start-Sleep -Milliseconds 25
 
-    $pt = New-Object Win.POINT
-    [Win.MouseListener]::GetCursorPos([ref]$pt) | Out-Null
+    $pt = [WinMouse.Listener]::GetPos()
 
     # 0x01 = VK_LBUTTON (Left Mouse Button)
-    $lState = [Win.MouseListener]::GetAsyncKeyState(1)
+    $lState = [WinMouse.Listener]::GetAsyncKeyState(1)
     $isLDown = ($lState -band 0x8000) -ne 0
 
     # 0x02 = VK_RBUTTON (Right Mouse Button)
-    $rState = [Win.MouseListener]::GetAsyncKeyState(2)
+    $rState = [WinMouse.Listener]::GetAsyncKeyState(2)
     $isRDown = ($rState -band 0x8000) -ne 0
 
     $now = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
@@ -46,8 +65,10 @@ while ($true) {
         $sinceLastUp = $now - $lastUpTime
         $lastUpTime = $now
 
-        # Selection detected: Dragged > 6px OR double-clicked (< 400ms interval)
-        if (($dx -gt 6 -or $dy -gt 6) -or ($sinceLastUp -lt 400)) {
+        $holdTime = $now - $downTime
+
+        # Selection detected: Dragged > 3px OR held down > 150ms with movement OR double-clicked (< 450ms)
+        if (($dx -gt 3 -or $dy -gt 3) -or ($holdTime -gt 150 -and ($dx -gt 2 -or $dy -gt 2)) -or ($sinceLastUp -lt 450)) {
             [Console]::Out.WriteLine('selection_made')
             [Console]::Out.Flush()
         } else {

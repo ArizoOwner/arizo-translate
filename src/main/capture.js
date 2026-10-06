@@ -189,7 +189,7 @@ async function waitForClipboardChange(sentinel, timeoutMs) {
   while (Date.now() - started < timeoutMs) {
     const text = await safeReadClipboardText();
     // Only return if text is a non-empty string DIFFERENT from the sentinel
-    if (text && text !== sentinel && !text.includes('__APHRA_SENTINEL_')) {
+    if (text && text !== sentinel && !text.includes('__ARIZO_SENTINEL_') && !text.includes('__APHRA_SENTINEL_')) {
       return text;
     }
     await sleep(15);
@@ -197,55 +197,63 @@ async function waitForClipboardChange(sentinel, timeoutMs) {
   return '';
 }
 
-let busy = false;
+let activeCapturePromise = null;
 
 /**
  * Capture currently selected text across any application in Windows.
  */
 async function captureSelectedText({ restore = true } = {}) {
-  if (busy) return '';
-  busy = true;
-  try {
-    const backup = await snapshotClipboard();
-
-    // A unique sentinel allows us to verify if the target application actually copied anything.
-    const sentinel = `__APHRA_SENTINEL_${Date.now()}_${Math.random().toString(36).slice(2, 7)}__`;
-    await safeWriteClipboardText(sentinel);
-
-    // Verify sentinel was successfully written to the clipboard
-    let verified = false;
-    for (let i = 0; i < 6; i++) {
-      const cur = await safeReadClipboardText();
-      if (cur === sentinel) {
-        verified = true;
-        break;
-      }
-      await sleep(15);
-    }
-
-    if (!verified) {
-      // Clipboard was locked by another process, abort safely
-      await restoreClipboard(backup);
-      return '';
-    }
-
-    await sendKeys('copy');
-    const captured = await waitForClipboardChange(sentinel, 320);
-
-    // If target app didn't copy anything, or if restore is requested, restore previous clipboard
-    if (restore || !captured) {
-      await restoreClipboard(backup);
-    }
-
-    // Safety guard: Never return the sentinel or sentinel fragments
-    if (!captured || captured === sentinel || captured.includes('__APHRA_SENTINEL_')) {
-      return '';
-    }
-
-    return captured.trim();
-  } finally {
-    busy = false;
+  if (activeCapturePromise) {
+    return activeCapturePromise;
   }
+
+  activeCapturePromise = (async () => {
+    try {
+      const backup = await snapshotClipboard();
+
+      // A unique sentinel allows us to verify if the target application actually copied anything.
+      const sentinel = `__ARIZO_SENTINEL_${Date.now()}_${Math.random().toString(36).slice(2, 7)}__`;
+      await safeWriteClipboardText(sentinel);
+
+      // Verify sentinel was successfully written to the clipboard
+      let verified = false;
+      for (let i = 0; i < 6; i++) {
+        const cur = await safeReadClipboardText();
+        if (cur === sentinel) {
+          verified = true;
+          break;
+        }
+        await sleep(15);
+      }
+
+      if (!verified) {
+        // Clipboard was locked by another process, abort safely
+        await restoreClipboard(backup);
+        return '';
+      }
+
+      await sendKeys('copy');
+      const captured = await waitForClipboardChange(sentinel, 320);
+
+      // If target app didn't copy anything, or if restore is requested, restore previous clipboard
+      if (restore || !captured) {
+        await restoreClipboard(backup);
+      }
+
+      // Safety guard: Never return the sentinel or sentinel fragments
+      if (!captured || captured === sentinel || captured.includes('__ARIZO_SENTINEL_') || captured.includes('__APHRA_SENTINEL_')) {
+        return '';
+      }
+
+      return captured.trim();
+    } catch (_) {
+      return '';
+    } finally {
+      activeCapturePromise = null;
+    }
+  })();
+
+  return activeCapturePromise;
 }
 
 /**

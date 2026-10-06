@@ -1,6 +1,7 @@
 delete process.env.ELECTRON_RUN_AS_NODE;
 const { app, BrowserWindow, globalShortcut, ipcMain, screen, Tray, Menu, nativeImage, clipboard, session } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const { initCapture, shutdownCapture, captureSelectedText, captureTextOrActiveInput, replaceSelectedText } = require('./src/main/capture');
 const { loadSettings, saveSettings, publicSettings, loadHistory, clearHistory, deleteHistoryItem, toggleFavoriteItem, addHistoryItem } = require('./src/main/store');
 const { mouseMonitor } = require('./src/main/mouse');
@@ -288,8 +289,23 @@ async function handleMouseSelectionEvent(eventType) {
   const settings = loadSettings();
   if (settings.showFloatingBubble === false) return;
 
-  // Don't trigger if the island is open and focused
-  if (mainWindow && mainWindow.isVisible() && mainWindow.isFocused()) return;
+  // Don't trigger if cursor is inside the island window itself
+  if (mainWindow && mainWindow.isVisible()) {
+    const cursor = screen.getCursorScreenPoint();
+    const b = mainWindow.getBounds();
+    if (cursor.x >= b.x && cursor.x <= b.x + b.width && cursor.y >= b.y && cursor.y <= b.y + b.height) {
+      return;
+    }
+  }
+
+  // Don't trigger if cursor is inside the floating bubble window itself
+  if (bubbleWindow && bubbleWindow.isVisible()) {
+    const cursor = screen.getCursorScreenPoint();
+    const b = bubbleWindow.getBounds();
+    if (cursor.x >= b.x && cursor.x <= b.x + b.width && cursor.y >= b.y && cursor.y <= b.y + b.height) {
+      return;
+    }
+  }
 
   if (eventType === 'selection_made') {
     // User just completed a mouse selection (drag release or double-click)
@@ -308,6 +324,14 @@ async function handleMouseSelectionEvent(eventType) {
   }
 
   if (eventType === 'left_clicked') {
+    // If bubble is visible and user clicked outside, hide it
+    if (bubbleWindow && bubbleWindow.isVisible()) {
+      const cursor = screen.getCursorScreenPoint();
+      const b = bubbleWindow.getBounds();
+      if (!(cursor.x >= b.x && cursor.x <= b.x + b.width && cursor.y >= b.y && cursor.y <= b.y + b.height)) {
+        bubbleWindow.hide();
+      }
+    }
     // Normal single-click on empty space: clear cached selection
     cachedSelectedText = '';
     return;
@@ -627,7 +651,9 @@ ipcMain.on('set-bubble-size', (event, { width, height }) => {
   if (y < wa.y) y = wa.y + 8;
 
   bubbleWindow.setBounds({ x, y, width: w, height: h });
-  bubbleWindow.focus();
+  if (w > 60 || h > 60) {
+    bubbleWindow.focus();
+  }
 });
 
 ipcMain.handle('replace-bubble-text', async (event, text) => {
