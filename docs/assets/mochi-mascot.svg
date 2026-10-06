@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320">
+  <defs>
+    <!-- Mascot Ambient Aura -->
+    <radialGradient id="mochiAura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.45" />
+      <stop offset="60%" stop-color="#6366f1" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#4338ca" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Mochi 3D Spherical Body Gradient -->
+    <radialGradient id="mochiSkin" cx="34%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#d8b4fe" />
+      <stop offset="28%" stop-color="#a855f7" />
+      <stop offset="68%" stop-color="#6366f1" />
+      <stop offset="95%" stop-color="#3730a3" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </radialGradient>
+
+    <!-- Glossy Highlight -->
+    <linearGradient id="mochiGloss" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.65" />
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Cheeks Blush -->
+    <radialGradient id="blushGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.65" />
+      <stop offset="100%" stop-color="#f43f5e" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Eye Sclera Gradient -->
+    <linearGradient id="scleraGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e2e8f0" />
+    </linearGradient>
+
+    <!-- Eye Pupil Dark Gradient -->
+    <radialGradient id="pupilGrad" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#1e1b4b" />
+      <stop offset="80%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#020617" />
+    </radialGradient>
+
+    <filter id="mascotGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <style>
+      /* Idle Floating / Breathing Animation */
+      @keyframes floatBob {
+        0%, 100% { transform: translateY(0px) scale(1, 1); }
+        50% { transform: translateY(-8px) scale(1.02, 0.98); }
+      }
+
+      /* Eye Tracking Animation (Look Left, Center, Right, Glancing) */
+      @keyframes trackPupilLeft {
+        0%, 10% { transform: translate(0px, 0px); }
+        20%, 35% { transform: translate(-8px, -2px); }
+        45%, 55% { transform: translate(0px, 0px); }
+        65%, 80% { transform: translate(8px, 1px); }
+        90%, 100% { transform: translate(0px, 0px); }
+      }
+
+      @keyframes trackPupilRight {
+        0%, 10% { transform: translate(0px, 0px); }
+        20%, 35% { transform: translate(-8px, -2px); }
+        45%, 55% { transform: translate(0px, 0px); }
+        65%, 80% { transform: translate(8px, 1px); }
+        90%, 100% { transform: translate(0px, 0px); }
+      }
+
+      /* Natural Blinking Animation */
+      @keyframes blinkLid {
+        0%, 92%, 100% { transform: scaleY(0); }
+        95% { transform: scaleY(1); }
+      }
+
+      /* Cheerful Mouth Reactive Pulse */
+      @keyframes smileBob {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.15, 0.9); }
+      }
+
+      .floating-body {
+        animation: floatBob 3.6s ease-in-out infinite;
+        transform-origin: 160px 170px;
+      }
+
+      .pupil-l {
+        animation: trackPupilLeft 7s ease-in-out infinite;
+      }
+
+      .pupil-r {
+        animation: trackPupilRight 7s ease-in-out infinite;
+      }
+
+      .eyelid-l, .eyelid-r {
+        animation: blinkLid 4.5s ease-in-out infinite;
+        transform-origin: center;
+      }
+
+      .smile-mouth {
+        animation: smileBob 3.6s ease-in-out infinite;
+        transform-origin: 160px 186px;
+      }
+    </style>
+  </defs>
+
+  <!-- Ambient Glow Behind Mochi -->
+  <circle cx="160" cy="160" r="140" fill="url(#mochiAura)" />
+
+  <!-- Animated Character Root -->
+  <g class="floating-body">
+    <!-- Main Body Sphere -->
+    <circle cx="160" cy="160" r="110" fill="url(#mochiSkin)" filter="url(#mascotGlow)" />
+
+    <!-- Cute Outer Rim Light Stroke -->
+    <circle cx="160" cy="160" r="109.5" fill="none" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2.5" />
+
+    <!-- Glossy Highlight Arch -->
+    <path d="M 85,120 Q 160,82 235,120 Q 160,105 85,120 Z" fill="url(#mochiGloss)" />
+    <ellipse cx="120" cy="100" rx="36" ry="16" transform="rotate(-24 120 100)" fill="rgba(255, 255, 255, 0.4)" />
+
+    <!-- Blush Cheeks -->
+    <ellipse cx="98" cy="182" rx="20" ry="12" fill="url(#blushGrad)" />
+    <ellipse cx="222" cy="182" rx="20" ry="12" fill="url(#blushGrad)" />
+
+    <!-- LEFT EYE -->
+    <g transform="translate(112, 148)">
+      <!-- Sclera -->
+      <ellipse cx="0" cy="0" rx="24" ry="29" fill="url(#scleraGrad)" stroke="#1e1b4b" stroke-width="2" />
+
+      <!-- Pupil with Animations -->
+      <g class="pupil-l">
+        <ellipse cx="0" cy="0" rx="15" ry="19" fill="url(#pupilGrad)" />
+        <!-- Iris Color Ring -->
+        <ellipse cx="0" cy="0" rx="12" ry="15" fill="none" stroke="#818cf8" stroke-width="2" opacity="0.6" />
+        <!-- Primary Bright Glint -->
+        <circle cx="-5" cy="-6" r="5.5" fill="#ffffff" />
+        <!-- Secondary Tiny Glint -->
+        <circle cx="5" cy="5" r="2.8" fill="#ffffff" opacity="0.85" />
+      </g>
+
+      <!-- Blinking Eyelid Cover -->
+      <g class="eyelid-l">
+        <path d="M -25,-32 Q 0,-34 25,-32 L 25,32 Q 0,34 -25,32 Z" fill="#9333ea" />
+        <!-- Eyelash Line -->
+        <path d="M -24,0 Q 0,2 24,0" fill="none" stroke="#312e81" stroke-width="3" stroke-linecap="round" />
+      </g>
+    </g>
+
+    <!-- RIGHT EYE -->
+    <g transform="translate(208, 148)">
+      <!-- Sclera -->
+      <ellipse cx="0" cy="0" rx="24" ry="29" fill="url(#scleraGrad)" stroke="#1e1b4b" stroke-width="2" />
+
+      <!-- Pupil with Animations -->
+      <g class="pupil-r">
+        <ellipse cx="0" cy="0" rx="15" ry="19" fill="url(#pupilGrad)" />
+        <!-- Iris Color Ring -->
+        <ellipse cx="0" cy="0" rx="12" ry="15" fill="none" stroke="#818cf8" stroke-width="2" opacity="0.6" />
+        <!-- Primary Bright Glint -->
+        <circle cx="-5" cy="-6" r="5.5" fill="#ffffff" />
+        <!-- Secondary Tiny Glint -->
+        <circle cx="5" cy="5" r="2.8" fill="#ffffff" opacity="0.85" />
+      </g>
+
+      <!-- Blinking Eyelid Cover -->
+      <g class="eyelid-r">
+        <path d="M -25,-32 Q 0,-34 25,-32 L 25,32 Q 0,34 -25,32 Z" fill="#9333ea" />
+        <!-- Eyelash Line -->
+        <path d="M -24,0 Q 0,2 24,0" fill="none" stroke="#312e81" stroke-width="3" stroke-linecap="round" />
+      </g>
+    </g>
+
+    <!-- Mochi's Cute Smile Mouth -->
+    <g class="smile-mouth">
+      <!-- Open Smile with Tongue -->
+      <path d="M 145,182 Q 160,202 175,182 Q 160,188 145,182 Z" fill="#e11d48" stroke="#1e1b4b" stroke-width="2" stroke-linejoin="round" />
+      <path d="M 152,192 Q 160,186 168,192" fill="#fda4af" />
+    </g>
+
+    <!-- Cute Sparkles on Top -->
+    <g transform="translate(254, 76)">
+      <path d="M 0,-10 Q 0,0 10,0 Q 0,0 0,10 Q 0,0 -10,0 Q 0,0 0,-10 Z" fill="#fde047" opacity="0.85">
+        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="8s" repeatCount="indefinite" />
+      </path>
+    </g>
+    <g transform="translate(62, 88)">
+      <path d="M 0,-6 Q 0,0 6,0 Q 0,0 0,6 Q 0,0 -6,0 Q 0,0 0,-6 Z" fill="#38bdf8" opacity="0.75">
+        <animateTransform attributeName="transform" type="rotate" from="360" to="0" dur="6s" repeatCount="indefinite" />
+      </path>
+    </g>
+  </g>
+</svg>

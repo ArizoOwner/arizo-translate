@@ -16,6 +16,8 @@ const configFile = path.join(configDir, 'config.json');
 const historyFile = path.join(configDir, 'history.json');
 
 const defaultSettings = {
+  theme: 'dark', // 'dark' | 'light' | 'system'
+  appLanguage: 'fa', // 'fa' | 'en'
   hotkey: 'Alt+D',
   inlineHotkey: 'Alt+Shift+D', // In-place translate shortcut anywhere (Telegram, Notepad, etc.)
   showFloatingBubble: true, // Floating quick-translate button near mouse cursor
@@ -39,6 +41,8 @@ const defaultSettings = {
 
 const ENGINES = new Set(['google', 'aphra']);
 const TONE_IDS = new Set(['auto', 'formal', 'colloquial', 'technical', 'literary']);
+const THEMES = new Set(['dark', 'light', 'system']);
+const APP_LANGS = new Set(['fa', 'en']);
 
 let settingsCache = null;
 let historyCache = null;
@@ -108,6 +112,8 @@ function mergeSettings(base, incoming = {}) {
   const a = incoming.aphra || {};
   const limit = Number(incoming.historyLimit);
   return {
+    theme: THEMES.has(incoming.theme) ? incoming.theme : (base.theme || 'dark'),
+    appLanguage: APP_LANGS.has(incoming.appLanguage) ? incoming.appLanguage : (base.appLanguage || 'fa'),
     hotkey: pickString(incoming.hotkey, base.hotkey, 60) || base.hotkey,
     inlineHotkey: pickString(incoming.inlineHotkey, base.inlineHotkey || 'Alt+Shift+D', 60) || (base.inlineHotkey || 'Alt+Shift+D'),
     showFloatingBubble: pickBool(incoming.showFloatingBubble, base.showFloatingBubble !== false),

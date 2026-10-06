@@ -13,6 +13,7 @@
   };
 
   const f = {
+    theme: $('setting-theme'), appLang: $('setting-app-lang'),
     hotkey: $('setting-hotkey'), inlineHotkey: $('setting-inline-hotkey'),
     showFloatingBubble: $('setting-show-floating-bubble'),
     native: $('setting-native-lang'), second: $('setting-second-lang'),
@@ -60,6 +61,8 @@
   function populateSettings() {
     const s = state.settings;
     const a = s.aphra || {};
+    if (f.theme) f.theme.value = s.theme || 'dark';
+    if (f.appLang) f.appLang.value = s.appLanguage || 'fa';
     f.hotkey.value = s.hotkey || 'Alt+D';
     if (f.inlineHotkey) f.inlineHotkey.value = s.inlineHotkey || 'Alt+Shift+D';
     if (f.showFloatingBubble) f.showFloatingBubble.checked = s.showFloatingBubble !== false;
@@ -103,6 +106,17 @@
   el.gotoSettings.addEventListener('click', openSettings);
   $('btn-close-settings').addEventListener('click', () => closeModal(el.settingsModal));
 
+  if (f.theme) {
+    f.theme.addEventListener('change', () => {
+      if (window.I18n) window.I18n.applyTheme(f.theme.value);
+    });
+  }
+  if (f.appLang) {
+    f.appLang.addEventListener('change', () => {
+      if (window.I18n) window.I18n.applyLanguage(f.appLang.value);
+    });
+  }
+
   f.preset.addEventListener('change', () => {
     const p = PROVIDERS[f.preset.value];
     if (!p) return;
@@ -141,6 +155,8 @@
   f.save.addEventListener('click', async () => {
     const engine = [...document.getElementsByName('setting-engine')].find((r) => r.checked);
     const settings = {
+      theme: f.theme ? f.theme.value : 'dark',
+      appLanguage: f.appLang ? f.appLang.value : 'fa',
       hotkey: f.hotkey.value.trim(),
       inlineHotkey: f.inlineHotkey ? f.inlineHotkey.value.trim() : 'Alt+Shift+D',
       showFloatingBubble: f.showFloatingBubble ? f.showFloatingBubble.checked : true,
@@ -165,6 +181,10 @@
 
     state.settings = res.settings;
     state.engine = res.settings.defaultEngine;
+    if (window.I18n) {
+      window.I18n.applyTheme(res.settings.theme || 'dark');
+      window.I18n.applyLanguage(res.settings.appLanguage || 'fa');
+    }
     window.App.updateEngineUI();
     window.App.refreshCompactPreview();
     closeModal(el.settingsModal);

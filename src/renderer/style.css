@@ -14,11 +14,14 @@
 }
 
 :root {
-  /* Surface & Solid Minimal Theme - 100% Opaque Matte (No background bleed-through) */
+  /* DARK THEME (DEFAULT) */
   --bg-island: #0c0e17;
   --bg-card: #141724;
   --bg-card-hover: #1b1e2e;
   --bg-input: #10121d;
+  --bg-modal: #0c0e17;
+  --bg-modal-item: rgba(255, 255, 255, 0.04);
+  --bg-modal-item-hover: rgba(255, 255, 255, 0.08);
   --border-island: rgba(255, 255, 255, 0.1);
   --border-card: rgba(255, 255, 255, 0.07);
   --border-highlight: rgba(255, 255, 255, 0.16);
@@ -42,8 +45,33 @@
   --radius-island: 26px;
   --radius-card: 16px;
   --radius-pill: 9999px;
-  --shadow-island: 0 24px 60px -10px rgba(0, 0, 0, 0.78), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  --shadow-card: 0 4px 16px -2px rgba(0, 0, 0, 0.3);
+  --shadow-island: none;
+  --shadow-card: none;
+}
+
+[data-theme="light"] {
+  /* LIGHT THEME - CRISP, HIGH CONTRAST, MODERN MATTE */
+  --bg-island: #ffffff;
+  --bg-card: #f8fafc;
+  --bg-card-hover: #f1f5f9;
+  --bg-input: #f8fafc;
+  --bg-modal: #ffffff;
+  --bg-modal-item: #f1f5f9;
+  --bg-modal-item-hover: #e2e8f0;
+  --border-island: #cbd5e1;
+  --border-card: #e2e8f0;
+  --border-highlight: #94a3b8;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+
+  --accent-blue: #2563eb;
+  --accent-indigo: #4f46e5;
+  --accent-purple: #9333ea;
+  --accent-emerald: #059669;
+  --accent-amber: #d97706;
+  --accent-rose: #e11d48;
 }
 
 * {
@@ -55,13 +83,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
+html, body {
   width: 100vw;
   height: 100vh;
   margin: 0;
   padding: 12px;
   overflow: hidden;
-  background: transparent;
+  background: transparent !important;
+  box-shadow: none !important;
   font-family: var(--font-fa);
   color: var(--text-primary);
   display: flex;
@@ -69,10 +98,13 @@ body {
   align-items: flex-start;
 }
 
+html[dir="ltr"] body {
+  font-family: var(--font-en);
+}
+
 /* ========================================================
    DYNAMIC ISLAND CONTAINER
    ======================================================== */
-/* Ambient Aura Glow behind Island - disabled for clean solid look */
 .island-ambient-aura {
   display: none !important;
 }
@@ -83,13 +115,13 @@ body {
   background: var(--bg-island);
   border: 1px solid var(--border-island);
   border-radius: var(--radius-island);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  box-shadow: none !important; /* Zero rectangular shadow behind island */
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
   z-index: 1;
-  transition: height 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: height 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease;
   animation: islandEntry 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1740,4 +1772,209 @@ textarea#input-text:focus-visible, .sleek-input:focus-visible, .sleek-search-inp
   color: #f59e0b;
   text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
 }
+
+/* ========================================================
+   LIGHT THEME ELEMENT REFINEMENTS & HIGH-CONTRAST MATTE
+   ======================================================== */
+[data-theme="light"] .island-card {
+  background: var(--bg-island);
+  border: 1px solid var(--border-island);
+  box-shadow: none !important;
+}
+
+[data-theme="light"] .segmented-control {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .segment-btn {
+  color: #64748b;
+}
+
+[data-theme="light"] .segment-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .lang-pill {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .lang-select {
+  color: #334155;
+}
+
+[data-theme="light"] .lang-select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+[data-theme="light"] .input-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] textarea#input-text {
+  color: #0f172a;
+}
+
+[data-theme="light"] textarea#input-text::placeholder {
+  color: #94a3b8;
+}
+
+[data-theme="light"] .output-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .output-content {
+  color: #0f172a;
+}
+
+[data-theme="light"] .output-empty-hint {
+  color: #64748b;
+}
+
+[data-theme="light"] .nav-btn {
+  color: #64748b;
+}
+
+[data-theme="light"] .nav-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+[data-theme="light"] .modal-sheet {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .sleek-input,
+[data-theme="light"] .sleek-select,
+[data-theme="light"] .sleek-search-input {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+[data-theme="light"] .sleek-select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+[data-theme="light"] .engine-choice-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .engine-choice-card:hover {
+  background: #f1f5f9;
+}
+
+[data-theme="light"] .history-card-item {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .history-card-item:hover {
+  background: #f1f5f9;
+}
+
+[data-theme="light"] .history-card-query {
+  color: #2563eb;
+}
+
+[data-theme="light"] .history-card-trans {
+  color: #0f172a;
+}
+
+[data-theme="light"] .dict-section {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .dict-term-pill {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+[data-theme="light"] .shortcut-tag {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+[data-theme="light"] .shortcut-tag kbd {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+[data-theme="light"] .input-tool-pill {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+[data-theme="light"] .input-tool-pill:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+[data-theme="light"] .alt-chip {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #334155;
+}
+
+[data-theme="light"] .modal-item-btn {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .modal-backdrop {
+  background: rgba(15, 23, 42, 0.4);
+}
+
+[data-theme="light"] .secondary-btn,
+[data-theme="light"] .text-action {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+[data-theme="light"] .secondary-btn:hover,
+[data-theme="light"] .text-action:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* ========================================================
+   INTERNATIONALIZATION & LTR / RTL RULES
+   ======================================================== */
+[dir="ltr"] {
+  font-family: var(--font-en);
+}
+
+[dir="ltr"] .modal-title-group h1,
+[dir="ltr"] .setting-text label,
+[dir="ltr"] .choice-title strong,
+[dir="ltr"] .action-btn {
+  font-family: var(--font-en);
+}
+
+[dir="ltr"] .header-actions {
+  flex-direction: row;
+}
+
+[dir="ltr"] .shortcut-pills {
+  direction: ltr;
+}
+
+[dir="ltr"] .footer-buttons {
+  flex-direction: row;
+}
+
 

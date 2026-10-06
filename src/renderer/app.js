@@ -691,6 +691,10 @@
   api.onToast((m) => showToast(m, 4500));
   api.onSettingsChanged((s) => {
     state.settings = s;
+    if (window.I18n) {
+      if (s.theme) window.I18n.applyTheme(s.theme);
+      if (s.appLanguage) window.I18n.applyLanguage(s.appLanguage);
+    }
     refreshCompactPreview();
   });
 
@@ -712,6 +716,10 @@
   async function init() {
     [state.settings, state.languages] = await Promise.all([api.getSettings(), api.getLanguages()]);
     state.engine = state.settings.defaultEngine || 'google';
+    if (window.I18n) {
+      window.I18n.applyTheme(state.settings.theme || 'dark');
+      window.I18n.applyLanguage(state.settings.appLanguage || 'fa');
+    }
     el.tone.value = state.settings.aphra.tone || 'auto';
     fillTargetSelect();
     updateEngineUI();

@@ -9,9 +9,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- AMBIENT AURA GLOW BEHIND ISLAND -->
-  <div class="island-ambient-aura" id="ambient-aura"></div>
-
   <div id="island-container" class="island-card">
 
     <!-- HEADER / DRAG BAR -->
@@ -244,6 +241,30 @@
         </div>
 
         <div class="modal-scroll-body">
+          <!-- THEME AND LANGUAGE -->
+          <div class="setting-item">
+            <div class="setting-text">
+              <label for="setting-theme" data-i18n="settingThemeLabel">تم ظاهری برنامه</label>
+              <span data-i18n="settingThemeDesc">انتخاب حالت تیره، روشن یا هماهنگ با ویندوز</span>
+            </div>
+            <select id="setting-theme" class="sleek-select">
+              <option value="dark" data-i18n="themeDark">تاریک (Dark)</option>
+              <option value="light" data-i18n="themeLight">روشن (Light)</option>
+              <option value="system" data-i18n="themeSystem">پیروی از سیستم (System)</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-text">
+              <label for="setting-app-lang" data-i18n="settingAppLangLabel">زبان رابط کاربری</label>
+              <span data-i18n="settingAppLangDesc">تغییر زبان منوها و بخش‌های مختلف برنامه</span>
+            </div>
+            <select id="setting-app-lang" class="sleek-select">
+              <option value="fa" data-i18n="langFa">فارسی (Persian)</option>
+              <option value="en" data-i18n="langEn">English (انگلیسی)</option>
+            </select>
+          </div>
+
           <!-- HOTKEY -->
           <div class="setting-item">
             <div class="setting-text">
@@ -488,6 +509,7 @@
 
   </div>
 
+  <script src="i18n.js"></script>
   <script src="mascot.js"></script>
   <script src="hotkey.js"></script>
   <script src="app.js"></script>
