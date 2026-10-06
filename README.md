@@ -112,7 +112,7 @@ Arizo Translate supports full bilingual UI localization:
 | **✦ Arizo AI (Aphra)** | Agentic multi-step reasoning (Analyze → Context → Translate → Critique → Refine), cultural nuance breakdown, tone adjustment. | Literary texts, slang, idioms, software code, formal emails. |
 
 ### Supported AI Providers
-- **Google Gemini** (`gemini-3.8-flash`, `gemini-2.5-flash`, `gemini-3.8-pro`)
+- **Google Gemini** (`gemini-3.8-flash`, `gemini-3.8-pro`, `gemini-3.5-flash`)
 - **DeepSeek** (`deepseek-chat`)
 - **OpenRouter** (All top models)
 - **Groq** (`llama-3.3-70b-versatile`, `llama-3.1-8b-instant`)

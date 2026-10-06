@@ -70,6 +70,15 @@ switch ($Action) {
         Write-Host "Organizations: $(($orgs.login) -join ', ')"
     }
 
+    "list-assets" {
+        $user = Invoke-RestMethod -Uri "https://api.github.com/user" -Headers $headers -Method Get
+        $owner = $user.login
+        $repoUrl = "https://api.github.com/repos/$owner/$RepoName/releases/tags/$Tag"
+        $rel = Invoke-RestMethod -Uri $repoUrl -Headers $headers -Method Get
+        Write-Host "Release: $($rel.name) (Tag: $($rel.tag_name))"
+        $rel.assets | Select-Object id, name, size, state, updated_at | Format-Table -AutoSize
+    }
+
     "create-repo" {
         $user = Invoke-RestMethod -Uri "https://api.github.com/user" -Headers $headers -Method Get
         $owner = $user.login
@@ -155,7 +164,8 @@ switch ($Action) {
 
             foreach ($file in $files) {
                 $assetName = $file.Name
-                $uploadUrl = "https://uploads.github.com/repos/$owner/$RepoName/releases/$($rel.id)/assets?name=$assetName"
+                $encodedName = [Uri]::EscapeDataString($assetName)
+                $uploadUrl = "https://uploads.github.com/repos/$owner/$RepoName/releases/$($rel.id)/assets?name=$encodedName"
 
                 # Check if asset already exists on release
                 $currentRel = Invoke-RestMethod -Uri "$repoUrl/tags/$Tag" -Headers $headers -Method Get
@@ -182,18 +192,29 @@ switch ($Action) {
                 for ($attempt = 1; $attempt -le 4; $attempt++) {
                     Write-Host "Uploading asset via stream: $assetName ($([math]::Round($file.Length / 1MB, 2)) MB) [Attempt $attempt]..."
 
-                    # Use curl.exe if available for robust large binary streaming
-                    $curlResult = & curl.exe -s -w "%{http_code}" -X POST "$uploadUrl" `
-                        -H "Authorization: Bearer $token" `
-                        -H "User-Agent: Arizo-Deployer" `
-                        -H "Accept: application/vnd.github+json" `
-                        -H "Content-Type: application/octet-stream" `
-                        --data-binary "@$($file.FullName)"
+                    # Copy to ASCII temp path so native Windows curl does not encounter Unicode path issues
+                    $tempAscii = Join-Path $env:TEMP "gh_asset_upload.exe"
+                    Copy-Item $file.FullName $tempAscii -Force
 
-                    if ($curlResult -match '^(200|201)') {
+                    $curlResult = ""
+                    try {
+                        $curlResult = (& curl.exe -s -L -o $null -w "%{http_code}" -X POST "$uploadUrl" `
+                            -H "Authorization: Bearer $token" `
+                            -H "User-Agent: Arizo-Deployer" `
+                            -H "Accept: application/vnd.github+json" `
+                            -H "Content-Type: application/octet-stream" `
+                            -H "Expect:" `
+                            --data-binary "@$tempAscii").Trim()
+                    } finally {
+                        if (Test-Path $tempAscii) { Remove-Item $tempAscii -Force -ErrorAction SilentlyContinue }
+                    }
+
+                    if ($curlResult -match '"state"\s*:\s*"uploaded"' -or $curlResult -match '^(200|201)$') {
                         Write-Host "Uploaded successfully via curl: $assetName"
                         $uploadedSuccessfully = $true
                         break
+                    } else {
+                        Write-Host "curl upload returned: $($curlResult.Substring(0, [Math]::Min(120, $curlResult.Length)))"
                     }
 
                     # Fallback to .NET HttpClient with explicit ContentLength

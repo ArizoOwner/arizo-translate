@@ -283,10 +283,10 @@ function normalizeModel(model, baseUrl) {
   let m = (model || DEFAULT_MODEL).trim().replace(/^models\//i, '');
   const isGemini = /generativelanguage\.googleapis\.com/i.test(baseUrl) || /^gemini/i.test(m);
   if (isGemini) {
-    // gemini-1.5-pro is retired from generateContent on many keys and throws 404.
-    // Seamlessly map it to the active, high-quota gemini-2.5-flash.
-    if (/gemini-1\.5-pro/i.test(m) || !m || m === 'gemini') {
-      return 'gemini-2.5-flash';
+    // Older generations (gemini-1.x, gemini-2.x) are retired/deprecated by Google.
+    // Seamlessly map them to the active, high-quota gemini-3.8-flash.
+    if (/gemini-(?:1\.[0-9]+|2\.[0-9]+)-(?:pro|flash)/i.test(m) || /gemini-1\.[0-9]+/i.test(m) || /gemini-2\.[0-9]+/i.test(m) || !m || m === 'gemini') {
+      return 'gemini-3.8-flash';
     }
   }
   return m;
@@ -423,13 +423,13 @@ function getCandidateModels(baseUrl, model) {
   const cleanModel = normalizeModel(model, normalizedUrl);
   const isGemini = /generativelanguage\.googleapis\.com/i.test(normalizedUrl) || /^gemini/i.test(cleanModel);
   if (isGemini) {
-    // Official active models on Google Gemini v1beta (gemini-1.5-pro retired/unsupported):
-    const geminiFamily = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro'];
+    // Official active models on Google Gemini v1beta:
+    const geminiFamily = ['gemini-3.8-flash', 'gemini-3.8-pro', 'gemini-3.5-flash', 'gemini-3-flash'];
     return [...new Set([cleanModel, ...geminiFamily].filter(Boolean))];
   }
   const isOpenRouter = /openrouter\.ai/i.test(normalizedUrl);
   if (isOpenRouter) {
-    const orFamily = ['deepseek/deepseek-chat', 'google/gemini-2.5-flash', 'openai/gpt-4o-mini', 'meta-llama/llama-3.3-70b-instruct'];
+    const orFamily = ['deepseek/deepseek-chat', 'google/gemini-3.8-flash', 'openai/gpt-4o-mini', 'meta-llama/llama-3.3-70b-instruct'];
     return [...new Set([cleanModel, ...orFamily].filter(Boolean))];
   }
   return [cleanModel || model];

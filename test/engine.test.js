@@ -107,17 +107,20 @@ test('normalizeBaseUrl maps any Gemini endpoint variations to /v1beta/openai', (
 });
 
 test('normalizeModel strips models/ prefix and maps retired models', () => {
-  assert.equal(normalizeModel('models/gemini-2.5-flash', 'gemini'), 'gemini-2.5-flash');
-  assert.equal(normalizeModel('gemini-1.5-pro', 'gemini'), 'gemini-2.5-flash');
-  assert.equal(normalizeModel('models/gemini-1.5-pro', 'https://generativelanguage.googleapis.com/v1'), 'gemini-2.5-flash');
+  assert.equal(normalizeModel('models/gemini-3.8-flash', 'gemini'), 'gemini-3.8-flash');
+  assert.equal(normalizeModel('gemini-2.5-flash', 'gemini'), 'gemini-3.8-flash');
+  assert.equal(normalizeModel('gemini-2.0-flash', 'gemini'), 'gemini-3.8-flash');
+  assert.equal(normalizeModel('gemini-1.5-pro', 'gemini'), 'gemini-3.8-flash');
+  assert.equal(normalizeModel('models/gemini-1.5-pro', 'https://generativelanguage.googleapis.com/v1'), 'gemini-3.8-flash');
+  assert.equal(normalizeModel('gemini', 'gemini'), 'gemini-3.8-flash');
   assert.equal(normalizeModel('deepseek/deepseek-chat', 'https://openrouter.ai/api/v1'), 'deepseek/deepseek-chat');
 });
 
-test('getCandidateModels provides active Gemini family and excludes gemini-1.5-pro', () => {
-  const models = getCandidateModels('https://generativelanguage.googleapis.com/v1', 'gemini-1.5-pro');
+test('getCandidateModels provides active Gemini family and excludes retired models', () => {
+  const models = getCandidateModels('https://generativelanguage.googleapis.com/v1', 'gemini-2.5-flash');
   assert.ok(!models.includes('gemini-1.5-pro'), 'should not include retired gemini-1.5-pro');
-  assert.ok(models.includes('gemini-2.5-flash'), 'should include gemini-2.5-flash');
-  assert.ok(models.includes('gemini-2.0-flash'), 'should include gemini-2.0-flash');
-  assert.ok(models.includes('gemini-1.5-flash'), 'should include gemini-1.5-flash');
-  assert.ok(models.includes('gemini-2.5-pro'), 'should include gemini-2.5-pro');
+  assert.ok(!models.includes('gemini-2.5-flash'), 'should not include retired gemini-2.5-flash');
+  assert.ok(models.includes('gemini-3.8-flash'), 'should include gemini-3.8-flash');
+  assert.ok(models.includes('gemini-3.8-pro'), 'should include gemini-3.8-pro');
+  assert.ok(models.includes('gemini-3.5-flash'), 'should include gemini-3.5-flash');
 });

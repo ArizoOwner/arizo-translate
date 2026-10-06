@@ -112,7 +112,7 @@
 | **✦ هوش مصنوعی آریزو (Aphra AI)** | تحلیل چندمرحله‌ای عامل‌محور، درک کنایه‌ها و اصطلاحات، قابلیت تنظیم لحن (رسمی، محاوره‌ای، ادبی، تخصصی). | مقالات، کنایه‌ها و اصطلاحات، کدهای برنامه‌نویسی، ایمیل‌های کاری. |
 
 ### ارائه‌دهندگان هوش مصنوعی پشتیبانی‌شده
-- **Google Gemini** (`gemini-3.8-flash`, `gemini-2.5-flash`, `gemini-3.8-pro`)
+- **Google Gemini** (`gemini-3.8-flash`, `gemini-3.8-pro`, `gemini-3.5-flash`)
 - **DeepSeek** (`deepseek-chat`)
 - **OpenRouter** (تمام مدل‌های مطرح روز)
 - **Groq** (`llama-3.3-70b-versatile`, `llama-3.1-8b-instant`)
