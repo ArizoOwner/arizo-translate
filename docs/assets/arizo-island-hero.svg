@@ -155,7 +155,7 @@
       <text x="682" y="86" font-family="'Vazirmatn', Tahoma, sans-serif" font-weight="400" font-size="14" fill="#cbd5e1" text-anchor="end" dir="rtl">
         هر متنی رو در یک چشم به هم زدن مستقیماً داخل همون برنامه‌ای که هستی ترجمه کن!
       </text>
-      <!-- Quick audio & copy icon pills inside target -->
+      <!-- Quick audio and copy icon pills inside target -->
       <g transform="translate(18, 72)">
         <rect width="66" height="26" rx="13" fill="rgba(255,255,255,0.06)" />
         <text x="33" y="18" font-family="sans-serif" font-size="12" fill="#cbd5e1" text-anchor="middle">🔊 پخش</text>
@@ -174,7 +174,7 @@
         <rect x="0" y="0" width="110" height="34" rx="10" fill="rgba(255,255,255,0.06)" />
         <text x="55" y="22" font-family="'Segoe UI', Tahoma, sans-serif" font-size="12" fill="#cbd5e1" text-anchor="middle">کپی دوزبانه</text>
 
-        <!-- Main Copy & Close -->
+        <!-- Main Copy and Close -->
         <rect x="118" y="0" width="162" height="34" rx="10" fill="url(#purpleGlow)" />
         <text x="199" y="22" font-family="'Segoe UI', Tahoma, sans-serif" font-weight="700" font-size="12.5" fill="#ffffff" text-anchor="middle">کپی و بستن (Enter)</text>
       </g>
@@ -184,7 +184,7 @@
   <!-- Bottom Badges -->
   <g transform="translate(600, 545)" text-anchor="middle">
     <text font-family="'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#64748b">
-      ⚡ Shortcut: <tspan fill="#38bdf8">Alt + D</tspan> (Island) &nbsp;•&nbsp; <tspan fill="#a855f7">Alt + Shift + D</tspan> (In-Place) &nbsp;•&nbsp; Mouse: <tspan fill="#34d399">Right-Click on Selection</tspan>
+      ⚡ Shortcut: <tspan fill="#38bdf8">Alt + D</tspan> (Island)  •  <tspan fill="#a855f7">Alt + Shift + D</tspan> (In-Place)  •  Mouse: <tspan fill="#34d399">Right-Click on Selection</tspan>
     </text>
   </g>
 </svg>

@@ -187,14 +187,10 @@
 
     <!-- Cute Sparkles on Top -->
     <g transform="translate(254, 76)">
-      <path d="M 0,-10 Q 0,0 10,0 Q 0,0 0,10 Q 0,0 -10,0 Q 0,0 0,-10 Z" fill="#fde047" opacity="0.85">
-        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="8s" repeatCount="indefinite" />
-      </path>
+      <path d="M 0,-10 Q 0,0 10,0 Q 0,0 0,10 Q 0,0 -10,0 Q 0,0 0,-10 Z" fill="#fde047" opacity="0.85" />
     </g>
     <g transform="translate(62, 88)">
-      <path d="M 0,-6 Q 0,0 6,0 Q 0,0 0,6 Q 0,0 -6,0 Q 0,0 0,-6 Z" fill="#38bdf8" opacity="0.75">
-        <animateTransform attributeName="transform" type="rotate" from="360" to="0" dur="6s" repeatCount="indefinite" />
-      </path>
+      <path d="M 0,-6 Q 0,0 6,0 Q 0,0 0,6 Q 0,0 -6,0 Q 0,0 0,-6 Z" fill="#38bdf8" opacity="0.75" />
     </g>
   </g>
 </svg>

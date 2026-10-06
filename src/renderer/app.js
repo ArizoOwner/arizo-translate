@@ -348,7 +348,7 @@
     refreshCompactPreview();
     if (state.settings.autoCopy && state.translation) {
       api.copyText(state.translation);
-      showToast('کپی خودکار انجام شد');
+      showToast(window.I18n ? window.I18n.t('toastAutoCopied') : 'کپی خودکار انجام شد');
     }
   }
 
@@ -358,8 +358,7 @@
     show(el.progress, on);
     if (window.Mascot) window.Mascot.setMood(on ? 'thinking' : '');
     if (on) {
-      el.progressText.textContent =
-        state.engine === 'aphra' ? 'در حال اتصال به مدل هوشمند Aphra…' : 'در حال دریافت ترجمه…';
+      el.progressText.textContent = window.I18n ? window.I18n.t('progressText') : 'در حال پردازش ترجمه...';
     }
   }
 
@@ -422,7 +421,7 @@
   function flashCopied() {
     window.Mascot && window.Mascot.celebrate();
     el.copy.classList.add('copied');
-    el.copyLabel.textContent = 'کپی شد!';
+    el.copyLabel.textContent = window.I18n ? window.I18n.t('copiedText') : 'کپی شد!';
     el.copyIcon.innerHTML = '<polyline points="20 6 9 17 4 12" stroke="#6ee7b7" stroke-width="2.5" fill="none"/>';
   }
 
@@ -430,10 +429,10 @@
     if (!state.translation) return;
     await api.copyText(state.translation);
     flashCopied();
-    showToast('متن کپی شد');
+    showToast(window.I18n ? window.I18n.t('toastTextCopied') : 'متن کپی شد');
     setTimeout(() => {
       el.copy.classList.remove('copied');
-      el.copyLabel.textContent = 'کپی';
+      el.copyLabel.textContent = window.I18n ? window.I18n.t('copyBtnLabel') : 'کپی';
       el.copyIcon.innerHTML = copyIconHtml;
       api.hideWindow();
     }, 450);
@@ -441,7 +440,7 @@
 
   async function replaceInApp() {
     if (!state.translation) return;
-    showToast('در حال جایگزینی در برنامه…');
+    showToast(window.I18n ? window.I18n.t('toastReplacing') : 'در حال جایگزینی در برنامه…');
     await api.replaceText(state.translation);
   }
 
@@ -451,33 +450,34 @@
       audio = null;
     }
     window.speechSynthesis.cancel();
-    el.speakLabel.textContent = 'تلفظ';
+    el.speakLabel.textContent = window.I18n ? window.I18n.t('speakBtnLabel') : 'تلفظ';
   }
 
   async function speak() {
     if (audio) return stopAudio();
     if (!state.translation) return;
-    el.speakLabel.textContent = 'در حال بارگذاری…';
+    el.speakLabel.textContent = window.I18n ? window.I18n.t('progressText') : 'در حال بارگذاری…';
     const res = await api.speak(state.translation, state.resultTarget);
     if (res && res.ok) {
       audio = new Audio(`data:audio/mpeg;base64,${res.audio}`);
       audio.onended = audio.onerror = stopAudio;
-      el.speakLabel.textContent = 'توقف';
+      el.speakLabel.textContent = window.I18n ? window.I18n.t('speakStopLabel') : 'توقف';
       audio.play().catch(stopAudio);
     } else {
       // Offline fallback to whatever voices Windows has installed.
-      el.speakLabel.textContent = 'تلفظ';
+      el.speakLabel.textContent = window.I18n ? window.I18n.t('speakBtnLabel') : 'تلفظ';
       const u = new SpeechSynthesisUtterance(state.translation);
       u.lang = state.resultTarget;
       window.speechSynthesis.speak(u);
-      showToast('پخش با صدای ویندوز');
+      showToast(window.I18n ? window.I18n.t('toastSpeaking') : 'پخش با صدای ویندوز');
     }
   }
 
   // ------------------------------------------------------------------ compact mode
   function refreshCompactPreview() {
     const t = state.translation;
-    el.compactPreview.textContent = t ? (t.length > 26 ? `${t.slice(0, 26)}…` : t) : `آماده ترجمه (${state.settings.hotkey || 'Alt+D'})`;
+    const readyLabel = window.I18n ? window.I18n.t('compactReady') : 'آماده ترجمه';
+    el.compactPreview.textContent = t ? (t.length > 26 ? `${t.slice(0, 26)}…` : t) : `${readyLabel} (${state.settings.hotkey || 'Alt+D'})`;
   }
 
   function setCompact(on) {
@@ -522,7 +522,7 @@
       if (cleaned) {
         setInput(cleaned);
         show(el.cleanText, false);
-        showToast('شکست خطوط PDF با موفقیت پاکسازی شد');
+        showToast(window.I18n ? window.I18n.t('toastPdfCleaned') : 'شکست خطوط PDF با موفقیت پاکسازی شد');
         window.Mascot && window.Mascot.celebrate();
         translate(cleaned);
       }
@@ -538,9 +538,9 @@
         if (text && text.trim()) {
           setInput(text.trim());
           translate(text.trim());
-          showToast('متن از کلیپ‌بورد جایگذاری شد');
+          showToast(window.I18n ? window.I18n.t('toastPasted') : 'متن از کلیپ‌بورد جایگذاری شد');
         } else {
-          showToast('کلیپ‌بورد خالی است');
+          showToast(window.I18n ? window.I18n.t('toastClipboardEmpty') : 'کلیپ‌بورد خالی است');
         }
       } catch (_) {
         el.input.focus();
@@ -554,7 +554,7 @@
       const dual = `${el.input.value.trim()}\n\n${state.translation}`;
       await api.copyText(dual);
       flashCopied();
-      showToast('متن دوزبانه (مبدا + مقصد) کپی شد');
+      showToast(window.I18n ? window.I18n.t('toastDualCopied') : 'متن دوزبانه (مبدا + مقصد) کپی شد');
     });
   }
 
@@ -565,7 +565,11 @@
     el.pinBtn.addEventListener('click', async () => {
       const isPinned = await api.togglePinWindow();
       el.pinBtn.classList.toggle('active-pin', isPinned);
-      showToast(isPinned ? 'پنجره روی همه برنامه‌ها سنجاق شد' : 'حالت سنجاق پنجره برداشته شد');
+      showToast(
+        isPinned
+          ? (window.I18n ? window.I18n.t('toastPinned') : 'پنجره روی همه برنامه‌ها سنجاق شد')
+          : (window.I18n ? window.I18n.t('toastUnpinned') : 'حالت سنجاق پنجره برداشته شد')
+      );
     });
   }
 

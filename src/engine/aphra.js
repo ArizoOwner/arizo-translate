@@ -323,30 +323,68 @@ async function chatOnce(cfg, { messages, stream, jsonMode, maxTokens, signal, on
   return content;
 }
 
+function getCandidateModels(baseUrl, model) {
+  const isGemini = /generativelanguage\.googleapis\.com/i.test(baseUrl) || /^gemini/i.test(model);
+  if (isGemini) {
+    // If user configured a non-standard or overloaded model, try active Gemini models
+    const geminiFamily = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro', 'gemini-1.5-pro'];
+    return [...new Set([model, ...geminiFamily].filter(Boolean))];
+  }
+  const isOpenRouter = /openrouter\.ai/i.test(baseUrl);
+  if (isOpenRouter) {
+    const orFamily = ['deepseek/deepseek-chat', 'google/gemini-2.5-flash', 'openai/gpt-4o-mini', 'meta-llama/llama-3.3-70b-instruct'];
+    return [...new Set([model, ...orFamily].filter(Boolean))];
+  }
+  return [model];
+}
+
 async function chat(cfg, opts) {
-  const key = `${cfg.baseUrl}|${cfg.model}`;
-  let jsonMode = !!opts.jsonMode && !jsonModeUnsupported.has(key);
+  const candidateModels = getCandidateModels(cfg.baseUrl, cfg.model || DEFAULT_MODEL);
   let lastErr;
 
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      return await chatOnce(cfg, { ...opts, jsonMode });
-    } catch (err) {
-      lastErr = err;
-      if (opts.signal && opts.signal.aborted) throw err;
-      if (!(err instanceof AphraError)) throw err;
+  for (const modelToTry of candidateModels) {
+    const currentCfg = { ...cfg, model: modelToTry };
+    const key = `${currentCfg.baseUrl}|${modelToTry}`;
+    let jsonMode = !!opts.jsonMode && !jsonModeUnsupported.has(key);
+    let stream = !!opts.stream;
 
-      const jsonModeRejected =
-        jsonMode && err.status === 400 && /response_format|json_object|json mode|json_schema/i.test(err.providerMessage || '');
-      if (jsonModeRejected) {
-        jsonModeUnsupported.add(key);
-        jsonMode = false;
-        continue;
+    // Up to 2 attempts per candidate model
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        return await chatOnce(currentCfg, { ...opts, stream, jsonMode });
+      } catch (err) {
+        lastErr = err;
+        if (opts.signal && opts.signal.aborted) throw err;
+        if (!(err instanceof AphraError)) throw err;
+
+        // If JSON mode was rejected with 400
+        const jsonModeRejected =
+          jsonMode && err.status === 400 && /response_format|json_object|json mode|json_schema/i.test(err.providerMessage || '');
+        if (jsonModeRejected) {
+          jsonModeUnsupported.add(key);
+          jsonMode = false;
+          continue;
+        }
+
+        // If 503 (high demand) or 429 or streaming failure: first try non-streaming plain mode
+        if ((err.status === 503 || err.status === 429 || err.code === 'NETWORK') && (stream || jsonMode)) {
+          stream = false;
+          jsonMode = false;
+          await new Promise((r) => setTimeout(r, 400));
+          continue;
+        }
+
+        // If 404 (model not found) or still 503 after non-stream, break to try next candidate model
+        if (err.status === 404 || err.status === 503 || err.status === 429) {
+          break;
+        }
+
+        if (!err.retryable || attempt === 1) break;
+        await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
       }
-      if (!err.retryable || attempt === 2) throw err;
-      await new Promise((r) => setTimeout(r, 700 * (attempt + 1)));
     }
   }
+
   throw lastErr;
 }
 

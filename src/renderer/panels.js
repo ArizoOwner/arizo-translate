@@ -5,7 +5,7 @@
 
   const PROVIDERS = {
     openrouter: { url: 'https://openrouter.ai/api/v1', model: 'deepseek/deepseek-chat', models: ['deepseek/deepseek-chat', 'openai/gpt-4o-mini', 'google/gemini-2.5-flash', 'meta-llama/llama-3.3-70b-instruct'] },
-    gemini: { url: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-3.8-flash', models: ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-3.8-pro', 'gemini-2.5-pro', 'gemini-1.5-flash'] },
+    gemini: { url: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-2.5-flash', models: ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro', 'gemini-1.5-pro'] },
     deepseek: { url: 'https://api.deepseek.com/v1', model: 'deepseek-chat', models: ['deepseek-chat'] },
     groq: { url: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile', models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'] },
     openai: { url: 'https://api.openai.com/v1', model: 'gpt-4o-mini', models: ['gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini'] },
@@ -81,10 +81,11 @@
     f.apiKey.value = '';
     f.apiKey.type = 'password';
     f.eye.textContent = '👁️';
-    f.apiKey.placeholder = a.hasApiKey ? '•••••••• (ذخیره شده)' : 'sk-...';
+    const savedLabel = window.I18n ? window.I18n.t('savedApiKey') : 'ذخیره شده';
+    f.apiKey.placeholder = a.hasApiKey ? `•••••••• (${savedLabel})` : 'sk-...';
     f.keyHint.textContent = a.hasApiKey
-      ? 'کلید ذخیره شده است؛ برای تغییر، کلید جدید را وارد کنید'
-      : 'کلید به‌صورت رمزنگاری‌شده با Windows ذخیره می‌شود';
+      ? (window.I18n ? window.I18n.t('settingApiKeyStored') : 'کلید ذخیره شده است؛ برای تغییر، کلید جدید را وارد کنید')
+      : (window.I18n ? window.I18n.t('settingApiKeyHint') : 'کلید به‌صورت رمزنگاری‌شده با Windows ذخیره می‌شود');
     show(f.clearKey, !!a.hasApiKey);
 
     f.breakdown.checked = a.showBreakdown !== false;
@@ -93,9 +94,25 @@
     f.hideBlur.checked = !!s.hideOnBlur;
     f.startup.checked = !!s.launchAtStartup;
     f.saveHistory.checked = s.saveHistory !== false;
-    f.testResult.textContent = TEST_HINT;
+    f.testResult.textContent = window.I18n ? window.I18n.t('settingTestDesc') : TEST_HINT;
     f.testResult.className = 'test-result';
   }
+
+  document.addEventListener('app:language-changed', () => {
+    if (f.keyHint) {
+      const a = state.settings?.aphra || {};
+      f.keyHint.textContent = a.hasApiKey
+        ? (window.I18n ? window.I18n.t('settingApiKeyStored') : 'کلید ذخیره شده است؛ برای تغییر، کلید جدید را وارد کنید')
+        : (window.I18n ? window.I18n.t('settingApiKeyHint') : 'کلید به‌صورت رمزنگاری‌شده با Windows ذخیره می‌شود');
+      if (a.hasApiKey && f.apiKey.placeholder && f.apiKey.placeholder.includes('•')) {
+        const savedLabel = window.I18n ? window.I18n.t('savedApiKey') : 'ذخیره شده';
+        f.apiKey.placeholder = `•••••••• (${savedLabel})`;
+      }
+    }
+    if (f.testResult && f.testResult.className === 'test-result') {
+      f.testResult.textContent = window.I18n ? window.I18n.t('settingTestDesc') : TEST_HINT;
+    }
+  });
 
   function openSettings() {
     populateSettings();

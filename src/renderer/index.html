@@ -16,7 +16,7 @@
       <div class="header-start">
 
         <!-- INTERACTIVE CARTOON MASCOT (MOCHI / APHRA BUDDY) -->
-        <div id="mascot" class="mascot-wrapper" title="من همراه هوشمند شمام! تکونم بده یا روم کلیک کن!">
+        <div id="mascot" class="mascot-wrapper" title="من همراه هوشمند شمام! تکونم بده یا روم کلیک کن!" data-i18n-title="mascotTitle">
           <div class="mascot-body" id="mascot-body">
             <div class="mascot-aura"></div>
             <div class="mascot-gloss"></div>
@@ -52,25 +52,25 @@
         </div>
 
         <!-- ENGINE SELECTOR (MINIMAL SEGMENTED PILL) -->
-        <div class="segmented-control" id="engine-segmented" role="group" aria-label="موتور ترجمه">
-          <button id="btn-engine-google" class="segment-btn active" title="ترجمه آنی بدون نیاز به API (Ctrl+Tab)">
+        <div class="segmented-control" id="engine-segmented" role="group" aria-label="موتور ترجمه" data-i18n-aria-label="settingEngineLabel">
+          <button id="btn-engine-google" class="segment-btn active" title="ترجمه آنی بدون نیاز به API (Ctrl+Tab)" data-i18n-title="engineGoogleTitle">
             <svg class="segment-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-            <span>سریع</span>
+            <span data-i18n="engineGoogleLabel">سریع</span>
           </button>
-          <button id="btn-engine-aphra" class="segment-btn" title="ترجمه هوشمند با هوش مصنوعی و تحلیل اصطلاحات (Ctrl+Tab)">
+          <button id="btn-engine-aphra" class="segment-btn" title="ترجمه هوشمند با هوش مصنوعی و تحلیل اصطلاحات (Ctrl+Tab)" data-i18n-title="engineAphraTitle">
             <svg class="segment-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-            <span>هوشمند</span>
+            <span data-i18n="engineAphraLabel">هوشمند</span>
           </button>
         </div>
 
         <!-- TONE CHIP (VISIBLE IN APHRA MODE) -->
         <div id="tone-selector" class="tone-pill hidden">
-          <select id="select-tone" title="لحن ترجمه" aria-label="لحن ترجمه">
-            <option value="auto">لحن خودکار</option>
-            <option value="colloquial">محاوره‌ای و خودمانی</option>
-            <option value="formal">رسمی و اداری</option>
-            <option value="technical">فنی و تخصصی</option>
-            <option value="literary">ادبی و فاخر</option>
+          <select id="select-tone" title="لحن ترجمه" aria-label="لحن ترجمه" data-i18n-title="toneLabel" data-i18n-aria-label="toneLabel">
+            <option value="auto" data-i18n="toneAuto">لحن خودکار</option>
+            <option value="colloquial" data-i18n="toneColloquial">محاوره‌ای و خودمانی</option>
+            <option value="formal" data-i18n="toneFormal">رسمی و اداری</option>
+            <option value="technical" data-i18n="toneTechnical">فنی و تخصصی</option>
+            <option value="literary" data-i18n="toneLiterary">ادبی و فاخر</option>
           </select>
         </div>
       </div>
@@ -78,37 +78,37 @@
       <div class="header-end">
         <!-- LANGUAGE PAIR PILL: detected source ⇄ chosen target -->
         <div class="lang-pill" id="lang-pill" dir="ltr">
-          <span id="label-source-lang" title="زبان تشخیص داده‌شده">EN</span>
-          <button id="btn-swap-lang" class="swap-icon-btn" title="معکوس کردن زبان‌ها" aria-label="معکوس کردن زبان‌ها">
+          <span id="label-source-lang" title="زبان تشخیص داده‌شده" data-i18n-title="sourceLangTitle">EN</span>
+          <button id="btn-swap-lang" class="swap-icon-btn" title="معکوس کردن زبان‌ها" aria-label="معکوس کردن زبان‌ها" data-i18n-title="swapLangTitle" data-i18n-aria-label="swapLangTitle">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4"/></svg>
           </button>
-          <select id="select-target-lang" class="lang-select" title="زبان مقصد" aria-label="زبان مقصد">
+          <select id="select-target-lang" class="lang-select" title="زبان مقصد" aria-label="زبان مقصد" data-i18n-title="targetLangTitle" data-i18n-aria-label="targetLangTitle">
             <option value="auto">Auto</option>
           </select>
         </div>
 
         <!-- ACTION CONTROLS -->
         <div class="header-actions">
-          <button id="btn-history" class="nav-btn" title="تاریخچه ترجمه‌ها" aria-label="تاریخچه ترجمه‌ها">
+          <button id="btn-history" class="nav-btn" title="تاریخچه ترجمه‌ها" aria-label="تاریخچه ترجمه‌ها" data-i18n-title="historyBtnTitle" data-i18n-aria-label="historyBtnTitle">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </button>
-          <button id="btn-settings" class="nav-btn" title="تنظیمات" aria-label="تنظیمات">
+          <button id="btn-settings" class="nav-btn" title="تنظیمات" aria-label="تنظیمات" data-i18n-title="settingsBtnTitle" data-i18n-aria-label="settingsBtnTitle">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
           </button>
           <!-- COMPACT MODE TOGGLE (PILL CAPSULE) -->
-          <button id="btn-toggle-compact" class="nav-btn" title="حالت کپسول فشرده شناور روی برنامه‌ها" aria-label="حالت کپسول">
+          <button id="btn-toggle-compact" class="nav-btn" title="حالت کپسول فشرده شناور روی برنامه‌ها" aria-label="حالت کپسول" data-i18n-title="compactBtnTitle" data-i18n-aria-label="compactBtnTitle">
             <svg id="icon-compact" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/></svg>
           </button>
           <!-- PIN ALWAYS-ON-TOP TOGGLE -->
-          <button id="btn-pin" class="nav-btn active-pin" title="سنجاق روی همه برنامه‌ها (Always-on-top)" aria-label="سنجاق پنجره">
+          <button id="btn-pin" class="nav-btn active-pin" title="سنجاق روی همه برنامه‌ها (Always-on-top)" aria-label="سنجاق پنجره" data-i18n-title="pinBtnTitle" data-i18n-aria-label="pinBtnTitle">
             <svg id="icon-pin" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M16 3H8a1 1 0 00-1 1v1a1 1 0 00.3.7l1.7 1.7V13l-2 2v1h4v6l1 1 1-1v-6h4v-1l-2-2V7.4l1.7-1.7A1 1 0 0017 5V4a1 1 0 00-1-1z"/></svg>
           </button>
           <!-- MINIMIZE BUTTON -->
-          <button id="btn-minimize" class="nav-btn" title="کمینه‌کردن (Minimize)" aria-label="کمینه‌کردن">
+          <button id="btn-minimize" class="nav-btn" title="کمینه‌کردن (Minimize)" aria-label="کمینه‌کردن" data-i18n-title="minimizeBtnTitle" data-i18n-aria-label="minimizeBtnTitle">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
           <!-- CLOSE TO TRAY BUTTON -->
-          <button id="btn-close" class="nav-btn close-btn" title="بستن پنجره به Tray (Esc)" aria-label="بستن">
+          <button id="btn-close" class="nav-btn close-btn" title="بستن پنجره به Tray (Esc)" aria-label="بستن" data-i18n-title="closeBtnTitle" data-i18n-aria-label="closeBtnTitle">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
@@ -125,21 +125,21 @@
 
       <!-- INPUT BOX -->
       <div class="input-card" id="input-card">
-        <textarea id="input-text" dir="auto" placeholder="متنی را انتخاب کنید یا اینجا بنویسید..." rows="2" maxlength="8000" spellcheck="false" aria-label="متن مبدا"></textarea>
+        <textarea id="input-text" dir="auto" placeholder="متنی را انتخاب کنید یا اینجا بنویسید..." rows="2" maxlength="8000" spellcheck="false" aria-label="متن مبدا" data-i18n-placeholder="inputPlaceholder"></textarea>
         <div class="input-bottom-bar">
           <div class="input-tools-left">
-            <button id="btn-clean-text" class="input-tool-pill hidden" title="حذف شکست خطوط PDF، اینترهای اضافی و الحاق کلمات خط تیره خورده" aria-label="پاکسازی شکست خطوط PDF">
+            <button id="btn-clean-text" class="input-tool-pill hidden" title="حذف شکست خطوط PDF، اینترهای اضافی و الحاق کلمات خط تیره خورده" aria-label="پاکسازی شکست خطوط PDF" data-i18n-title="cleanTextTitle">
               <span class="tool-icon">🧹</span>
-              <span>الحاق خطوط PDF</span>
+              <span data-i18n="cleanTextLabel">الحاق خطوط PDF</span>
             </button>
-            <button id="btn-paste-input" class="input-tool-pill" title="جایگذاری مستقیم متن از کلیپ‌بورد" aria-label="جایگذاری از کلیپ‌بورد">
+            <button id="btn-paste-input" class="input-tool-pill" title="جایگذاری مستقیم متن از کلیپ‌بورد" aria-label="جایگذاری از کلیپ‌بورد" data-i18n-title="pasteBtnTitle">
               <span class="tool-icon">📋</span>
-              <span>جایگذاری</span>
+              <span data-i18n="pasteBtnLabel">جایگذاری</span>
             </button>
           </div>
           <div class="input-tools-right">
             <span id="char-count" class="char-count hidden"></span>
-            <button id="btn-clear-input" class="clear-circle-btn hidden" title="پاک کردن متن" aria-label="پاک کردن متن">
+            <button id="btn-clear-input" class="clear-circle-btn hidden" title="پاک کردن متن" aria-label="پاک کردن متن" data-i18n-title="clearInputTitle" data-i18n-aria-label="clearInputTitle">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
@@ -149,16 +149,16 @@
       <!-- PROGRESS / STATUS -->
       <div id="progress-bar" class="status-pill hidden">
         <div class="pulse-dot"></div>
-        <span id="progress-text">در حال پردازش ترجمه...</span>
+        <span id="progress-text" data-i18n="progressText">در حال پردازش ترجمه...</span>
       </div>
 
       <!-- AI UNAVAILABLE / API KEY MISSING NOTICE -->
       <div id="fallback-notice" class="notice-pill warning hidden">
         <div class="notice-content">
           <span class="notice-icon">⚠️</span>
-          <span id="fallback-text">کلید API برای هوش مصنوعی تنظیم نشده؛ ترجمه با حالت سریع انجام شد.</span>
+          <span id="fallback-text" data-i18n="fallbackText">کلید API برای هوش مصنوعی تنظیم نشده؛ ترجمه با حالت سریع انجام شد.</span>
         </div>
-        <button id="btn-goto-settings" class="notice-action-btn">تنظیمات</button>
+        <button id="btn-goto-settings" class="notice-action-btn" data-i18n="gotoSettingsBtn">تنظیمات</button>
       </div>
 
       <!-- TRANSLATION OUTPUT CARD -->
@@ -167,7 +167,7 @@
           <div id="output-text" class="output-content" dir="auto" aria-live="polite"></div>
           <div id="output-translit" class="output-translit hidden" dir="ltr"></div>
           <div id="output-meta" class="output-meta hidden" dir="auto"></div>
-          <div id="output-placeholder" class="output-empty-hint">ترجمه به محض انتخاب متن یا تایپ نمایش داده می‌شود...</div>
+          <div id="output-placeholder" class="output-empty-hint" data-i18n="outputPlaceholder">ترجمه به محض انتخاب متن یا تایپ نمایش داده می‌شود...</div>
         </div>
       </div>
 
@@ -179,7 +179,7 @@
         <div class="breakdown-toggle" id="btn-toggle-breakdown" role="button" tabindex="0" aria-expanded="true">
           <div class="breakdown-headline">
             <span class="sparkle-badge">✦</span>
-            <span>تحلیل اصطلاحات و واژگان کلیدی</span>
+            <span data-i18n="breakdownHeadline">تحلیل اصطلاحات و واژگان کلیدی</span>
           </div>
           <svg id="breakdown-arrow" class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
@@ -189,30 +189,30 @@
       <!-- FOOTER ACTIONS -->
       <footer class="island-footer">
         <div class="shortcut-pills">
-          <span class="shortcut-tag"><kbd>Enter</kbd> کپی</span>
-          <span class="shortcut-tag"><kbd>Ctrl+Enter</kbd> جایگزینی</span>
-          <span class="shortcut-tag"><kbd>Esc</kbd> بستن</span>
+          <span class="shortcut-tag"><kbd>Enter</kbd> <span data-i18n="shortcutCopy">کپی</span></span>
+          <span class="shortcut-tag"><kbd>Ctrl+Enter</kbd> <span data-i18n="shortcutReplace">جایگزینی</span></span>
+          <span class="shortcut-tag"><kbd>Esc</kbd> <span data-i18n="shortcutClose">بستن</span></span>
         </div>
 
         <div class="footer-buttons">
-          <button id="btn-speak" class="action-btn text-action" title="تلفظ صوتی ترجمه">
+          <button id="btn-speak" class="action-btn text-action" title="تلفظ صوتی ترجمه" data-i18n-title="speakBtnTitle">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-            <span id="speak-label">تلفظ</span>
+            <span id="speak-label" data-i18n="speakBtnLabel">تلفظ</span>
           </button>
 
-          <button id="btn-copy-dual" class="action-btn text-action" title="کپی دو زبانه (متن اصلی + ترجمه)">
+          <button id="btn-copy-dual" class="action-btn text-action" title="کپی دو زبانه (متن اصلی + ترجمه)" data-i18n-title="copyDualTitle">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-3"/><path d="M18 9l4-4-4-4"/><path d="M22 5h-7a4 4 0 00-4 4v3"/></svg>
-            <span>کپی دوزبانه</span>
+            <span data-i18n="copyDualLabel">کپی دوزبانه</span>
           </button>
 
-          <button id="btn-copy" class="action-btn secondary-btn" title="کپی ترجمه (Enter)">
+          <button id="btn-copy" class="action-btn secondary-btn" title="کپی ترجمه (Enter)" data-i18n-title="copyBtnTitle">
             <svg id="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-            <span id="copy-label">کپی</span>
+            <span id="copy-label" data-i18n="copyBtnLabel">کپی</span>
           </button>
 
-          <button id="btn-replace" class="action-btn primary-btn" title="جایگزینی در نرم‌افزار فعال (Ctrl+Enter)">
+          <button id="btn-replace" class="action-btn primary-btn" title="جایگزینی در نرم‌افزار فعال (Ctrl+Enter)" data-i18n-title="replaceBtnTitle">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-            <span>جایگزینی در برنامه</span>
+            <span data-i18n="replaceBtnLabel">جایگزینی در برنامه</span>
           </button>
         </div>
       </footer>
@@ -222,9 +222,9 @@
     <div id="compact-capsule" class="compact-capsule hidden">
       <div class="compact-status">
         <span class="compact-dot"></span>
-        <span class="compact-text" id="compact-preview">آماده ترجمه</span>
+        <span class="compact-text" id="compact-preview" data-i18n="compactReady">آماده ترجمه</span>
       </div>
-      <button id="btn-expand-island" class="compact-expand-btn" title="باز کردن جزیره کامل" aria-label="باز کردن جزیره کامل">
+      <button id="btn-expand-island" class="compact-expand-btn" title="باز کردن جزیره کامل" aria-label="باز کردن جزیره کامل" data-i18n-title="compactExpandTitle" data-i18n-aria-label="compactExpandTitle">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
       </button>
     </div>
@@ -234,10 +234,10 @@
       <div class="modal-sheet">
         <div class="modal-top">
           <div class="modal-title-group">
-            <h1 id="settings-title">تنظیمات Arizo Translate</h1>
-            <span class="modal-subtitle">سفارشی‌سازی کلید میانبر، زبان‌ها و هوش مصنوعی</span>
+            <h1 id="settings-title" data-i18n="settingsTitle">تنظیمات Arizo Translate</h1>
+            <span class="modal-subtitle" data-i18n="settingsSubtitle">سفارشی‌سازی کلید میانبر، زبان‌ها و هوش مصنوعی</span>
           </div>
-          <button id="btn-close-settings" class="modal-close-btn" title="بستن" aria-label="بستن تنظیمات">✕</button>
+          <button id="btn-close-settings" class="modal-close-btn" title="بستن" aria-label="بستن تنظیمات" data-i18n-title="shortcutClose">✕</button>
         </div>
 
         <div class="modal-scroll-body">
@@ -268,8 +268,8 @@
           <!-- HOTKEY -->
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-hotkey">کلید میانبر باز کردن جزیره</label>
-              <span>روی کادر کلیک کنید و ترکیب دلخواه را بزنید (Esc = انصراف)</span>
+              <label for="setting-hotkey" data-i18n="settingHotkeyLabel">کلید میانبر باز کردن جزیره</label>
+              <span data-i18n="settingHotkeyDesc">روی کادر کلیک کنید و ترکیب دلخواه را بزنید (Esc = انصراف)</span>
             </div>
             <input type="text" id="setting-hotkey" class="sleek-input ltr-input hotkey-input" value="Alt+D" readonly>
           </div>
@@ -277,8 +277,8 @@
           <!-- INLINE HOTKEY -->
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-inline-hotkey">کلید میانبر ترجمه درجا (در چت‌ها و کادر تایپ)</label>
-              <span>ترجمه فوری متن در تلگرام، ورد و فیلدهای تایپ بدون باز شدن پنجره (Esc = انصراف)</span>
+              <label for="setting-inline-hotkey" data-i18n="settingInlineHotkeyLabel">کلید میانبر ترجمه درجا (در چت‌ها و کادر تایپ)</label>
+              <span data-i18n="settingInlineHotkeyDesc">ترجمه فوری متن در تلگرام، ورد و فیلدهای تایپ بدون باز شدن پنجره (Esc = انصراف)</span>
             </div>
             <input type="text" id="setting-inline-hotkey" class="sleek-input ltr-input hotkey-input" value="Alt+Shift+D" readonly>
           </div>
@@ -286,31 +286,31 @@
           <!-- LANGUAGES -->
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-native-lang">زبان اصلی من</label>
-              <span>در حالت «خودکار»، متن‌های غیر از این زبان به آن ترجمه می‌شوند</span>
+              <label for="setting-native-lang" data-i18n="settingNativeLangLabel">زبان اصلی من</label>
+              <span data-i18n="settingNativeLangDesc">در حالت «خودکار»، متن‌های غیر از این زبان به آن ترجمه می‌شوند</span>
             </div>
             <select id="setting-native-lang" class="sleek-select"></select>
           </div>
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-second-lang">زبان دوم من</label>
-              <span>در حالت «خودکار»، متن‌های زبان اصلی به این زبان ترجمه می‌شوند</span>
+              <label for="setting-second-lang" data-i18n="settingSecondLangLabel">زبان دوم من</label>
+              <span data-i18n="settingSecondLangDesc">در حالت «خودکار»، متن‌های زبان اصلی به این زبان ترجمه می‌شوند</span>
             </div>
             <select id="setting-second-lang" class="sleek-select"></select>
           </div>
 
           <!-- DEFAULT ENGINE -->
           <div class="setting-item-block">
-            <label class="setting-block-label">موتور پیش‌فرض ترجمه</label>
+            <label class="setting-block-label" data-i18n="settingEngineLabel">موتور پیش‌فرض ترجمه</label>
             <div class="engine-choice-grid">
               <label class="engine-choice-card">
                 <input type="radio" name="setting-engine" value="google" checked>
                 <div class="choice-content">
                   <div class="choice-title">
-                    <span class="choice-badge fast">⚡ سریع</span>
-                    <strong>گوگل رایگان</strong>
+                    <span class="choice-badge fast" data-i18n="engineChoiceGoogleTitle">⚡ سریع</span>
+                    <strong data-i18n="engineChoiceGoogleName">گوگل رایگان</strong>
                   </div>
-                  <span class="choice-desc">بدون نیاز به API یا ثبت‌نام</span>
+                  <span class="choice-desc" data-i18n="engineChoiceGoogleDesc">بدون نیاز به API یا ثبت‌نام</span>
                 </div>
               </label>
 
@@ -318,10 +318,10 @@
                 <input type="radio" name="setting-engine" value="aphra">
                 <div class="choice-content">
                   <div class="choice-title">
-                    <span class="choice-badge smart">✦ هوشمند</span>
-                    <strong>هوش مصنوعی Arizo AI</strong>
+                    <span class="choice-badge smart" data-i18n="engineChoiceAphraTitle">✦ هوشمند</span>
+                    <strong data-i18n="engineChoiceAphraName">هوش مصنوعی Arizo AI</strong>
                   </div>
-                  <span class="choice-desc">تحلیل اصطلاحات، بازنویسی طبیعی و کنترل لحن</span>
+                  <span class="choice-desc" data-i18n="engineChoiceAphraDesc">تحلیل اصطلاحات، بازنویسی طبیعی و کنترل لحن</span>
                 </div>
               </label>
             </div>
@@ -329,37 +329,37 @@
 
           <!-- APHRA CONFIG SECTION -->
           <div class="setting-section-header">
-            <span>پیکربندی هوش مصنوعی (LLM)</span>
+            <span data-i18n="settingLlmHeader">پیکربندی هوش مصنوعی (LLM)</span>
           </div>
 
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-provider-preset">سرویس‌دهنده هوش مصنوعی</label>
-              <span>انتخاب سریع ارائه‌دهنده یا سرور محلی</span>
+              <label for="setting-provider-preset" data-i18n="settingPresetLabel">سرویس‌دهنده هوش مصنوعی</label>
+              <span data-i18n="settingPresetDesc">انتخاب سریع ارائه‌دهنده یا سرور محلی</span>
             </div>
             <select id="setting-provider-preset" class="sleek-select">
-              <option value="openrouter">OpenRouter (مدل‌های برتر دنیا)</option>
-              <option value="gemini">Google Gemini (سریع و دارای سهمیه رایگان)</option>
-              <option value="deepseek">DeepSeek (دقت بالا و اقتصادی)</option>
-              <option value="groq">Groq (سرعت فوق‌العاده)</option>
-              <option value="openai">OpenAI (ChatGPT)</option>
-              <option value="ollama">Ollama (آفلاین و محلی، بدون کلید)</option>
-              <option value="custom">آدرس سفارشی (Custom)</option>
+              <option value="openrouter" data-i18n="presetOpenrouter">OpenRouter (مدل‌های برتر دنیا)</option>
+              <option value="gemini" data-i18n="presetGemini">Google Gemini (سریع و دارای سهمیه رایگان)</option>
+              <option value="deepseek" data-i18n="presetDeepseek">DeepSeek (دقت بالا و اقتصادی)</option>
+              <option value="groq" data-i18n="presetGroq">Groq (سرعت فوق‌العاده)</option>
+              <option value="openai" data-i18n="presetOpenai">OpenAI (ChatGPT)</option>
+              <option value="ollama" data-i18n="presetOllama">Ollama (آفلاین و محلی، بدون کلید)</option>
+              <option value="custom" data-i18n="presetCustom">آدرس سفارشی (Custom)</option>
             </select>
           </div>
 
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-base-url">Base URL</label>
-              <span>آدرس Endpoint سازگار با OpenAI</span>
+              <label for="setting-base-url" data-i18n="settingBaseUrlLabel">Base URL</label>
+              <span data-i18n="settingBaseUrlDesc">آدرس Endpoint سازگار با OpenAI</span>
             </div>
             <input type="text" id="setting-base-url" placeholder="https://openrouter.ai/api/v1" class="sleek-input ltr-input" spellcheck="false">
           </div>
 
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-api-key">کلید API (API Key)</label>
-              <span id="api-key-hint">کلید به‌صورت رمزنگاری‌شده با Windows ذخیره می‌شود</span>
+              <label for="setting-api-key" data-i18n="settingApiKeyLabel">کلید API (API Key)</label>
+              <span id="api-key-hint" data-i18n="settingApiKeyHint">کلید به‌صورت رمزنگاری‌شده با Windows ذخیره می‌شود</span>
             </div>
             <div class="password-box">
               <input type="password" id="setting-api-key" placeholder="sk-..." class="sleek-input ltr-input" autocomplete="off" spellcheck="false">
@@ -369,28 +369,28 @@
 
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-model">نام مدل (Model Name)</label>
-              <span>مثال: gemini-3.8-flash یا deepseek/deepseek-chat یا llama-3.3-70b-versatile</span>
+              <label for="setting-model" data-i18n="settingModelLabel">نام مدل (Model Name)</label>
+              <span data-i18n="settingModelDesc">مثال: gemini-2.5-flash یا deepseek/deepseek-chat یا llama-3.3-70b-versatile</span>
             </div>
-            <input type="text" id="setting-model" list="model-suggestions" placeholder="deepseek/deepseek-chat" class="sleek-input ltr-input" spellcheck="false">
+            <input type="text" id="setting-model" list="model-suggestions" placeholder="gemini-2.5-flash" class="sleek-input ltr-input" spellcheck="false">
             <datalist id="model-suggestions"></datalist>
           </div>
 
           <div class="setting-item">
             <div class="setting-text">
-              <label>آزمایش اتصال</label>
-              <span id="test-result" class="test-result">با تنظیمات فعلی یک درخواست آزمایشی ارسال می‌شود</span>
+              <label data-i18n="settingTestLabel">آزمایش اتصال</label>
+              <span id="test-result" class="test-result" data-i18n="settingTestDesc">با تنظیمات فعلی یک درخواست آزمایشی ارسال می‌شود</span>
             </div>
             <div class="inline-actions">
-              <button id="btn-clear-apikey" class="action-btn text-action hidden" type="button">حذف کلید</button>
-              <button id="btn-test-aphra" class="action-btn text-action" type="button">آزمایش</button>
+              <button id="btn-clear-apikey" class="action-btn text-action hidden" type="button" data-i18n="settingClearKeyBtn">حذف کلید</button>
+              <button id="btn-test-aphra" class="action-btn text-action" type="button" data-i18n="settingTestBtn">آزمایش</button>
             </div>
           </div>
 
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-show-breakdown">تحلیل اصطلاحات</label>
-              <span>نمایش توضیح اصطلاحات و جمله‌بندی‌های جایگزین (کمی کندتر)</span>
+              <label for="setting-show-breakdown" data-i18n="settingBreakdownLabel">تحلیل اصطلاحات</label>
+              <span data-i18n="settingBreakdownDesc">نمایش توضیح اصطلاحات و جمله‌بندی‌های جایگزین (کمی کندتر)</span>
             </div>
             <label class="modern-switch">
               <input type="checkbox" id="setting-show-breakdown">
@@ -400,13 +400,13 @@
 
           <!-- BEHAVIOUR -->
           <div class="setting-section-header">
-            <span>رفتار برنامه</span>
+            <span data-i18n="settingBehaviourHeader">رفتار برنامه</span>
           </div>
 
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-show-floating-bubble">دکمه شناور ترجمه سریع کنار نشانگر ماوس</label>
-              <span>نمایش دکمه کوچک ترجمه در هنگام انتخاب متن یا راست‌کلیک در تمام برنامه‌ها و سایت‌ها</span>
+              <label for="setting-show-floating-bubble" data-i18n="settingBubbleLabel">دکمه شناور ترجمه سریع کنار نشانگر ماوس</label>
+              <span data-i18n="settingBubbleDesc">نمایش دکمه کوچک ترجمه در هنگام انتخاب متن یا راست‌کلیک در تمام برنامه‌ها و سایت‌ها</span>
             </div>
             <label class="modern-switch">
               <input type="checkbox" id="setting-show-floating-bubble" checked>
@@ -416,8 +416,8 @@
 
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-auto-copy">کپی خودکار پس از ترجمه</label>
-              <span>متن ترجمه‌شده فوراً در کلیپ‌بورد کپی شود</span>
+              <label for="setting-auto-copy" data-i18n="settingAutoCopyLabel">کپی خودکار پس از ترجمه</label>
+              <span data-i18n="settingAutoCopyDesc">متن ترجمه‌شده فوراً در کلیپ‌بورد کپی شود</span>
             </div>
             <label class="modern-switch">
               <input type="checkbox" id="setting-auto-copy">
@@ -427,8 +427,8 @@
 
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-restore-clipboard">بازگرداندن کلیپ‌بورد قبلی</label>
-              <span>پس از گرفتن متن انتخابی یا جایگزینی، محتوای قبلی کلیپ‌بورد برگردد</span>
+              <label for="setting-restore-clipboard" data-i18n="settingRestoreLabel">بازگرداندن کلیپ‌بورد قبلی</label>
+              <span data-i18n="settingRestoreDesc">پس از گرفتن متن انتخابی یا جایگزینی، محتوای قبلی کلیپ‌بورد برگردد</span>
             </div>
             <label class="modern-switch">
               <input type="checkbox" id="setting-restore-clipboard">
@@ -438,8 +438,8 @@
 
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-hide-on-blur">بستن با کلیک بیرون</label>
-              <span>با کلیک روی برنامه‌های دیگر، جزیره خودکار پنهان شود</span>
+              <label for="setting-hide-on-blur" data-i18n="settingHideBlurLabel">بستن با کلیک بیرون</label>
+              <span data-i18n="settingHideBlurDesc">با کلیک روی برنامه‌های دیگر، جزیره خودکار پنهان شود</span>
             </div>
             <label class="modern-switch">
               <input type="checkbox" id="setting-hide-on-blur">
@@ -449,8 +449,8 @@
 
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-launch-startup">اجرا با روشن شدن ویندوز</label>
-              <span>بی‌صدا در Tray شروع می‌شود</span>
+              <label for="setting-launch-startup" data-i18n="settingStartupLabel">اجرا با روشن شدن ویندوز</label>
+              <span data-i18n="settingStartupDesc">بی‌صدا در Tray شروع می‌شود</span>
             </div>
             <label class="modern-switch">
               <input type="checkbox" id="setting-launch-startup">
@@ -460,8 +460,8 @@
 
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-save-history">ذخیره تاریخچه</label>
-              <span>ترجمه‌ها فقط روی همین رایانه ذخیره می‌شوند</span>
+              <label for="setting-save-history" data-i18n="settingSaveHistoryLabel">ذخیره تاریخچه</label>
+              <span data-i18n="settingSaveHistoryDesc">ترجمه‌ها فقط روی همین رایانه ذخیره می‌شوند</span>
             </div>
             <label class="modern-switch">
               <input type="checkbox" id="setting-save-history">
@@ -471,7 +471,7 @@
         </div>
 
         <div class="modal-footer-bar">
-          <button id="btn-save-settings" class="action-btn primary-btn full-btn">ذخیره تنظیمات</button>
+          <button id="btn-save-settings" class="action-btn primary-btn full-btn" data-i18n="saveSettingsBtn">ذخیره تنظیمات</button>
         </div>
       </div>
     </div>
@@ -481,23 +481,23 @@
       <div class="modal-sheet">
         <div class="modal-top">
           <div class="modal-title-group">
-            <h1 id="history-title">تاریخچه ترجمه‌ها</h1>
-            <span class="modal-subtitle">ترجمه‌های اخیر ذخیره شده روی این رایانه</span>
+            <h1 id="history-title" data-i18n="historyTitle">تاریخچه ترجمه‌ها</h1>
+            <span class="modal-subtitle" data-i18n="historySubtitle">ترجمه‌های اخیر ذخیره شده روی این رایانه</span>
           </div>
           <div class="history-top-actions">
-            <button id="btn-clear-history" class="action-btn danger-link">پاکسازی همه</button>
-            <button id="btn-close-history" class="modal-close-btn" title="بستن" aria-label="بستن تاریخچه">✕</button>
+            <button id="btn-clear-history" class="action-btn danger-link" data-i18n="historyClearBtn">پاکسازی همه</button>
+            <button id="btn-close-history" class="modal-close-btn" title="بستن" aria-label="بستن تاریخچه" data-i18n-title="shortcutClose">✕</button>
           </div>
         </div>
 
         <div class="history-search-bar">
           <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="history-search" placeholder="جستجو در ترجمه‌های گذشته..." class="sleek-search-input" aria-label="جستجو در تاریخچه">
+          <input type="text" id="history-search" placeholder="جستجو در ترجمه‌های گذشته..." class="sleek-search-input" aria-label="جستجو در تاریخچه" data-i18n-placeholder="historySearchPlaceholder">
         </div>
 
         <div class="history-filter-tabs">
-          <button id="tab-history-all" class="hist-filter-pill active" type="button">همه ترجمه‌ها</button>
-          <button id="tab-history-starred" class="hist-filter-pill" type="button">⭐ نشان‌شده‌ها</button>
+          <button id="tab-history-all" class="hist-filter-pill active" type="button" data-i18n="historyTabAll">همه ترجمه‌ها</button>
+          <button id="tab-history-starred" class="hist-filter-pill" type="button" data-i18n="historyTabStarred">⭐ نشان‌شده‌ها</button>
         </div>
 
         <div id="history-list" class="history-cards-scroll"></div>
