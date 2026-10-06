@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aphra Dynamic Island</title>
+  <!-- Google Fonts Vazirmatn & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="island-container" class="island-expanded">
+
+    <!-- TOP HEADER -->
+    <header class="island-header">
+      <div class="header-left">
+        <div class="logo-badge">
+          <span class="logo-dot"></span>
+          <span class="logo-title">Aphra</span>
+        </div>
+
+        <!-- ENGINE SWITCHER -->
+        <div class="engine-tabs">
+          <button id="btn-engine-google" class="engine-tab active" title="ترجمه آنی زیر ۲۰۰ میلی‌ثانیه بدون نیاز به کلید API">
+            <span class="tab-icon">⚡</span>
+            <span>سریع</span>
+          </button>
+          <button id="btn-engine-aphra" class="engine-tab" title="ترجمه عمیق ایجنتیک با هوش مصنوعی و تحلیل اصطلاحات">
+            <span class="tab-icon">🧠</span>
+            <span>Aphra هوشمند</span>
+          </button>
+        </div>
+
+        <!-- TONE SELECTOR (APHRA MODE ONLY) -->
+        <div id="tone-selector" class="tone-selector hidden">
+          <select id="select-tone" title="لحن ترجمه">
+            <option value="auto">لحن خودکار</option>
+            <option value="colloquial">محاوره‌ای و خودمانی</option>
+            <option value="formal">رسمی و اداری</option>
+            <option value="technical">فنی و تخصصی</option>
+            <option value="literary">ادبی و فاخر</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- LANG PAIR BADGE -->
+        <div class="lang-pair-badge">
+          <span id="label-source-lang">EN</span>
+          <button id="btn-swap-lang" class="icon-btn-tiny" title="تعویض زبان">⇄</button>
+          <span id="label-target-lang">FA</span>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <button id="btn-history" class="icon-btn" title="تاریخچه ترجمه‌ها">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </button>
+        <button id="btn-settings" class="icon-btn" title="تنظیمات">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+        <button id="btn-close" class="icon-btn close-btn" title="بستن (Esc)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN BODY -->
+    <main class="island-body">
+      <!-- INPUT SECTION -->
+      <div class="input-section">
+        <textarea id="input-text" placeholder="متنی را انتخاب کنید یا اینجا تایپ کنید..." rows="2" spellcheck="false"></textarea>
+        <button id="btn-clear-input" class="clear-btn hidden" title="پاک کردن متن">×</button>
+      </div>
+
+      <!-- STATUS / PROGRESS BAR -->
+      <div id="progress-bar" class="progress-bar hidden">
+        <div class="progress-pulse"></div>
+        <span id="progress-text">در حال پردازش ایجنتیک Aphra...</span>
+      </div>
+
+      <!-- FALLBACK WARNING NOTICE -->
+      <div id="fallback-notice" class="fallback-notice hidden">
+        <span>⚠️ برای استفاده از هوش مصنوعی Aphra، کلید API را در تنظیمات وارد کنید. ترجمه با حالت سریع انجام شد.</span>
+        <button id="btn-goto-settings" class="notice-link">تنظیمات</button>
+      </div>
+
+      <!-- RESULT SECTION -->
+      <div class="output-section">
+        <div class="output-wrapper">
+          <div id="output-text" class="output-text" dir="rtl"></div>
+          <div id="output-placeholder" class="output-placeholder">ترجمه آماده نمایش است...</div>
+        </div>
+      </div>
+
+      <!-- APHRA DEEP BREAKDOWN (VOCABULARY & IDIOMS) -->
+      <div id="aphra-breakdown-container" class="aphra-breakdown hidden">
+        <div class="breakdown-header" id="btn-toggle-breakdown">
+          <span class="breakdown-title">
+            <span class="sparkle-icon">✨</span>
+            تحلیل اصطلاحات و واژگان کلیدی
+          </span>
+          <span id="breakdown-arrow" class="arrow-icon">▼</span>
+        </div>
+        <div id="breakdown-list" class="breakdown-list"></div>
+      </div>
+
+      <!-- FOOTER ACTIONS -->
+      <footer class="island-footer">
+        <div class="shortcuts-hint">
+          <span><kbd>Enter</kbd> کپی</span>
+          <span><kbd>Ctrl+Enter</kbd> جایگزینی درجا</span>
+          <span><kbd>Esc</kbd> بستن</span>
+        </div>
+
+        <div class="action-buttons">
+          <button id="btn-speak" class="action-pill" title="شنیدن تلفظ صوتی">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+            <span>تلفظ</span>
+          </button>
+          <button id="btn-replace" class="action-pill primary" title="جایگزینی مستقیم متن در همان نرم‌افزار (Ctrl+Enter)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            <span>جایگزینی در برنامه</span>
+          </button>
+          <button id="btn-copy" class="action-pill success" title="کپی متن ترجمه (Enter)">
+            <svg id="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            <span id="copy-label">کپی</span>
+          </button>
+        </div>
+      </footer>
+    </main>
+
+    <!-- SETTINGS MODAL OVERLAY -->
+    <div id="settings-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>تنظیمات دستیار ترجمه</h3>
+          <button id="btn-close-settings" class="icon-btn">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="setting-group">
+            <label>کلید میانبر سراسری ویندوز (Global Hotkey)</label>
+            <input type="text" id="setting-hotkey" placeholder="Alt+D یا Ctrl+Shift+T" value="Alt+D">
+            <span class="setting-desc">کلیدی که در هر کجای ویندوز بزنید، متن انتخاب‌شده خودکار ترجمه می‌شود.</span>
+          </div>
+
+          <div class="setting-group">
+            <label>موتور پیش‌فرض</label>
+            <div class="radio-group">
+              <label><input type="radio" name="setting-engine" value="google" checked> سریع (گوگل رایگان - بدون نیاز به API Key)</label>
+              <label><input type="radio" name="setting-engine" value="aphra"> هوشمند Aphra (هوش مصنوعی ایجنتیک)</label>
+            </div>
+          </div>
+
+          <div class="setting-divider"></div>
+          <div class="setting-heading">تنظیمات هوش مصنوعی Aphra</div>
+
+          <div class="setting-group">
+            <label>سرویس‌دهنده هوش مصنوعی (Provider)</label>
+            <select id="setting-provider-preset">
+              <option value="openrouter">OpenRouter (پیش‌فرض Aphra)</option>
+              <option value="deepseek">DeepSeek (بسیار دقیق و اقتصادی)</option>
+              <option value="groq">Groq (فوق‌العاده سریع - Llama 3.3)</option>
+              <option value="openai">OpenAI (ChatGPT)</option>
+              <option value="ollama">Ollama (آفلاین و محلی روی سیستم)</option>
+              <option value="custom">آدرس سفارشی (Custom API)</option>
+            </select>
+          </div>
+
+          <div class="setting-group">
+            <label>آدرس Base URL</label>
+            <input type="text" id="setting-base-url" placeholder="https://openrouter.ai/api/v1">
+          </div>
+
+          <div class="setting-group">
+            <label>کلید API (API Key)</label>
+            <div class="password-wrapper">
+              <input type="password" id="setting-api-key" placeholder="sk-...">
+              <button id="btn-toggle-apikey-visibility" class="toggle-eye" type="button">👁️</button>
+            </div>
+            <span class="setting-desc">کلید شما به صورت امن در سیستم شما ذخیره می‌شود.</span>
+          </div>
+
+          <div class="setting-group">
+            <label>نام مدل (Model Name)</label>
+            <input type="text" id="setting-model" placeholder="deepseek/deepseek-chat">
+          </div>
+
+          <div class="setting-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="setting-auto-copy">
+              کپی خودکار ترجمه بلافاصله پس از انجام
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-save-settings" class="action-pill primary full-width">ذخیره تنظیمات</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY MODAL OVERLAY -->
+    <div id="history-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>تاریخچه ترجمه‌ها</h3>
+          <div class="modal-header-actions">
+            <button id="btn-clear-history" class="text-btn danger">پاکسازی همه</button>
+            <button id="btn-close-history" class="icon-btn">×</button>
+          </div>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="history-search" placeholder="جستجو در تاریخچه..." class="search-input">
+          <div id="history-list" class="history-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="toast hidden"></div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
