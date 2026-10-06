@@ -79,7 +79,7 @@ body {
 
 .island-card {
   width: 100%;
-  max-width: 660px;
+  max-width: 726px;
   background: var(--bg-island);
   border: 1px solid var(--border-island);
   border-radius: var(--radius-island);
@@ -361,23 +361,28 @@ body {
   justify-content: space-between;
   align-items: center;
   min-height: 72px;
-  padding: 6px 16px;
+  padding: 6px 14px;
   border-bottom: 1px solid var(--border-card);
   background: rgba(255, 255, 255, 0.015);
   -webkit-app-region: drag; /* Easy drag to move */
+  gap: 8px;
 }
 
 .header-start {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  flex-shrink: 1;
+  min-width: 0;
   -webkit-app-region: no-drag; /* Buttons remain clickable */
 }
 
 .header-end {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-shrink: 0 !important; /* Never push close/minimize out */
+  margin-inline-start: auto;
   -webkit-app-region: no-drag; /* Buttons remain clickable */
 }
 
@@ -472,6 +477,9 @@ body {
   outline: none;
   cursor: pointer;
   transition: all 0.15s ease;
+  max-width: 105px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tone-pill select:hover {
@@ -516,6 +524,7 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0 !important;
 }
 
 .nav-btn {

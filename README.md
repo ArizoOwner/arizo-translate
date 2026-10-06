@@ -1,20 +1,25 @@
 <div align="center">
 
-# 🏝️ Aphra Translate (آفرا ترنسلیت)
+# 🏝️ Arizo Translate (آریزو ترنسلیت)
 ### دستیار هوشمند ترجمه داینامیک آیلند برای ویندوز | Dynamic Island AI Translation Assistant for Windows
 
-[![Windows](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)](https://github.com/ArizoOwner/aphra-translate/releases)
+[![Windows](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)](https://github.com/ArizoOwner/arizo-translate/releases)
 [![Electron](https://img.shields.io/badge/Electron-44.5.1-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.0-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/Release-v2.0.0-8b5cf6?logo=github)](https://github.com/ArizoOwner/aphra-translate/releases)
+[![Release](https://img.shields.io/badge/Release-v2.0.0-8b5cf6?logo=github)](https://github.com/ArizoOwner/arizo-translate/releases)
 
 <p align="center">
   <b>یک ابزار فوق‌العاده سریع، مینیمال و هوشمند برای ترجمه دوطرفه انگلیسی و فارسی بدون خروج از محیط کار</b><br/>
   <i>Ultra-fast, distraction-free, and intelligent bidirectional translation right on top of any Windows application.</i>
 </p>
 
-[فارسی](#-فارسی) • [English](#-english) • [دانلود نسخه نصبی و پرتابل](#-دانلود-نسخه-آماده-ویندوز--download-windows-releases) • [کلیدهای میانبر](#-کلیدهای-میانبر--shortcuts) • [راهنمای توسعه](#-راهنمای-توسعه-و-کامپایل--development--build)
+<!-- HERO SHOWCASE IMAGE -->
+<p align="center">
+  <img src="docs/assets/arizo-island-hero.svg" alt="Arizo Translate Dynamic Island Showcase" width="100%" style="border-radius: 16px; max-width: 960px;" />
+</p>
+
+[🇮🇷 راهنمای فارسی](#-راهنمای-فارسی) • [🇬🇧 English Guide](#-english-documentation) • [📥 دانلود فایل نصبی و پرتابل](#-دانلود-نسخه‌های-آماده-ویندوز--download-windows-releases) • [⌨️ کلیدهای میانبر](#️-کلیدهای-میانبر--shortcuts) • [🛠️ راهنمای توسعه](#️-راهنمای-توسعه-و-کامپایل--development--build)
 
 ---
 
@@ -22,162 +27,135 @@
 
 <br/>
 
-## 🇮🇷 فارسی
+<!-- 3 MODES SHOWCASE IMAGE -->
+<p align="center">
+  <img src="docs/assets/arizo-features-showcase.svg" alt="Arizo Translate 3 Interaction Modes" width="100%" style="border-radius: 16px; max-width: 960px;" />
+</p>
 
-### 💡 چرا آفرا ترنسلیت؟ (معرفی و هدف)
-یکی از چالش‌های روزمره کاربران فارسی‌زبان در ویندوز، برخورد دائمی با متون انگلیسی در مرورگرها، مقالات تخصصی، تلگرام، دیسکورد، محیط‌های برنامه‌نویسی و اسناد PDF است. رفت و آمد مکرر به تب‌های مرورگر یا برنامه‌های آنلاین ترجمه باعث اتلاف وقت و قطع تمرکز ذهنی می‌شود.
+---
 
-**Aphra Translate** با الهام از طراحی انقلابی **Dynamic Island** و معماری ایجنتیک پروژه [DavidLMS/aphra](https://github.com/DavidLMS/aphra)، یک دستیار معلق، باوقار و سریع است که همیشه بالای صفحه نمایش آماده به خدمت است و با یک کلیک یا میانبر، متن را در همان جایی که هستید برای شما ترجمه یا جایگزین می‌کند.
+## 🇮🇷 راهنمای فارسی
+
+### 💡 چرا آریزو ترنسلیت؟ (معرفی و فلسفه ساخت)
+یکی از چالش‌های روزمره کاربران فارسی‌زبان در سیستم‌عامل ویندوز، برخورد دائمی با متون انگلیسی در مرورگرها، اسناد تخصصی، محیط‌های برنامه‌نویسی، تلگرام، دیسکورد و فایل‌های PDF است. رفت و آمد مکرر به تب‌های مرورگر یا برنامه‌های آنلاین ترجمه باعث اتلاف وقت، قطعی زنجیره تفکر و قطع تمرکز ذهنی می‌شود.
+
+**Arizo Translate** با الهام از طراحی پیشرفته **Dynamic Island**، یک دستیار معلق، باوقار و بی‌نهایت سریع است که همیشه بالای صفحه نمایش بدون مزاحمت آماده به خدمت است و با یک میانبر یا یک کلیک راست، متن را در همان جایی که هستید برای شما ترجمه یا جایگزین می‌کند.
 
 ---
 
 ### ✨ قابلیت‌ها و ویژگی‌های کلیدی
 
-#### 🏝️ ۱. جزیره پویای مدرن و مینیمال (Dynamic Island)
-- **طراحی شیک و مات (Solid Matte Dark):** بدون محو شدن یا افتادن برنامه‌های پشتی داخل کادر، با پالت رنگی حرفه‌ای نیمه‌شب و بنفش نئونی.
-- **ریسپانسیو و تطبیق‌پذیر:** دکمه‌ها و عناصر فوتر بدون افتادن به خط دوم با استانداردهای مدرن فرانت‌اند و فونت اصیل **وزیرمتن (Vazirmatn)**.
-- **همیشه در دسترس:** همیشه روی سایر برنامه‌ها (Always-on-top) بدون سلب کردن ناخواسته فوکوس کار شما.
+#### 🏝️ ۱. جزیره پویای مدرن و معلق (Dynamic Island)
+- **طراحی شیک و مات (Solid Matte Dark):** بدون محو شدن یا نمایان بودن پنجره‌های پشت سر، با پالت رنگی تیره لوکس و بنفش نئونی.
+- **ریسپانسیو و بدون باگ در تغییر سایز:** چیدمان الاستیک و شناور بدون بیرون‌زدگی دکمه‌های بستن و مینیمایز حتی هنگام انتخاب لحن هوشمند.
+- **همیشه در دسترس:** شناور روی تمامی برنامه‌ها (Always-on-top) بدون سلب کردن ناخواسته فوکوس پنجره فعال شما.
 
 #### ⚡ ۲. ترجمه جادویی درجا در هر برنامه (`Alt + Shift + D`)
-- در کادر چت تلگرام، دیسکورد، واتساپ، نرم‌افزار Word، فرم‌های وب یا ایمیل تایپ کنید و کلید **`Alt + Shift + D`** را بزنید.
-- دستیار بدون نیاز به هایلایت دستی، متن را شناسایی کرده، ترجمه می‌کند و بلافاصله در همان فیلد تایپ جایگزین می‌نماید!
+- در کادر چت تلگرام، دیسکورد، واتساپ، نرم‌افزار Word، فرم‌های وب یا ایمیل متن خود را تایپ کنید و کلید **`Alt + Shift + D`** را بزنید.
+- دستیار بدون نیاز به هایلایت دستی، متن را شناسایی کرده، به زبان مقابل ترجمه می‌کند و بلافاصله در همان فیلد جایگزین می‌نماید!
 
-#### 🎯 ۳. دکمه شناور کنار موس با کلیک راست (Smart Floating Bubble)
-- متنی را در هر صفحه‌ای با موس هایلایت کنید و کلیک راست نمایید؛ یک حباب شیک و کوچک کنار نشانگر موس پدیدار می‌شود.
-- **فیلتر هوشمند:** فقط زمانی ظاهر می‌شود که واقعاً متنی انتخاب شده باشد (بدون مزاحمت هنگام کلیک راست عادی روی دسکتاپ یا برنامه‌ها).
-- **بدون نشت کلیپ‌بورد:** مکانیزم پیشرفته و غیرهمگام با ایزولاسیون کامل کلیپ‌بورد سیستم جهت تضمین امنیت و پاکیزگی دیتای کپی‌شده.
+#### 🎯 ۳. دکمه هوشمند شناور با کلیک راست (Smart Floating Bubble)
+- متنی را در هر صفحه‌ای با موس هایلایت کنید و کلیک راست نمایید؛ یک حباب شیک و کوچک کنار نشانگر موس پدیدار می‌شود که با کلیک روی آن ترجمه کامل متن نمایش داده می‌شود.
+- **فیلتر هوشمند تشخیص متن:** این دکمه **صرفاً زمانی ظاهر می‌شود که واقعاً متنی با موس انتخاب شده باشد**؛ کلیک راست عادی روی دسکتاپ یا برنامه‌ها بدون متن هرگز حباب مزاحمی باز نخواهد کرد.
+- **ایزولاسیون کامل کلیپ‌بورد:** مکانیزم پیشرفته و غیرهمگام سنتیل جهت تضمین پاکیزگی دیتای کپی‌شده بدون نشت هیچ متن ناخواسته‌ای به حافظه موقت.
 
 #### 🤖 ۴. کاراکتر تعاملی موچی (Interactive Mascot)
-- یک کاراکتر انیمیشنی، دوست‌داشتنی و پویا در گوشه برنامه که جهت چشمان و فیزیک بدنش به صورت زنده با حرکت نشانگر موس کاربر تعامل دارد.
-- همراه با رندرینگ نایتیو با رزولوشن بالا بدون نیاز به کتابخانه‌های سنگین خارجی.
+- یک کاراکتر انیمیشنی، دوست‌داشتنی و پویا در گوشه برنامه که جهت چشمان و فیزیک بدنش به صورت زنده با حرکت نشانگر موس کاربر تعامل دارد و حس زنده بودن به میز کار شما می‌بخشد.
 
 #### 🔄 ۵. تشخیص هوشمند دوطرفه زبان (Smart Bidirectional Detection)
 - تفکیک خودکار جملات فارسی از انگلیسی حتی در متون تخصصی ترکیبی (مثل جملات برنامه‌نویسی حاوی کلمات و توابع انگلیسی).
-- سوییچ خودکار: فارسی ⇄ انگلیسی بدون نیاز به تنظیم دستی زبان مقصد.
+- سوییچ خودکار: فارسی ⇄ انگلیسی بدون نیاز به انتخاب دستی زبان مقصد.
 
 #### 🧹 ۶. ابزار پاکسازی خطوط PDF (PDF Text Cleaner)
 - متون کپی‌شده از فایل‌های PDF معمولاً با اینترهای اضافی و خطوط شکسته کپی می‌شوند. با دکمه اختصاصی **🧹 الحاق خطوط PDF** تمامی شکست‌ها و خط‌تیره‌های اضافی در کسری از ثانیه مرتب و ترجمه می‌شوند.
 
 #### 🗣️ ۷. تلفظ صوتی طبیعی (Bilingual TTS)
-- پشتیبانی از تلفظ صوتی واضح و روان برای عبارات انگلیسی و فارسی.
+- پشتیبانی از تلفظ صوتی شفاف و روان برای عبارات انگلیسی و فارسی.
 
 #### 🧠 ۸. موتور دوگانه ترجمه (Dual Engine)
-- **موتور سریع (Google Instant):** ترجمه در کسری از ثانیه (زیر ۱۵۰ میلی‌ثانیه) بدون نیاز به فیلترشکن، کلید API یا هزینه.
-- **موتور هوش مصنوعی آفرا (Aphra Agentic AI):** پایپ‌لاین پیشرفته چندمرحله‌ای برای درک کنایه‌ها، اصطلاحات عامیانه (Idioms & Slang Breakdown)، تنظیم لحن (رسمی، عامیانه، ادبی، تخصصی) با امکان اتصال به OpenRouter، DeepSeek، Groq، OpenAI و مدل‌های لوکال Ollama.
+- **موتور سریع (Google Instant):** ترجمه در کسری از ثانیه (زیر ۱۵۰ میلی‌ثانیه) بدون نیاز به پروکسی، کلید API یا هزینه.
+- **موتور هوش مصنوعی آریزو (Agentic AI Engine):** پایپ‌لاین پیشرفته چندمرحله‌ای برای درک کنایه‌ها، اصطلاحات عامیانه (Idioms & Slang Breakdown)، تنظیم لحن (رسمی، عامیانه، ادبی، تخصصی) با امکان اتصال به OpenRouter، DeepSeek، Groq، OpenAI و مدل‌های لوکال Ollama.
 
 ---
 
 <br/>
 
-## 🇬🇧 English
+## 🇬🇧 English Documentation
 
-### 💡 Why Aphra Translate?
-Switching back and forth between work windows, browser tabs, and translation engines interrupts deep focus. **Aphra Translate** solves this with a native Windows Dynamic Island assistant inspired by the agentic pipeline of [DavidLMS/aphra](https://github.com/DavidLMS/aphra).
+### 💡 Why Arizo Translate?
+Switching back and forth between workspace windows, browser tabs, and translation websites causes constant cognitive friction and interrupts deep workflow. **Arizo Translate** solves this problem by bringing an ultra-fast, native Windows Dynamic Island assistant directly to your desktop.
 
-It hovers elegantly at the top of your screen, captures text seamlessly across any Windows app, and translates or replaces text in place with zero distraction.
+It hovers elegantly at the top of your screen, captures text effortlessly across any Windows app, and translates or replaces text in-place with zero distraction.
 
-### 🌟 Key Highlights
-- 🏝️ **Responsive Dynamic Island**: Clean solid matte finish with fluid CSS animations and custom typography.
-- ⚡ **Instant In-Place Translation (`Alt + Shift + D`)**: Type in Telegram, Word, Discord, or web browsers, press the hotkey, and watch your text instantly translate right inside the input field!
-- 🎯 **Smart Floating Bubble**: Right-click on any highlighted text in any app to spawn an unobtrusive translation bubble next to your cursor.
-- 🔒 **Zero Clipboard Leak Guarantee**: Fully asynchronous clipboard management preventing sentinel strings from ever polluting your system clipboard.
-- 🤖 **Interactive Mascot ("Mochi")**: Vector-shaded cartoon companion with real-time pupil and eye kinematics following your cursor.
-- 🔄 **Heuristic Bidirectional Detection**: Accurately differentiates between Persian, English, and technical sentences mixed with code identifiers.
-- 🧹 **Smart PDF Line De-hyphenator**: Automatically merges broken lines and joins hyphenated words from copied PDF papers.
-- 🗣️ **Natural TTS**: Built-in voice playback for both Persian and English.
+---
+
+### 🌟 Key Features
+
+- 🏝️ **Floating Dynamic Island**: Solid dark finish with fluid CSS animations, high-precision geometry, and clean typography that never cuts off window controls.
+- ⚡ **Instant In-Place Translation (`Alt + Shift + D`)**: Type in Telegram, Word, Discord, or web inputs, hit the hotkey, and watch your text instantly translate right inside the field!
+- 🎯 **Context-Aware Floating Bubble**: Highlights text anywhere, right-clicks, and a sleek translation bubble appears right near the cursor. If no text is selected, it silently stays hidden with zero false triggers.
+- 🔒 **Zero Clipboard Leak Guarantee**: Fully asynchronous clipboard management preventing sentinel strings or intermediate tokens from ever polluting your system clipboard.
+- 🤖 **Interactive Mascot ("Mochi")**: Vector-shaded cartoon companion with real-time pupil and eye kinematics that follow your mouse cursor.
+- 🔄 **Heuristic Bidirectional Detection**: Accurately distinguishes between Persian, English, and technical sentences mixed with programming identifiers.
+- 🧹 **Smart PDF Line De-hyphenator**: Automatically merges broken paragraph lines and joins hyphenated words from copied PDF articles.
+- 🗣️ **Natural Bilingual TTS**: Built-in audio speech synthesis for both Persian and English.
 - ⚡ **Dual Engine Flexibility**: Instant ultra-fast translation (<150ms) plus advanced Agentic AI through OpenRouter, Groq, Ollama, or OpenAI.
 
 ---
 
 ## ⌨️ کلیدهای میانبر | Shortcuts
 
-| میانبر | عملکرد (Persian) | Description (English) |
+| کلید میانبر (Shortcut) | عملکرد در زبان فارسی | English Description |
 |---|---|---|
 | **`Alt + D`** | باز کردن جزیره پویا و ترجمه خودکار متن انتخاب‌شده | Open Dynamic Island & translate selected text |
-| **`Alt + Shift + D`** | **ترجمه آنی درجا در فیلد فعال برنامه مبدا** | **Instant in-place translation in the active input field** |
+| **`Alt + Shift + D`** | **ترجمه آنی درجا در فیلد فعال برنامه مبدا (تلگرام، ورد،...)** | **Instant in-place translation in active input field** |
 | **`Enter`** | کپی ترجمه در کلیپ‌بورد و جمع شدن پنجره | Copy translation to clipboard and collapse island |
 | **`Ctrl + Enter`** | جایگزینی درجا ترجمه در برنامه باز | Replace translated text in current active application |
 | **`Ctrl + Shift + C`** | کپی دوزبانه (متن اصلی + متن ترجمه) | Bilingual copy (Source + Target translation) |
-| **`Ctrl + Tab`** | جابجایی بین حالت سریع (Google) و هوشمند (Aphra) | Switch between Instant Google & Agentic Aphra engine |
-| **`Esc`** | بستن یا جمع کردن جزیره پویا | Dismiss or collapse Dynamic Island |
+| **`Esc`** | بستن یا جمع کردن جزیره ترجمه | Hide or collapse the Dynamic Island |
+| **`Ctrl + Tab`** | سوییچ سریع بین موتور سریع و موتور هوشمند | Toggle between Fast and Smart engine |
 
 ---
 
-## 📥 دانلود نسخه آماده ویندوز | Download Windows Releases
+## 📥 دانلود نسخه‌های آماده ویندوز | Download Windows Releases
 
-شما می‌توانید فایل آماده برنامه را از بخش [**Releases**](https://github.com/ArizoOwner/aphra-translate/releases) دریافت کنید:
+تمامی نسخه‌ها از پیش کامپایل شده و آماده اجرا در ویندوز ۱۰ و ۱۱ هستند:  
+Direct downloads available on [GitHub Releases v2.0.0](https://github.com/ArizoOwner/arizo-translate/releases/tag/v2.0.0):
 
-1. 🚀 **نسخه پرتابل (بدون نیاز به نصب):**
-   - دانلود فایل `Aphra Translate-Portable-2.0.0.exe`
-   - تنها با دو بار کلیک اجرا می‌شود؛ بدون نیاز به تنظیمات یا دسترسی ادمین.
-2. 📦 **نسخه نصبی (Setup Installer):**
-   - دانلود فایل `Aphra Translate Setup 2.0.0.exe`
-   - نصب استاندارد ویندوز همراه با ایجاد آیکون در دسکتاپ و منوی استارت.
+| نوع فایل (Package Type) | نام فایل دانلودی (File Name) | توضیحات (Description) |
+|---|---|---|
+| 📦 **فایل نصبی (Installer)** | [**`Arizo.Translate.Setup.2.0.0.exe`**](https://github.com/ArizoOwner/arizo-translate/releases/download/v2.0.0/Arizo.Translate.Setup.2.0.0.exe) | فایل نصب رسمی ویندوز با ساخت آیکون دسکتاپ و استارت‌منو |
+| 🚀 **نسخه پرتابل (Portable)** | [**`Arizo.Translate-Portable-2.0.0.exe`**](https://github.com/ArizoOwner/arizo-translate/releases/download/v2.0.0/Arizo.Translate-Portable-2.0.0.exe) | اجرای فوری بدون نیاز به نصب یا دسترسی Administrator |
 
 ---
 
 ## 🛠️ راهنمای توسعه و کامپایل | Development & Build
 
-### پیش‌نیازها | Prerequisites
-- [Node.js](https://nodejs.org/) نسخه ۲۰ به بالا
-- سیستم عامل Windows 10 یا Windows 11
+برای اجرای پروژه در محیط توسعه و ساخت فایل نصبی:
 
-### راه‌اندازی و اجرای سورس کد | Run from Source
 ```bash
-# کلون کردن ریپازیتوری
-git clone https://github.com/ArizoOwner/aphra-translate.git
-cd aphra-translate
+# ۱. دریافت ریپازیتوری
+git clone https://github.com/ArizoOwner/arizo-translate.git
+cd arizo-translate
 
-# نصب وابستگی‌ها
+# ۲. نصب وابستگی‌ها
 npm install
 
-# اجرای تست‌های واحد
+# ۳. اجرای برنامه در حالت توسعه
+npm start
+
+# ۴. اجرای تست‌های نرم‌افزاری
 npm test
 
-# اجرای برنامه در حالت توسعه
-npm start
-```
-
-### ساخت فایل نصبی و اجرایی (`.exe`) | Building Executable
-```bash
-# کامپایل نسخه‌های Portable و Installer در پوشه dist/
+# ۵. ساخت فایل نصبی و پرتابل ویندوز (Build .exe)
 npm run dist
 ```
 
----
-
-## 🏛️ ساختار معماری پروژه | Architecture
-
-```text
-aphra-translate/
-├── main.js                  # مدیریت پنجره‌های الکترون، هوک‌های ماوس و میانبرهای ویندوز
-├── src/
-│   ├── engine/
-│   │   ├── aphra.js         # پایپ‌لاین ایجنتیک هوش مصنوعی (اصطلاحات، لحن، بازنویسی)
-│   │   ├── google.js        # کلاینت بهینه‌سازی‌شده و فوق‌سریع Google Translate
-│   │   ├── languages.js     # الگوریتم‌های تشخیص زبانی و متون ترکیبی
-│   │   ├── translator.js    # اینترفیس هماهنگ‌کننده موتورهای ترجمه
-│   │   └── tts.js           # تبدیل متن به صوت دو زبانه
-│   ├── main/
-│   │   ├── capture.js       # سیستم امن کپچر غیرهمگام کلیپ‌بورد و شبیه‌سازی کلیدها
-│   │   ├── mouse.js         # هوک تشخیص کلیک راست در سراسر سیستم‌عامل
-│   │   ├── icon.js          # رندرر وکتوری نماد و کاراکتر برنامه با کیفیت بالا
-│   │   └── store.js         # پایگاه ذخیره‌سازی تنظیمات و تاریخچه ترجمه‌ها
-│   └── renderer/
-│       ├── index.html       # رابط کاربری داینامیک آیلند
-│       ├── style.css        # استایل‌های مدرن، تم تیره مات و تایپوگرافی وزیرمتن
-│       ├── app.js           # لاجیک اصلی فرانت‌اند و مدیریت رویدادها
-│       ├── mascot.js        # سینماتیک حرکت مردمک و انیمیشن کاراکتر موچی
-│       ├── bubble.html      # پنجره حباب شناور کنار نشانگر موس
-│       └── bubble.js        # رفتار پاپ‌اور و ترجمه سریع کلیک راست
-└── test/                    # آزمون‌های جامع واحد
-```
+فایل‌های خروجی در پوشه `dist/` با نام‌های `Arizo Translate Setup 2.0.0.exe` و `Arizo Translate-Portable-2.0.0.exe` ایجاد خواهند شد.
 
 ---
 
 ## 📄 لایسنس | License
-این پروژه تحت مجوز [MIT License](LICENSE) منتشر شده است. استفاده و توسعه آن برای تمامی علاقه‌مندان آزاد است.
 
-<div align="center">
-  <sub>ساخته شده با ❤️ برای جامعه فارسی‌زبان و تمامی توسعه‌دهندگان</sub>
-</div>
+این پروژه تحت مجوز [MIT License](LICENSE) منتشر شده است.
+Developed with ❤️ by AmirHossein (ArizoOwner).

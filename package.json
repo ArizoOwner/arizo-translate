@@ -1,5 +1,5 @@
 {
-  "name": "aphra-translate",
+  "name": "arizo-translate",
   "version": "2.0.0",
   "description": "دستیار هوشمند ترجمه داینامیک آیلند برای ویندوز | Dynamic Island AI Translation Assistant for Windows",
   "author": "AmirHossein (ArizoOwner)",
@@ -13,8 +13,8 @@
     "dist": "npm run prebuild && electron-builder --win portable nsis"
   },
   "build": {
-    "appId": "com.arizo.aphra-translate",
-    "productName": "Aphra Translate",
+    "appId": "com.arizo.translate",
+    "productName": "Arizo Translate",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -46,7 +46,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Aphra Translate"
+      "shortcutName": "Arizo Translate"
     },
     "portable": {
       "artifactName": "${productName}-Portable-${version}.${ext}"

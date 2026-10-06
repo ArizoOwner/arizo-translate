@@ -10,7 +10,7 @@ const { synthesize } = require('./src/engine/tts');
 const { LANGUAGES } = require('./src/engine/languages');
 const { iconPng } = require('./src/main/icon');
 
-const WIN_WIDTH = 680;
+const WIN_WIDTH = 750;
 const COMPACT_WIDTH = 300;
 const TOP_MARGIN = 16;
 const MIN_HEIGHT = 72;
@@ -282,59 +282,82 @@ function createBubbleWindow() {
   });
 }
 
+let cachedSelectedText = '';
+
 async function handleMouseSelectionEvent(eventType) {
-  if (eventType === 'normal_right_click') {
-    // Normal right click on unselected space: hide bubble immediately if open
-    if (bubbleWindow && bubbleWindow.isVisible()) {
-      bubbleWindow.hide();
-    }
-    return;
-  }
-
-  // Strictly trigger ONLY when an active selection was detected
-  if (eventType !== 'selection_right_clicked') return;
-
   const settings = loadSettings();
   if (settings.showFloatingBubble === false) return;
 
   // Don't trigger if the island is open and focused
   if (mainWindow && mainWindow.isVisible() && mainWindow.isFocused()) return;
 
-  // Wait 75ms for target application to process right-click release
-  await new Promise((r) => setTimeout(r, 75));
-
-  const text = await captureSelectedText({ restore: true });
-  if (!text || text.trim().length < 2) {
-    if (bubbleWindow && bubbleWindow.isVisible()) {
-      bubbleWindow.hide();
+  if (eventType === 'selection_made') {
+    // User just completed a mouse selection (drag release or double-click)
+    await new Promise((r) => setTimeout(r, 40));
+    try {
+      const text = await captureSelectedText({ restore: true });
+      if (text && text.trim().length >= 2) {
+        cachedSelectedText = text.trim();
+      } else {
+        cachedSelectedText = '';
+      }
+    } catch (_) {
+      cachedSelectedText = '';
     }
     return;
   }
 
-  if (!bubbleWindow) createBubbleWindow();
+  if (eventType === 'left_clicked') {
+    // Normal single-click on empty space: clear cached selection
+    cachedSelectedText = '';
+    return;
+  }
 
-  const cursor = screen.getCursorScreenPoint();
-  const display = screen.getDisplayNearestPoint(cursor);
-  const wa = display.workArea;
+  if (eventType === 'right_clicked') {
+    let textToUse = cachedSelectedText;
 
-  // Place floating button slightly above cursor so it doesn't collide with Windows context menu
-  let x = cursor.x + 14;
-  let y = cursor.y - 54;
-  if (y < wa.y + 10) y = cursor.y + 24;
-  x = Math.max(wa.x + 8, Math.min(x, wa.x + wa.width - 64));
-  y = Math.max(wa.y + 8, Math.min(y, wa.y + wa.height - 64));
+    // If no text was cached yet (e.g. selection via keyboard Shift+Arrows), try capturing now
+    if (!textToUse || textToUse.length < 2) {
+      await new Promise((r) => setTimeout(r, 50));
+      const text = await captureSelectedText({ restore: true });
+      if (text && text.trim().length >= 2) {
+        textToUse = text.trim();
+      }
+    }
 
-  bubbleWindow.setBounds({ x, y, width: 54, height: 54 });
-  bubbleWindow.showInactive(); // Show without stealing focus so target app selection is preserved
-  bubbleWindow.setAlwaysOnTop(true, 'screen-saver');
+    // Strictly enforce: ONLY show bubble if valid text is actively selected!
+    if (!textToUse || textToUse.trim().length < 2) {
+      if (bubbleWindow && bubbleWindow.isVisible()) {
+        bubbleWindow.hide();
+      }
+      return;
+    }
 
-  if (bubbleReady) {
-    bubbleWindow.webContents.send('bubble-init', { text: text.trim() });
-  } else {
-    bubbleWindow.webContents.once('did-finish-load', () => {
-      bubbleReady = true;
-      if (bubbleWindow) bubbleWindow.webContents.send('bubble-init', { text: text.trim() });
-    });
+    if (!bubbleWindow) createBubbleWindow();
+
+    const cursor = screen.getCursorScreenPoint();
+    const display = screen.getDisplayNearestPoint(cursor);
+    const wa = display.workArea;
+
+    // Place floating button slightly above cursor so it doesn't collide with Windows context menu
+    let x = cursor.x + 14;
+    let y = cursor.y - 54;
+    if (y < wa.y + 10) y = cursor.y + 24;
+    x = Math.max(wa.x + 8, Math.min(x, wa.x + wa.width - 64));
+    y = Math.max(wa.y + 8, Math.min(y, wa.y + wa.height - 64));
+
+    bubbleWindow.setBounds({ x, y, width: 54, height: 54 });
+    bubbleWindow.showInactive(); // Show without stealing focus so target app selection is preserved
+    bubbleWindow.setAlwaysOnTop(true, 'screen-saver');
+
+    if (bubbleReady) {
+      bubbleWindow.webContents.send('bubble-init', { text: textToUse });
+    } else {
+      bubbleWindow.webContents.once('did-finish-load', () => {
+        bubbleReady = true;
+        if (bubbleWindow) bubbleWindow.webContents.send('bubble-init', { text: textToUse });
+      });
+    }
   }
 }
 
@@ -391,7 +414,7 @@ function refreshTray() {
 function createTray() {
   try {
     tray = new Tray(trayIcon());
-    tray.setToolTip('Aphra Translation Assistant');
+    tray.setToolTip('Arizo Translate - دستیار هوشمند ترجمه');
     refreshTray();
     tray.on('click', () => showIsland(''));
   } catch (err) {

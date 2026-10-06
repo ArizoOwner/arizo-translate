@@ -1,0 +1,190 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 580" width="1200" height="580">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#07090e" />
+      <stop offset="50%" stop-color="#0c101d" />
+      <stop offset="100%" stop-color="#06080d" />
+    </linearGradient>
+
+    <linearGradient id="islandBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(168, 85, 247, 0.45)" />
+      <stop offset="50%" stop-color="rgba(255, 255, 255, 0.12)" />
+      <stop offset="100%" stop-color="rgba(59, 130, 246, 0.35)" />
+    </linearGradient>
+
+    <linearGradient id="islandSurface" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0f1422" />
+      <stop offset="100%" stop-color="#0a0d17" />
+    </linearGradient>
+
+    <linearGradient id="purpleGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+
+    <linearGradient id="cyanGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#818cf8" />
+    </linearGradient>
+
+    <radialGradient id="mascotGrad" cx="36%" cy="28%" r="70%">
+      <stop offset="0%" stop-color="#c084fc" />
+      <stop offset="40%" stop-color="#8b5cf6" />
+      <stop offset="80%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#312e81" />
+    </radialGradient>
+
+    <!-- Filters -->
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="24" stdDeviation="32" flood-color="#000000" flood-opacity="0.85" />
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#a855f7" flood-opacity="0.18" />
+    </filter>
+
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background Wallpaper simulation -->
+  <rect width="1200" height="580" fill="url(#bgGrad)" />
+  <circle cx="200" cy="80" r="180" fill="#a855f7" opacity="0.08" filter="blur(60px)" />
+  <circle cx="1020" cy="180" r="220" fill="#3b82f6" opacity="0.07" filter="blur(80px)" />
+
+  <!-- Top Title / Brand Header -->
+  <g transform="translate(600, 48)" text-anchor="middle">
+    <text font-family="'Segoe UI', system-ui, sans-serif" font-weight="800" font-size="28" fill="#ffffff" letter-spacing="-0.5">
+      🏝️ Arizo Translate
+    </text>
+    <text y="26" font-family="'Segoe UI', system-ui, sans-serif" font-weight="500" font-size="14" fill="#94a3b8">
+      Dynamic Island Translation Assistant for Windows 10 &amp; 11
+    </text>
+  </g>
+
+  <!-- THE DYNAMIC ISLAND WINDOW (Centered Mockup) -->
+  <g transform="translate(230, 105)" filter="url(#cardShadow)">
+    <!-- Outer Card Frame -->
+    <rect width="740" height="390" rx="22" fill="url(#islandSurface)" stroke="url(#islandBorder)" stroke-width="1.5" />
+
+    <!-- ================= HEADER SECTION ================= -->
+    <g transform="translate(18, 14)">
+      <!-- MASCOT -->
+      <g transform="translate(0, 0)">
+        <circle cx="28" cy="28" r="26" fill="url(#mascotGrad)" />
+        <ellipse cx="22" cy="14" rx="7" ry="3.5" fill="#ffffff" opacity="0.65" transform="rotate(-25 22 14)" />
+        <!-- Eyes -->
+        <circle cx="21" cy="28" r="4.2" fill="#0b0f19" />
+        <circle cx="35" cy="28" r="4.2" fill="#0b0f19" />
+        <circle cx="22.5" cy="26.5" r="1.6" fill="#ffffff" />
+        <circle cx="36.5" cy="26.5" r="1.6" fill="#ffffff" />
+        <!-- Cheeks -->
+        <ellipse cx="15" cy="33" rx="3.5" ry="2" fill="#f43f5e" opacity="0.5" />
+        <ellipse cx="41" cy="33" rx="3.5" ry="2" fill="#f43f5e" opacity="0.5" />
+        <!-- Mouth -->
+        <path d="M 25 33 Q 28 36 31 33" stroke="#0b0f19" stroke-width="2" fill="none" stroke-linecap="round" />
+      </g>
+
+      <!-- ENGINE SELECTOR PILL -->
+      <g transform="translate(68, 12)">
+        <rect width="138" height="32" rx="16" fill="#151a2d" stroke="rgba(255,255,255,0.08)" stroke-width="1" />
+        <!-- Active segment: Smart -->
+        <rect x="66" y="2" width="70" height="28" rx="14" fill="url(#purpleGlow)" />
+        <text x="101" y="21" font-family="'Segoe UI', Tahoma, sans-serif" font-weight="700" font-size="12" fill="#ffffff" text-anchor="middle">هوشمند</text>
+        <text x="33" y="21" font-family="'Segoe UI', Tahoma, sans-serif" font-weight="600" font-size="12" fill="#94a3b8" text-anchor="middle">سریع</text>
+      </g>
+
+      <!-- TONE PILL (Visible in Smart engine) -->
+      <g transform="translate(216, 12)">
+        <rect width="105" height="32" rx="16" fill="rgba(168, 85, 247, 0.12)" stroke="rgba(168, 85, 247, 0.3)" stroke-width="1" />
+        <text x="52" y="21" font-family="'Segoe UI', Tahoma, sans-serif" font-weight="600" font-size="11.5" fill="#e9d5ff" text-anchor="middle">محاوره‌ای ▾</text>
+      </g>
+
+      <!-- LANGUAGE PAIR PILL -->
+      <g transform="translate(470, 12)">
+        <rect width="112" height="32" rx="16" fill="#151a2d" stroke="rgba(255,255,255,0.08)" stroke-width="1" />
+        <text x="24" y="21" font-family="'Segoe UI', sans-serif" font-weight="700" font-size="12" fill="#38bdf8" text-anchor="middle">EN</text>
+        <text x="56" y="21" font-family="'Segoe UI', sans-serif" font-weight="700" font-size="12" fill="#64748b" text-anchor="middle">⇄</text>
+        <text x="88" y="21" font-family="'Segoe UI', sans-serif" font-weight="700" font-size="12" fill="#a855f7" text-anchor="middle">FA</text>
+      </g>
+
+      <!-- WINDOW CONTROLS -->
+      <g transform="translate(595, 12)">
+        <!-- History -->
+        <circle cx="16" cy="16" r="14" fill="rgba(255,255,255,0.05)" />
+        <text x="16" y="21" font-size="13" text-anchor="middle" fill="#94a3b8">🕒</text>
+        <!-- Settings -->
+        <circle cx="48" cy="16" r="14" fill="rgba(255,255,255,0.05)" />
+        <text x="48" y="21" font-size="13" text-anchor="middle" fill="#94a3b8">⚙️</text>
+        <!-- Minimize -->
+        <circle cx="80" cy="16" r="14" fill="rgba(255,255,255,0.05)" />
+        <text x="80" y="20" font-family="sans-serif" font-size="16" text-anchor="middle" fill="#94a3b8">─</text>
+        <!-- Close -->
+        <circle cx="106" cy="16" r="14" fill="rgba(244, 63, 94, 0.15)" />
+        <text x="106" y="22" font-family="sans-serif" font-weight="700" font-size="14" text-anchor="middle" fill="#f43f5e">✕</text>
+      </g>
+    </g>
+
+    <!-- DIVIDER -->
+    <line x1="0" y1="72" x2="740" y2="72" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+
+    <!-- ================= TRANSLATION CARDS ================= -->
+    <!-- SOURCE BOX (ENGLISH) -->
+    <g transform="translate(20, 88)">
+      <rect width="700" height="110" rx="14" fill="#131726" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
+      <text x="18" y="24" font-family="'Segoe UI', sans-serif" font-weight="600" font-size="11" fill="#64748b" letter-spacing="0.5">SOURCE TEXT (ENGLISH)</text>
+      <text x="18" y="52" font-family="'Segoe UI', sans-serif" font-weight="400" font-size="15" fill="#f8fafc">
+        Deep focus requires eliminating friction between thoughts and execution.
+      </text>
+      <text x="18" y="78" font-family="'Segoe UI', sans-serif" font-weight="400" font-size="14" fill="#94a3b8">
+        Translate any text instantaneously right inside your active window!
+      </text>
+      <text x="682" y="98" font-family="'Segoe UI', sans-serif" font-size="11" fill="#475569" text-anchor="end">128 chars</text>
+    </g>
+
+    <!-- TARGET BOX (PERSIAN) -->
+    <g transform="translate(20, 210)">
+      <rect width="700" height="110" rx="14" fill="#161c2e" stroke="rgba(168,85,247,0.25)" stroke-width="1.2" />
+      <text x="682" y="24" font-family="'Segoe UI', Tahoma, sans-serif" font-weight="600" font-size="11" fill="#a855f7" text-anchor="end">ترجمه فارسی (PERSIAN)</text>
+      <text x="682" y="56" font-family="'Vazirmatn', Tahoma, sans-serif" font-weight="500" font-size="16" fill="#ffffff" text-anchor="end" dir="rtl">
+        تمرکز عمیق نیازمند از بین بردن اصطکاک میان افکار و اجرای آن‌هاست.
+      </text>
+      <text x="682" y="86" font-family="'Vazirmatn', Tahoma, sans-serif" font-weight="400" font-size="14" fill="#cbd5e1" text-anchor="end" dir="rtl">
+        هر متنی رو در یک چشم به هم زدن مستقیماً داخل همون برنامه‌ای که هستی ترجمه کن!
+      </text>
+      <!-- Quick audio & copy icon pills inside target -->
+      <g transform="translate(18, 72)">
+        <rect width="66" height="26" rx="13" fill="rgba(255,255,255,0.06)" />
+        <text x="33" y="18" font-family="sans-serif" font-size="12" fill="#cbd5e1" text-anchor="middle">🔊 پخش</text>
+      </g>
+    </g>
+
+    <!-- ================= FOOTER ACTIONS ================= -->
+    <g transform="translate(20, 332)">
+      <!-- Left Quick Actions -->
+      <rect x="0" y="8" width="120" height="34" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+      <text x="60" y="30" font-family="'Segoe UI', Tahoma, sans-serif" font-size="12" fill="#cbd5e1" text-anchor="middle">🧹 الحاق خطوط PDF</text>
+
+      <!-- Right Primary Buttons -->
+      <g transform="translate(420, 8)">
+        <!-- Bilingual Copy -->
+        <rect x="0" y="0" width="110" height="34" rx="10" fill="rgba(255,255,255,0.06)" />
+        <text x="55" y="22" font-family="'Segoe UI', Tahoma, sans-serif" font-size="12" fill="#cbd5e1" text-anchor="middle">کپی دوزبانه</text>
+
+        <!-- Main Copy & Close -->
+        <rect x="118" y="0" width="162" height="34" rx="10" fill="url(#purpleGlow)" />
+        <text x="199" y="22" font-family="'Segoe UI', Tahoma, sans-serif" font-weight="700" font-size="12.5" fill="#ffffff" text-anchor="middle">کپی و بستن (Enter)</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Bottom Badges -->
+  <g transform="translate(600, 545)" text-anchor="middle">
+    <text font-family="'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#64748b">
+      ⚡ Shortcut: <tspan fill="#38bdf8">Alt + D</tspan> (Island) &nbsp;•&nbsp; <tspan fill="#a855f7">Alt + Shift + D</tspan> (In-Place) &nbsp;•&nbsp; Mouse: <tspan fill="#34d399">Right-Click on Selection</tspan>
+    </text>
+  </g>
+</svg>

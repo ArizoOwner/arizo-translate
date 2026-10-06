@@ -33,16 +33,20 @@ class MouseMonitor {
       const msg = line.trim();
       if (msg === 'ready') {
         this.ready = true;
-      } else if (msg === 'selection_right_clicked') {
+      } else if (msg === 'selection_made') {
+        if (typeof this.callback === 'function') {
+          this.callback('selection_made');
+        }
+      } else if (msg === 'left_clicked') {
+        if (typeof this.callback === 'function') {
+          this.callback('left_clicked');
+        }
+      } else if (msg === 'right_clicked' || msg === 'selection_right_clicked') {
         const now = Date.now();
-        if (now - this.lastTrigger < 250) return;
+        if (now - this.lastTrigger < 200) return;
         this.lastTrigger = now;
         if (typeof this.callback === 'function') {
-          this.callback('selection_right_clicked');
-        }
-      } else if (msg === 'normal_right_click') {
-        if (typeof this.callback === 'function') {
-          this.callback('normal_right_click');
+          this.callback('right_clicked');
         }
       }
     });
