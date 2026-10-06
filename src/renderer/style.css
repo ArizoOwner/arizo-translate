@@ -57,6 +57,28 @@ body {
 /* ========================================================
    DYNAMIC ISLAND CONTAINER
    ======================================================== */
+/* Ambient Aura Glow behind Island */
+.island-ambient-aura {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 540px;
+  height: 120px;
+  border-radius: 60px;
+  background: radial-gradient(ellipse at center, rgba(168, 85, 247, 0.25) 0%, rgba(59, 130, 246, 0.18) 50%, transparent 75%);
+  filter: blur(28px);
+  pointer-events: none;
+  z-index: 0;
+  animation: auraBreathe 6s infinite ease-in-out;
+}
+
+@keyframes auraBreathe {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(0.98); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+}
+
 .island-card {
   width: 100%;
   max-width: 600px;
@@ -70,7 +92,237 @@ body {
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  z-index: 1;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: islandEntry 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes islandEntry {
+  from { opacity: 0; transform: translateY(-16px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ========================================================
+   CARTOON MASCOT (MOCHI COMPANION)
+   ======================================================== */
+.mascot-wrapper {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  margin-left: 2px;
+}
+
+.mascot-body {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #a855f7 0%, #6366f1 55%, #3b82f6 100%);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.45), inset 0 -2px 5px rgba(0, 0, 0, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: mascotHoverFloat 3.5s infinite ease-in-out;
+}
+
+@keyframes mascotHoverFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.02); }
+}
+
+.mascot-gloss {
+  position: absolute;
+  top: 3px;
+  left: 6px;
+  width: 10px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.65);
+  transform: rotate(-25deg);
+  pointer-events: none;
+}
+
+.mascot-face {
+  position: relative;
+  width: 24px;
+  height: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cheeks */
+.mascot-blush {
+  position: absolute;
+  top: 9px;
+  width: 5px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(244, 63, 94, 0.65);
+  filter: blur(0.5px);
+}
+.mascot-blush.left { left: 0px; }
+.mascot-blush.right { right: 0px; }
+
+/* Eyes */
+.mascot-eyes {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  margin-top: 1px;
+}
+
+.mascot-eye {
+  position: relative;
+  width: 7.5px;
+  height: 9px;
+  background: #ffffff;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.mascot-pupil {
+  position: absolute;
+  top: 2px;
+  left: 1.5px;
+  width: 4.5px;
+  height: 5px;
+  background: #0f172a;
+  border-radius: 50%;
+  transition: transform 0.08s ease-out;
+}
+
+.pupil-glint {
+  position: absolute;
+  top: 0.8px;
+  right: 0.8px;
+  width: 1.8px;
+  height: 1.8px;
+  background: #ffffff;
+  border-radius: 50%;
+}
+
+.mascot-eyelid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: #6366f1;
+  transition: height 0.08s ease;
+}
+
+.mascot-eye.blinking .mascot-eyelid {
+  height: 100%;
+}
+
+/* Mouth */
+.mascot-mouth {
+  margin-top: 2px;
+  width: 5px;
+  height: 3px;
+  border-bottom: 2px solid #0f172a;
+  border-radius: 0 0 5px 5px;
+  transition: all 0.15s ease;
+}
+
+.mascot-mouth.happy {
+  width: 6px;
+  height: 4px;
+  background: #f43f5e;
+  border: none;
+  border-radius: 0 0 6px 6px;
+}
+
+.mascot-mouth.thinking {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: none;
+}
+
+/* Mascot Click Spin Animation */
+.mascot-body.spin-celebrate {
+  animation: mascotCelebrate 0.65s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes mascotCelebrate {
+  0% { transform: scale(1) rotate(0deg); }
+  35% { transform: scale(1.3) translateY(-8px) rotate(-180deg); }
+  75% { transform: scale(1.1) translateY(-2px) rotate(-360deg); }
+  100% { transform: scale(1) translateY(0) rotate(-360deg); }
+}
+
+/* Compact Island Capsule Mode */
+.island-card.compact-mode {
+  max-width: 280px;
+  border-radius: 40px;
+}
+.island-card.compact-mode .island-main,
+.island-card.compact-mode .segmented-control,
+.island-card.compact-mode .tone-pill,
+.island-card.compact-mode .lang-pill,
+.island-card.compact-mode .header-actions {
+  display: none !important;
+}
+.island-card.compact-mode .compact-capsule {
+  display: flex !important;
+}
+
+.compact-capsule {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px 10px 14px;
+  cursor: pointer;
+}
+
+.compact-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.compact-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-emerald);
+  box-shadow: 0 0 8px var(--accent-emerald);
+}
+
+.compact-text {
+  font-size: 11.5px;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.compact-expand-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.compact-expand-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
 }
 
 /* ========================================================

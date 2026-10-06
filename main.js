@@ -43,15 +43,9 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadFile(path.join(__dirname, 'src', 'renderer', 'index.html'));
+  mainWindow.setAlwaysOnTop(true, 'screen-saver');
 
-  // Hide when clicking outside / losing focus
-  mainWindow.on('blur', () => {
-    // Only hide if settings/history modals are not actively open or debugging
-    if (mainWindow && !mainWindow.webContents.isDevToolsOpened()) {
-      mainWindow.hide();
-    }
-  });
+  mainWindow.loadFile(path.join(__dirname, 'src', 'renderer', 'index.html'));
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -61,6 +55,10 @@ function createWindow() {
 function showIsland(capturedText = '') {
   if (!mainWindow) return;
 
+  if (mainWindow.isMinimized()) {
+    mainWindow.restore();
+  }
+
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width: screenWidth } = primaryDisplay.workAreaSize;
   const x = Math.round((screenWidth - mainWindow.getBounds().width) / 2);
@@ -69,6 +67,7 @@ function showIsland(capturedText = '') {
 
   mainWindow.show();
   mainWindow.focus();
+  mainWindow.setAlwaysOnTop(true, 'screen-saver');
 
   mainWindow.webContents.send('captured-text', capturedText);
 }
@@ -196,6 +195,27 @@ ipcMain.handle('replace-text', async (event, newText) => {
 
 ipcMain.on('hide-window', () => {
   if (mainWindow) mainWindow.hide();
+});
+
+ipcMain.on('minimize-window', () => {
+  if (mainWindow) mainWindow.minimize();
+});
+
+ipcMain.on('set-compact-mode', (event, isCompact) => {
+  if (!mainWindow) return;
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width: screenWidth } = primaryDisplay.workAreaSize;
+  if (isCompact) {
+    const compactWidth = 280;
+    const compactHeight = 72;
+    const x = Math.round((screenWidth - compactWidth) / 2);
+    mainWindow.setBounds({ x, y: 16, width: compactWidth, height: compactHeight });
+  } else {
+    const winWidth = 620;
+    const winHeight = 460;
+    const x = Math.round((screenWidth - winWidth) / 2);
+    mainWindow.setBounds({ x, y: 16, width: winWidth, height: winHeight });
+  }
 });
 
 ipcMain.on('content-resized', () => {

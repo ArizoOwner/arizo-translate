@@ -4,25 +4,62 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aphra Dynamic Island</title>
-  <!-- Google Fonts: Vazirmatn for Persian, Plus Jakarta Sans / Inter for English -->
+  <!-- Google Fonts: Vazirmatn for Persian, Plus Jakarta Sans for English -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- AMBIENT AURA GLOW BEHIND ISLAND -->
+  <div class="island-ambient-aura" id="ambient-aura"></div>
+
   <div id="island-container" class="island-card">
 
     <!-- HEADER / DRAG BAR -->
-    <header class="island-header">
+    <header class="island-header" id="island-header">
       <div class="header-start">
+
+        <!-- INTERACTIVE CARTOON MASCOT (MOCHI / APHRA BUDDY) -->
+        <div id="mascot" class="mascot-wrapper" title="من همراه هوشمند شمام! تکونم بده یا روم کلیک کن!">
+          <div class="mascot-body" id="mascot-body">
+            <div class="mascot-halo"></div>
+            <div class="mascot-gloss"></div>
+
+            <div class="mascot-face" id="mascot-face">
+              <!-- Blush Cheeks -->
+              <div class="mascot-blush left"></div>
+              <div class="mascot-blush right"></div>
+
+              <!-- Eyes with Dynamic Pupil Tracking -->
+              <div class="mascot-eyes">
+                <div class="mascot-eye left" id="eye-left">
+                  <div class="mascot-pupil" id="pupil-left">
+                    <span class="pupil-glint"></span>
+                  </div>
+                  <div class="mascot-eyelid" id="eyelid-left"></div>
+                </div>
+
+                <div class="mascot-eye right" id="eye-right">
+                  <div class="mascot-pupil" id="pupil-right">
+                    <span class="pupil-glint"></span>
+                  </div>
+                  <div class="mascot-eyelid" id="eyelid-right"></div>
+                </div>
+              </div>
+
+              <!-- Animated Reactive Mouth -->
+              <div class="mascot-mouth" id="mascot-mouth"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="logo-pill" title="Aphra Translation Assistant">
-          <div class="status-orb"></div>
           <span class="logo-text">Aphra</span>
         </div>
 
         <!-- ENGINE SELECTOR (MINIMAL SEGMENTED PILL) -->
-        <div class="segmented-control">
+        <div class="segmented-control" id="engine-segmented">
           <button id="btn-engine-google" class="segment-btn active" title="ترجمه آنی زیر ۱۵۰ میلی‌ثانیه بدون نیاز به API">
             <svg class="segment-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
             <span>سریع</span>
@@ -47,7 +84,7 @@
 
       <div class="header-end">
         <!-- LANGUAGE PAIR PILL -->
-        <div class="lang-pill" title="تعویض خودکار یا دستی زبان">
+        <div class="lang-pill" id="lang-pill" title="تعویض خودکار یا دستی زبان">
           <span id="label-source-lang">EN</span>
           <button id="btn-swap-lang" class="swap-icon-btn" title="معکوس کردن زبان‌ها">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4"/></svg>
@@ -63,7 +100,16 @@
           <button id="btn-settings" class="nav-btn" title="تنظیمات">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
           </button>
-          <button id="btn-close" class="nav-btn close-btn" title="بستن (Esc)">
+          <!-- COMPACT MODE TOGGLE (PILL CAPSULE) -->
+          <button id="btn-toggle-compact" class="nav-btn" title="حالت کپسول فشرده شناور روی برنامه‌ها">
+            <svg id="icon-compact" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/></svg>
+          </button>
+          <!-- MINIMIZE BUTTON -->
+          <button id="btn-minimize" class="nav-btn" title="کمینه‌کردن به تسک‌بار (Minimize)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <!-- CLOSE TO TRAY BUTTON -->
+          <button id="btn-close" class="nav-btn close-btn" title="بستن پنجره به Tray (Esc)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
@@ -76,10 +122,10 @@
     </div>
 
     <!-- MAIN BODY -->
-    <main class="island-main">
+    <main class="island-main" id="island-main">
 
       <!-- INPUT BOX -->
-      <div class="input-card">
+      <div class="input-card" id="input-card">
         <textarea id="input-text" placeholder="متنی را انتخاب کنید یا اینجا بنویسید..." rows="2" spellcheck="false"></textarea>
         <button id="btn-clear-input" class="clear-circle-btn hidden" title="پاک کردن متن">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -102,7 +148,7 @@
       </div>
 
       <!-- TRANSLATION OUTPUT CARD -->
-      <div class="output-card">
+      <div class="output-card" id="output-card">
         <div class="output-inner">
           <div id="output-text" class="output-content" dir="rtl"></div>
           <div id="output-placeholder" class="output-empty-hint">ترجمه به محض انتخاب متن یا تایپ نمایش داده می‌شود...</div>
@@ -136,7 +182,7 @@
           </button>
 
           <button id="btn-copy" class="action-btn secondary-btn" title="کپی ترجمه (Enter)">
-            <svg id="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg id="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
             <span id="copy-label">کپی</span>
           </button>
 
@@ -147,6 +193,17 @@
         </div>
       </footer>
     </main>
+
+    <!-- COMPACT MODE FLOATING BAR (VISIBLE ONLY IN COMPACT CAPSULE MODE) -->
+    <div id="compact-capsule" class="compact-capsule hidden">
+      <div class="compact-status">
+        <span class="compact-dot"></span>
+        <span class="compact-text" id="compact-preview">آماده ترجمه (Alt+D)</span>
+      </div>
+      <button id="btn-expand-island" class="compact-expand-btn" title="باز کردن جزیره کامل">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
+    </div>
 
     <!-- SETTINGS MODAL -->
     <div id="settings-modal" class="modal-backdrop hidden">

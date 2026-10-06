@@ -18,6 +18,11 @@ const copyIcon = document.getElementById('copy-icon');
 const btnReplace = document.getElementById('btn-replace');
 const btnSpeak = document.getElementById('btn-speak');
 const btnClose = document.getElementById('btn-close');
+const btnMinimize = document.getElementById('btn-minimize');
+const btnToggleCompact = document.getElementById('btn-toggle-compact');
+const btnExpandIsland = document.getElementById('btn-expand-island');
+const islandContainer = document.getElementById('island-container');
+const compactPreview = document.getElementById('compact-preview');
 const btnHistory = document.getElementById('btn-history');
 const btnSettings = document.getElementById('btn-settings');
 const activityIndicator = document.getElementById('activity-indicator');
@@ -25,6 +30,17 @@ const progressBar = document.getElementById('progress-bar');
 const progressText = document.getElementById('progress-text');
 const fallbackNotice = document.getElementById('fallback-notice');
 const btnGotoSettings = document.getElementById('btn-goto-settings');
+
+// Mascot Elements
+const mascot = document.getElementById('mascot');
+const mascotBody = document.getElementById('mascot-body');
+const eyeLeft = document.getElementById('eye-left');
+const eyeRight = document.getElementById('eye-right');
+const pupilLeft = document.getElementById('pupil-left');
+const pupilRight = document.getElementById('pupil-right');
+const eyelidLeft = document.getElementById('eyelid-left');
+const eyelidRight = document.getElementById('eyelid-right');
+const mascotMouth = document.getElementById('mascot-mouth');
 
 // Aphra Breakdown elements
 const aphraBreakdownContainer = document.getElementById('aphra-breakdown-container');
@@ -122,6 +138,7 @@ async function triggerTranslation(text) {
   lastQueriedText = query;
 
   // Show loading state with smooth wave indicator
+  if (mascotMouth) mascotMouth.className = 'mascot-mouth thinking';
   activityIndicator.classList.remove('hidden');
   progressBar.classList.remove('hidden');
   progressText.textContent = currentEngine === 'aphra' ? 'در حال اجرای فرآیند ایجنتیک Aphra...' : 'در حال دریافت ترجمه...';
@@ -138,6 +155,7 @@ async function triggerTranslation(text) {
 
     activityIndicator.classList.add('hidden');
     progressBar.classList.add('hidden');
+    if (mascotMouth) mascotMouth.className = 'mascot-mouth';
 
     if (res.success && res.data) {
       const data = res.data;
@@ -288,6 +306,7 @@ function handleCopy() {
   navigator.clipboard.writeText(currentTranslation);
 
   // Tactical visual feedback
+  celebrateMascot();
   btnCopy.classList.add('copied');
   copyLabel.textContent = 'کپی شد!';
   copyIcon.innerHTML = `<polyline points="20 6 9 17 4 12" stroke="#6ee7b7" stroke-width="2.5" fill="none"/>`;
@@ -520,5 +539,114 @@ async function loadAndRenderHistory(filter = '') {
   });
 }
 
+// ========================================================
+// CARTOON MASCOT (EYE TRACKING & ANIMATIONS)
+// ========================================================
+function setupMascotTracking() {
+  window.addEventListener('mousemove', (e) => {
+    if (!pupilLeft || !pupilRight) return;
+
+    // Track left eye
+    const rectL = eyeLeft.getBoundingClientRect();
+    const centerLX = rectL.left + rectL.width / 2;
+    const centerLY = rectL.top + rectL.height / 2;
+    const angleL = Math.atan2(e.clientY - centerLY, e.clientX - centerLX);
+    const distL = Math.min(2.5, Math.hypot(e.clientX - centerLX, e.clientY - centerLY) / 20);
+    pupilLeft.style.transform = `translate(${Math.cos(angleL) * distL}px, ${Math.sin(angleL) * distL}px)`;
+
+    // Track right eye
+    const rectR = eyeRight.getBoundingClientRect();
+    const centerRX = rectR.left + rectR.width / 2;
+    const centerRY = rectR.top + rectR.height / 2;
+    const angleR = Math.atan2(e.clientY - centerRY, e.clientX - centerRX);
+    const distR = Math.min(2.5, Math.hypot(e.clientX - centerRY, e.clientY - centerRY) / 20);
+    pupilRight.style.transform = `translate(${Math.cos(angleR) * distR}px, ${Math.sin(angleR) * distR}px)`;
+
+    // Gentle body lean towards cursor
+    if (mascotBody && !mascotBody.classList.contains('spin-celebrate')) {
+      const rectM = mascot.getBoundingClientRect();
+      const mascotCenterX = rectM.left + rectM.width / 2;
+      const tilt = Math.max(-12, Math.min(12, (e.clientX - mascotCenterX) / 30));
+      mascotBody.style.transform = `rotate(${tilt}deg)`;
+    }
+  });
+
+  // Natural Blinking
+  setInterval(() => {
+    if (Math.random() > 0.3) {
+      triggerBlink();
+    }
+  }, 3200);
+
+  // Playful Mascot Click
+  if (mascot) {
+    mascot.addEventListener('click', () => {
+      celebrateMascot();
+      showToast('✨ موچی باهات دوسته!');
+    });
+  }
+}
+
+function triggerBlink() {
+  if (!eyeLeft || !eyeRight) return;
+  eyeLeft.classList.add('blinking');
+  eyeRight.classList.add('blinking');
+  setTimeout(() => {
+    eyeLeft.classList.remove('blinking');
+    eyeRight.classList.remove('blinking');
+  }, 140);
+}
+
+function celebrateMascot() {
+  if (!mascotBody) return;
+  mascotBody.classList.add('spin-celebrate');
+  if (mascotMouth) mascotMouth.className = 'mascot-mouth happy';
+  setTimeout(() => {
+    mascotBody.classList.remove('spin-celebrate');
+    if (mascotMouth) mascotMouth.className = 'mascot-mouth';
+  }, 650);
+}
+
+// ========================================================
+// WINDOW CONTROLS (MINIMIZE & COMPACT CAPSULE MODE)
+// ========================================================
+let isCompact = false;
+
+function toggleCompactMode() {
+  isCompact = !isCompact;
+  islandContainer.classList.toggle('compact-mode', isCompact);
+  if (isCompact && currentTranslation) {
+    compactPreview.textContent = currentTranslation.slice(0, 24) + '...';
+  } else {
+    compactPreview.textContent = 'آماده ترجمه (Alt+D)';
+  }
+  ipcRenderer.send('set-compact-mode', isCompact);
+}
+
+if (btnMinimize) {
+  btnMinimize.addEventListener('click', () => {
+    ipcRenderer.send('minimize-window');
+  });
+}
+
+if (btnToggleCompact) {
+  btnToggleCompact.addEventListener('click', toggleCompactMode);
+}
+
+if (btnExpandIsland) {
+  btnExpandIsland.addEventListener('click', toggleCompactMode);
+}
+
+// Double click header to toggle compact mode quickly!
+const islandHeader = document.getElementById('island-header');
+if (islandHeader) {
+  islandHeader.addEventListener('dblclick', (e) => {
+    if (e.target.closest('button') || e.target.closest('select')) return;
+    toggleCompactMode();
+  });
+}
+
 // Start
+setupMascotTracking();
 init();
+
