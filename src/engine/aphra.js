@@ -269,17 +269,99 @@ async function readSse(res, onContent) {
   return content;
 }
 
+function normalizeBaseUrl(url) {
+  const clean = (url || DEFAULT_BASE_URL).trim().replace(/\/+$/, '');
+  if (/generativelanguage\.googleapis\.com/i.test(clean)) {
+    // Google Gemini's OpenAI-compatible endpoint is strictly at /v1beta/openai.
+    // Variations like /v1 or /v1beta (without /openai) cause "not found for API version v1" errors.
+    return 'https://generativelanguage.googleapis.com/v1beta/openai';
+  }
+  return clean;
+}
+
+function normalizeModel(model, baseUrl) {
+  let m = (model || DEFAULT_MODEL).trim().replace(/^models\//i, '');
+  const isGemini = /generativelanguage\.googleapis\.com/i.test(baseUrl) || /^gemini/i.test(m);
+  if (isGemini) {
+    // gemini-1.5-pro is retired from generateContent on many keys and throws 404.
+    // Seamlessly map it to the active, high-quota gemini-2.5-flash.
+    if (/gemini-1\.5-pro/i.test(m) || !m || m === 'gemini') {
+      return 'gemini-2.5-flash';
+    }
+  }
+  return m;
+}
+
+async function callGeminiNative(cfg, { messages, maxTokens, signal }) {
+  const model = normalizeModel(cfg.model, 'gemini');
+  const apiKey = (cfg.apiKey || '').trim();
+  if (!apiKey) return null;
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const systemMsg = messages.find((m) => m.role === 'system')?.content || '';
+  const contents = messages
+    .filter((m) => m.role !== 'system')
+    .map((m) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }));
+
+  if (!contents.length) {
+    contents.push({ role: 'user', parts: [{ text: 'Reply with the single word: pong' }] });
+  }
+
+  const payload = {
+    contents,
+    generationConfig: {
+      temperature: 0.3
+    }
+  };
+  if (systemMsg) {
+    payload.systemInstruction = { parts: [{ text: systemMsg }] };
+  }
+  if (maxTokens) {
+    payload.generationConfig.maxOutputTokens = maxTokens;
+  }
+
+  const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey
+    },
+    body: JSON.stringify(payload),
+    signal: signal ? AbortSignal.any([signal, timeout]) : timeout
+  });
+
+  if (!res.ok) {
+    const errText = await readProviderError(res);
+    throw describeHttpError(res.status, errText);
+  }
+
+  const json = await res.json();
+  return json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
 async function chatOnce(cfg, { messages, stream, jsonMode, maxTokens, signal, onContent }) {
-  const baseUrl = (cfg.baseUrl || DEFAULT_BASE_URL).replace(/\/+$/, '');
+  const baseUrl = normalizeBaseUrl(cfg.baseUrl);
+  const isGemini = /generativelanguage\.googleapis\.com/i.test(baseUrl) || /^gemini/i.test(cfg.model);
+  const model = normalizeModel(cfg.model, baseUrl);
+
   const headers = {
     'Content-Type': 'application/json',
     'HTTP-Referer': 'https://github.com/DavidLMS/aphra',
     'X-Title': 'Aphra Desktop Dynamic Island'
   };
-  if (cfg.apiKey) headers.Authorization = `Bearer ${cfg.apiKey}`;
+  if (cfg.apiKey) {
+    headers.Authorization = `Bearer ${cfg.apiKey}`;
+    if (isGemini) {
+      headers['x-goog-api-key'] = cfg.apiKey;
+    }
+  }
 
   const body = {
-    model: cfg.model || DEFAULT_MODEL,
+    model,
     messages,
     temperature: 0.3,
     stream: !!stream
@@ -306,6 +388,19 @@ async function chatOnce(cfg, { messages, stream, jsonMode, maxTokens, signal, on
   }
 
   if (!res.ok) {
+    // If Gemini OpenAI endpoint encounters 404, 400, or 503, try direct Google Gemini native generateContent
+    if (isGemini && cfg.apiKey && (res.status === 404 || res.status === 400 || res.status === 503)) {
+      try {
+        const nativeContent = await callGeminiNative({ ...cfg, model }, { messages, maxTokens, signal });
+        if (nativeContent) {
+          if (onContent) onContent(nativeContent);
+          return nativeContent;
+        }
+      } catch (_) {
+        // Fall back to standard error description
+      }
+    }
+
     const providerMessage = await readProviderError(res);
     const err = describeHttpError(res.status, providerMessage);
     err.providerMessage = providerMessage;
@@ -324,26 +419,33 @@ async function chatOnce(cfg, { messages, stream, jsonMode, maxTokens, signal, on
 }
 
 function getCandidateModels(baseUrl, model) {
-  const isGemini = /generativelanguage\.googleapis\.com/i.test(baseUrl) || /^gemini/i.test(model);
+  const normalizedUrl = normalizeBaseUrl(baseUrl);
+  const cleanModel = normalizeModel(model, normalizedUrl);
+  const isGemini = /generativelanguage\.googleapis\.com/i.test(normalizedUrl) || /^gemini/i.test(cleanModel);
   if (isGemini) {
-    // If user configured a non-standard or overloaded model, try active Gemini models
-    const geminiFamily = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro', 'gemini-1.5-pro'];
-    return [...new Set([model, ...geminiFamily].filter(Boolean))];
+    // Official active models on Google Gemini v1beta (gemini-1.5-pro retired/unsupported):
+    const geminiFamily = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro'];
+    return [...new Set([cleanModel, ...geminiFamily].filter(Boolean))];
   }
-  const isOpenRouter = /openrouter\.ai/i.test(baseUrl);
+  const isOpenRouter = /openrouter\.ai/i.test(normalizedUrl);
   if (isOpenRouter) {
     const orFamily = ['deepseek/deepseek-chat', 'google/gemini-2.5-flash', 'openai/gpt-4o-mini', 'meta-llama/llama-3.3-70b-instruct'];
-    return [...new Set([model, ...orFamily].filter(Boolean))];
+    return [...new Set([cleanModel, ...orFamily].filter(Boolean))];
   }
-  return [model];
+  return [cleanModel || model];
 }
 
 async function chat(cfg, opts) {
-  const candidateModels = getCandidateModels(cfg.baseUrl, cfg.model || DEFAULT_MODEL);
+  const normalizedCfg = {
+    ...cfg,
+    baseUrl: normalizeBaseUrl(cfg.baseUrl),
+    model: normalizeModel(cfg.model, cfg.baseUrl)
+  };
+  const candidateModels = getCandidateModels(normalizedCfg.baseUrl, normalizedCfg.model);
   let lastErr;
 
   for (const modelToTry of candidateModels) {
-    const currentCfg = { ...cfg, model: modelToTry };
+    const currentCfg = { ...normalizedCfg, model: modelToTry };
     const key = `${currentCfg.baseUrl}|${modelToTry}`;
     let jsonMode = !!opts.jsonMode && !jsonModeUnsupported.has(key);
     let stream = !!opts.stream;
@@ -389,10 +491,11 @@ async function chat(cfg, opts) {
 }
 
 function resolveConfig(config) {
-  const baseUrl = (config.baseUrl || DEFAULT_BASE_URL).trim();
+  const baseUrl = normalizeBaseUrl(config.baseUrl);
   const apiKey = (config.apiKey || '').trim();
   if (!apiKey && !isLocalUrl(baseUrl)) throw new AphraError('MISSING_API_KEY', { code: 'MISSING_API_KEY' });
-  return { baseUrl, apiKey, model: (config.model || DEFAULT_MODEL).trim() };
+  const model = normalizeModel(config.model, baseUrl);
+  return { baseUrl, apiKey, model };
 }
 
 /**
@@ -451,5 +554,8 @@ module.exports = {
   extractPartialTranslation,
   parseModelOutput,
   isLocalUrl,
+  normalizeBaseUrl,
+  normalizeModel,
+  getCandidateModels,
   TONES
 };

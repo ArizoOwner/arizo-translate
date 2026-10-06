@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { detectLanguage, resolveTarget, normalizeCode } = require('../src/engine/languages');
 const { splitText } = require('../src/engine/google');
-const { extractPartialTranslation, parseModelOutput, isLocalUrl, buildPrompts } = require('../src/engine/aphra');
+const { extractPartialTranslation, parseModelOutput, isLocalUrl, buildPrompts, normalizeBaseUrl, normalizeModel, getCandidateModels } = require('../src/engine/aphra');
 
 test('detectLanguage recognises scripts', () => {
   assert.equal(detectLanguage('Hello, how are you?'), 'en');
@@ -81,4 +81,43 @@ test('buildPrompts guards against prompt injection and trims work for long text'
   assert.match(short.user, /<text>\nhi\n<\/text>/);
   const long = buildPrompts({ text: 'x'.repeat(2000), srcCode: 'en', tgtCode: 'fa' });
   assert.match(long.system, /as fast as possible/);
+});
+
+test('normalizeBaseUrl maps any Gemini endpoint variations to /v1beta/openai', () => {
+  assert.equal(
+    normalizeBaseUrl('https://generativelanguage.googleapis.com/v1'),
+    'https://generativelanguage.googleapis.com/v1beta/openai'
+  );
+  assert.equal(
+    normalizeBaseUrl('https://generativelanguage.googleapis.com/v1beta'),
+    'https://generativelanguage.googleapis.com/v1beta/openai'
+  );
+  assert.equal(
+    normalizeBaseUrl('https://generativelanguage.googleapis.com'),
+    'https://generativelanguage.googleapis.com/v1beta/openai'
+  );
+  assert.equal(
+    normalizeBaseUrl('https://generativelanguage.googleapis.com/v1beta/openai/'),
+    'https://generativelanguage.googleapis.com/v1beta/openai'
+  );
+  assert.equal(
+    normalizeBaseUrl('https://api.openai.com/v1/'),
+    'https://api.openai.com/v1'
+  );
+});
+
+test('normalizeModel strips models/ prefix and maps retired models', () => {
+  assert.equal(normalizeModel('models/gemini-2.5-flash', 'gemini'), 'gemini-2.5-flash');
+  assert.equal(normalizeModel('gemini-1.5-pro', 'gemini'), 'gemini-2.5-flash');
+  assert.equal(normalizeModel('models/gemini-1.5-pro', 'https://generativelanguage.googleapis.com/v1'), 'gemini-2.5-flash');
+  assert.equal(normalizeModel('deepseek/deepseek-chat', 'https://openrouter.ai/api/v1'), 'deepseek/deepseek-chat');
+});
+
+test('getCandidateModels provides active Gemini family and excludes gemini-1.5-pro', () => {
+  const models = getCandidateModels('https://generativelanguage.googleapis.com/v1', 'gemini-1.5-pro');
+  assert.ok(!models.includes('gemini-1.5-pro'), 'should not include retired gemini-1.5-pro');
+  assert.ok(models.includes('gemini-2.5-flash'), 'should include gemini-2.5-flash');
+  assert.ok(models.includes('gemini-2.0-flash'), 'should include gemini-2.0-flash');
+  assert.ok(models.includes('gemini-1.5-flash'), 'should include gemini-1.5-flash');
+  assert.ok(models.includes('gemini-2.5-pro'), 'should include gemini-2.5-pro');
 });

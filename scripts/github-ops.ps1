@@ -1,6 +1,6 @@
 param(
     [string]$Action = "status",
-    [string]$RepoName = "aphra-translate",
+    [string]$RepoName = "arizo-translate",
     [string]$Tag = "v2.0.0",
     [string]$AssetPath = ""
 )
@@ -121,9 +121,9 @@ switch ($Action) {
             $body = @{
                 tag_name = $Tag
                 target_commitish = "main"
-                name = "Aphra Translate v2.0.0 - Dynamic Island Windows Release"
+                name = "Arizo Translate v2.0.0 - Windows Release"
                 body = @"
-## 🌟 Aphra Translate v2.0.0 (Windows Release)
+## 🌟 Arizo Translate v2.0.0 (Windows Release)
 
 دستیار هوشمند ترجمه با طراحی مدرن داینامیک آیلند (Dynamic Island) برای ویندوز.
 
@@ -137,8 +137,8 @@ switch ($Action) {
 - 📦 **نسخه مستقل پرتابل و نصبی** برای ویندوز ۱۰ و ۱۱ (x64).
 
 ### 📥 فایل‌های دانلود | Download Assets
-- **`Aphra Translate-Portable-2.0.0.exe`**: نسخه پرتابل بدون نیاز به نصب (Portable Executable)
-- **`Aphra Translate Setup 2.0.0.exe`**: نسخه نصبی با ایجاد میانبر دسکتاپ و منوی استارت (NSIS Installer)
+- **`Arizo Translate-Portable-2.0.0.exe`**: نسخه پرتابل بدون نیاز به نصب (Portable Executable)
+- **`Arizo Translate Setup 2.0.0.exe`**: نسخه نصبی با ایجاد میانبر دسکتاپ و منوی استارت (NSIS Installer)
 "@
                 draft = $false
                 prerelease = $false
@@ -161,37 +161,77 @@ switch ($Action) {
                 $currentRel = Invoke-RestMethod -Uri "$repoUrl/tags/$Tag" -Headers $headers -Method Get
                 $dotName = $assetName -replace '\s+', '.'
                 $existingAssets = $currentRel.assets | Where-Object { $_.name -eq $assetName -or $_.name -eq $dotName }
+                $alreadyUploaded = $false
                 foreach ($ex in $existingAssets) {
-                    Write-Host "Asset $($ex.name) already exists, deleting old version..."
-                    Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$RepoName/releases/assets/$($ex.id)" -Headers $headers -Method Delete
-                    Start-Sleep -Seconds 2
+                    if ($ex.size -eq $file.Length -and $ex.state -eq "uploaded") {
+                        Write-Host "Asset $($ex.name) is already up to date ($($ex.size) bytes)."
+                        $alreadyUploaded = $true
+                        break
+                    }
+                    Write-Host "Asset $($ex.name) already exists with different size ($($ex.size) vs $($file.Length)), deleting old version..."
+                    try {
+                        Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$RepoName/releases/assets/$($ex.id)" -Headers $headers -Method Delete
+                        Start-Sleep -Seconds 2
+                    } catch {
+                        Write-Host "Warning: Delete failed ($($_.Exception.Message))"
+                    }
+                }
+                if ($alreadyUploaded) { continue }
+
+                $uploadedSuccessfully = $false
+                for ($attempt = 1; $attempt -le 4; $attempt++) {
+                    Write-Host "Uploading asset via stream: $assetName ($([math]::Round($file.Length / 1MB, 2)) MB) [Attempt $attempt]..."
+
+                    # Use curl.exe if available for robust large binary streaming
+                    $curlResult = & curl.exe -s -w "%{http_code}" -X POST "$uploadUrl" `
+                        -H "Authorization: Bearer $token" `
+                        -H "User-Agent: Arizo-Deployer" `
+                        -H "Accept: application/vnd.github+json" `
+                        -H "Content-Type: application/octet-stream" `
+                        --data-binary "@$($file.FullName)"
+
+                    if ($curlResult -match '^(200|201)') {
+                        Write-Host "Uploaded successfully via curl: $assetName"
+                        $uploadedSuccessfully = $true
+                        break
+                    }
+
+                    # Fallback to .NET HttpClient with explicit ContentLength
+                    $client = [System.Net.Http.HttpClient]::new()
+                    $client.Timeout = [System.TimeSpan]::FromMinutes(25)
+                    $client.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $token)
+                    $client.DefaultRequestHeaders.UserAgent.ParseAdd("Arizo-Deployer")
+                    $client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json")
+
+                    $stream = [System.IO.File]::OpenRead($file.FullName)
+                    $content = [System.Net.Http.StreamContent]::new($stream)
+                    $content.Headers.ContentType = [System.Net.Http.Headers.MediaTypeHeaderValue]::new("application/octet-stream")
+                    $content.Headers.ContentLength = $file.Length
+
+                    try {
+                        $response = $client.PostAsync($uploadUrl, $content).GetAwaiter().GetResult()
+                        if ($response.IsSuccessStatusCode) {
+                            $json = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json
+                            Write-Host "Uploaded successfully: $($json.browser_download_url)"
+                            $uploadedSuccessfully = $true
+                            break
+                        } else {
+                            $err = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+                            Write-Host "Upload returned status $($response.StatusCode): $err. Retrying in 5 seconds..."
+                            Start-Sleep -Seconds 5
+                        }
+                    } catch {
+                        Write-Host "Upload error: $($_.Exception.Message). Retrying in 5 seconds..."
+                        Start-Sleep -Seconds 5
+                    } finally {
+                        $stream.Dispose()
+                        $content.Dispose()
+                        $client.Dispose()
+                    }
                 }
 
-                Write-Host "Uploading asset via stream: $assetName ($([math]::Round($file.Length / 1MB, 2)) MB)..."
-
-                $client = [System.Net.Http.HttpClient]::new()
-                $client.Timeout = [System.TimeSpan]::FromMinutes(25)
-                $client.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $token)
-                $client.DefaultRequestHeaders.UserAgent.ParseAdd("Aphra-Deployer")
-                $client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json")
-
-                $stream = [System.IO.File]::OpenRead($file.FullName)
-                $content = [System.Net.Http.StreamContent]::new($stream)
-                $content.Headers.ContentType = [System.Net.Http.Headers.MediaTypeHeaderValue]::new("application/octet-stream")
-
-                try {
-                    $response = $client.PostAsync($uploadUrl, $content).GetAwaiter().GetResult()
-                    if ($response.IsSuccessStatusCode) {
-                        $json = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json
-                        Write-Host "Uploaded successfully: $($json.browser_download_url)"
-                    } else {
-                        $err = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
-                        Write-Error "Upload failed with status $($response.StatusCode): $err"
-                    }
-                } finally {
-                    $stream.Dispose()
-                    $content.Dispose()
-                    $client.Dispose()
+                if (-not $uploadedSuccessfully) {
+                    Write-Error "Failed to upload asset $assetName after multiple attempts."
                 }
             }
         }

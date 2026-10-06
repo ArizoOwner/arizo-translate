@@ -5,7 +5,7 @@
 
   const PROVIDERS = {
     openrouter: { url: 'https://openrouter.ai/api/v1', model: 'deepseek/deepseek-chat', models: ['deepseek/deepseek-chat', 'openai/gpt-4o-mini', 'google/gemini-2.5-flash', 'meta-llama/llama-3.3-70b-instruct'] },
-    gemini: { url: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-2.5-flash', models: ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro', 'gemini-1.5-pro'] },
+    gemini: { url: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-2.5-flash', models: ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro'] },
     deepseek: { url: 'https://api.deepseek.com/v1', model: 'deepseek-chat', models: ['deepseek-chat'] },
     groq: { url: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile', models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'] },
     openai: { url: 'https://api.openai.com/v1', model: 'gpt-4o-mini', models: ['gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini'] },
@@ -54,6 +54,7 @@
 
   function detectPreset(url) {
     const clean = (url || '').replace(/\/+$/, '');
+    if (/generativelanguage\.googleapis\.com/i.test(clean)) return 'gemini';
     const hit = Object.keys(PROVIDERS).find((k) => PROVIDERS[k].url === clean);
     return hit || 'custom';
   }
@@ -72,8 +73,17 @@
       r.checked = r.value === (s.defaultEngine || 'google');
     });
 
-    f.baseUrl.value = a.baseUrl || PROVIDERS.openrouter.url;
-    f.model.value = a.model || PROVIDERS.openrouter.model;
+    let initialBase = a.baseUrl || PROVIDERS.openrouter.url;
+    let initialModel = a.model || PROVIDERS.openrouter.model;
+    if (/generativelanguage\.googleapis\.com/i.test(initialBase)) {
+      initialBase = PROVIDERS.gemini.url;
+      if (/gemini-1\.5-pro/i.test(initialModel) || !initialModel) {
+        initialModel = 'gemini-2.5-flash';
+      }
+    }
+
+    f.baseUrl.value = initialBase;
+    f.model.value = initialModel;
     f.preset.value = detectPreset(f.baseUrl.value);
     setSuggestions((PROVIDERS[f.preset.value] || { models: [] }).models);
 
@@ -162,15 +172,37 @@
   f.test.addEventListener('click', async () => {
     f.test.disabled = true;
     f.testResult.className = 'test-result';
-    f.testResult.textContent = 'در حال آزمایش…';
-    const r = await api.testAphra({ baseUrl: f.baseUrl.value.trim(), model: f.model.value.trim(), apiKey: f.apiKey.value.trim() });
+    f.testResult.textContent = window.I18n ? window.I18n.t('settingTesting') : 'در حال آزمایش…';
+
+    let testBase = f.baseUrl.value.trim();
+    let testModel = f.model.value.trim();
+    if (/generativelanguage\.googleapis\.com/i.test(testBase)) {
+      testBase = PROVIDERS.gemini.url;
+      f.baseUrl.value = testBase;
+      if (/gemini-1\.5-pro/i.test(testModel) || !testModel) {
+        testModel = 'gemini-2.5-flash';
+        f.model.value = testModel;
+      }
+    }
+
+    const r = await api.testAphra({ baseUrl: testBase, model: testModel, apiKey: f.apiKey.value.trim() });
     f.test.disabled = false;
     f.testResult.className = `test-result ${r.ok ? 'ok' : 'bad'}`;
-    f.testResult.textContent = r.ok ? `✓ اتصال موفق (${r.ms}ms) – ${r.model}` : `✗ ${r.error}`;
+    const okPrefix = window.I18n ? window.I18n.t('settingTestSuccess') : '✓ اتصال موفق';
+    f.testResult.textContent = r.ok ? `${okPrefix} (${r.ms}ms) – ${r.model}` : `✗ ${r.error}`;
   });
 
   f.save.addEventListener('click', async () => {
     const engine = [...document.getElementsByName('setting-engine')].find((r) => r.checked);
+    let aphraBase = f.baseUrl.value.trim();
+    let aphraModel = f.model.value.trim();
+    if (/generativelanguage\.googleapis\.com/i.test(aphraBase)) {
+      aphraBase = PROVIDERS.gemini.url;
+      if (/gemini-1\.5-pro/i.test(aphraModel) || !aphraModel) {
+        aphraModel = 'gemini-2.5-flash';
+      }
+    }
+
     const settings = {
       theme: f.theme ? f.theme.value : 'dark',
       appLanguage: f.appLang ? f.appLang.value : 'fa',
@@ -186,8 +218,8 @@
       launchAtStartup: f.startup.checked,
       saveHistory: f.saveHistory.checked,
       aphra: {
-        baseUrl: f.baseUrl.value.trim(),
-        model: f.model.value.trim(),
+        baseUrl: aphraBase,
+        model: aphraModel,
         apiKey: f.apiKey.value.trim(),
         showBreakdown: f.breakdown.checked
       }
