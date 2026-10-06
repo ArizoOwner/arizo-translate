@@ -283,18 +283,28 @@ function createBubbleWindow() {
 }
 
 async function handleMouseSelectionEvent(eventType) {
+  if (eventType === 'normal_right_click') {
+    // Normal right click on unselected space: hide bubble immediately if open
+    if (bubbleWindow && bubbleWindow.isVisible()) {
+      bubbleWindow.hide();
+    }
+    return;
+  }
+
+  // Strictly trigger ONLY when an active selection was detected
+  if (eventType !== 'selection_right_clicked') return;
+
   const settings = loadSettings();
   if (settings.showFloatingBubble === false) return;
 
   // Don't trigger if the island is open and focused
   if (mainWindow && mainWindow.isVisible() && mainWindow.isFocused()) return;
 
-  // Wait 70ms for the target application to process right-click release
-  await new Promise((r) => setTimeout(r, 70));
+  // Wait 75ms for target application to process right-click release
+  await new Promise((r) => setTimeout(r, 75));
 
   const text = await captureSelectedText({ restore: true });
   if (!text || text.trim().length < 2) {
-    // If user right-clicks on empty unselected space, hide any visible bubble
     if (bubbleWindow && bubbleWindow.isVisible()) {
       bubbleWindow.hide();
     }

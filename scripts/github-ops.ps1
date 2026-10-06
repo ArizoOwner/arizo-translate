@@ -151,28 +151,48 @@ switch ($Action) {
         # Upload assets if provided
         if ($AssetPath -and (Test-Path $AssetPath)) {
             $files = Get-ChildItem -Path $AssetPath -Filter "*.exe"
+            Add-Type -AssemblyName System.Net.Http
+
             foreach ($file in $files) {
                 $assetName = $file.Name
                 $uploadUrl = "https://uploads.github.com/repos/$owner/$RepoName/releases/$($rel.id)/assets?name=$assetName"
 
-                # Check if asset already exists
-                $existingAsset = $rel.assets | Where-Object { $_.name -eq $assetName }
-                if ($existingAsset) {
-                    Write-Host "Asset $assetName already exists, deleting first..."
-                    Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$RepoName/releases/assets/$($existingAsset.id)" -Headers $headers -Method Delete
+                # Check if asset already exists on release
+                $currentRel = Invoke-RestMethod -Uri "$repoUrl/tags/$Tag" -Headers $headers -Method Get
+                $dotName = $assetName -replace '\s+', '.'
+                $existingAssets = $currentRel.assets | Where-Object { $_.name -eq $assetName -or $_.name -eq $dotName }
+                foreach ($ex in $existingAssets) {
+                    Write-Host "Asset $($ex.name) already exists, deleting old version..."
+                    Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$RepoName/releases/assets/$($ex.id)" -Headers $headers -Method Delete
+                    Start-Sleep -Seconds 2
                 }
 
-                Write-Host "Uploading asset: $assetName ($([math]::Round($file.Length / 1MB, 2)) MB)..."
-                $fileBytes = [System.IO.File]::ReadAllBytes($file.FullName)
-                $uploadHeaders = @{
-                    "Authorization" = "Bearer $token"
-                    "User-Agent" = "Aphra-Deployer"
-                    "Content-Type" = "application/octet-stream"
-                    "Accept" = "application/vnd.github+json"
-                }
+                Write-Host "Uploading asset via stream: $assetName ($([math]::Round($file.Length / 1MB, 2)) MB)..."
 
-                $uploaded = Invoke-RestMethod -Uri $uploadUrl -Headers $uploadHeaders -Method Post -Body $fileBytes
-                Write-Host "Uploaded successfully: $($uploaded.browser_download_url)"
+                $client = [System.Net.Http.HttpClient]::new()
+                $client.Timeout = [System.TimeSpan]::FromMinutes(25)
+                $client.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $token)
+                $client.DefaultRequestHeaders.UserAgent.ParseAdd("Aphra-Deployer")
+                $client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json")
+
+                $stream = [System.IO.File]::OpenRead($file.FullName)
+                $content = [System.Net.Http.StreamContent]::new($stream)
+                $content.Headers.ContentType = [System.Net.Http.Headers.MediaTypeHeaderValue]::new("application/octet-stream")
+
+                try {
+                    $response = $client.PostAsync($uploadUrl, $content).GetAwaiter().GetResult()
+                    if ($response.IsSuccessStatusCode) {
+                        $json = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json
+                        Write-Host "Uploaded successfully: $($json.browser_download_url)"
+                    } else {
+                        $err = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+                        Write-Error "Upload failed with status $($response.StatusCode): $err"
+                    }
+                } finally {
+                    $stream.Dispose()
+                    $content.Dispose()
+                    $client.Dispose()
+                }
             }
         }
     }

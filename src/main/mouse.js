@@ -33,12 +33,16 @@ class MouseMonitor {
       const msg = line.trim();
       if (msg === 'ready') {
         this.ready = true;
-      } else if (msg === 'right_clicked') {
+      } else if (msg === 'selection_right_clicked') {
         const now = Date.now();
         if (now - this.lastTrigger < 250) return;
         this.lastTrigger = now;
         if (typeof this.callback === 'function') {
-          this.callback('right_clicked');
+          this.callback('selection_right_clicked');
+        }
+      } else if (msg === 'normal_right_click') {
+        if (typeof this.callback === 'function') {
+          this.callback('normal_right_click');
         }
       }
     });
