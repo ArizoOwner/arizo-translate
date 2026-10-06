@@ -2,7 +2,7 @@
   "name": "arizo-translate",
   "version": "2.0.0",
   "description": "دستیار هوشمند ترجمه داینامیک آیلند برای ویندوز | Dynamic Island AI Translation Assistant for Windows",
-  "author": "AmirHossein (ArizoOwner)",
+  "author": "ArizoOwner",
   "license": "MIT",
   "main": "main.js",
   "scripts": {

@@ -158,4 +158,4 @@ npm run dist
 ## 📄 لایسنس | License
 
 این پروژه تحت مجوز [MIT License](LICENSE) منتشر شده است.
-Developed with ❤️ by AmirHossein (ArizoOwner).
+Developed with ❤️ by ArizoOwner.
