@@ -181,7 +181,7 @@ switch ($Action) {
                     Write-Host "Asset $($ex.name) already exists with different size ($($ex.size) vs $($file.Length)), deleting old version..."
                     try {
                         Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$RepoName/releases/assets/$($ex.id)" -Headers $headers -Method Delete
-                        Start-Sleep -Seconds 2
+                        Start-Sleep -Seconds 4
                     } catch {
                         Write-Host "Warning: Delete failed ($($_.Exception.Message))"
                     }
