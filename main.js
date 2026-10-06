@@ -191,6 +191,9 @@ function registerHotkey(hotkey) {
 async function onInlineTranslate() {
   const settings = loadSettings();
   try {
+    // Give physical modifiers (Alt, Shift, etc.) a moment to release
+    await new Promise((resolve) => setTimeout(resolve, 70));
+
     const { text } = await captureTextOrActiveInput({ restore: false });
     if (!text || text.trim().length === 0) return;
 
@@ -200,17 +203,12 @@ async function onInlineTranslate() {
       targetLang: 'auto'
     });
 
-    if (res && res.translatedText) {
-      await replaceSelectedText(res.translatedText, { restore: settings.restoreClipboard });
-      if (settings.saveHistory) {
-        addHistoryItem({
-          query: text.trim(),
-          translation: res.translatedText,
-          detectedLang: res.sourceLang || 'auto',
-          targetLang: res.targetLang || 'auto',
-          engine: res.engine || settings.defaultEngine || 'google'
-        });
-      }
+    const translatedText = res && res.data && res.data.translation
+      ? res.data.translation
+      : (res && res.translation ? res.translation : '');
+
+    if (translatedText) {
+      await replaceSelectedText(translatedText, { restore: settings.restoreClipboard });
     }
   } catch (err) {
     console.warn('In-place translate failed:', err.message);

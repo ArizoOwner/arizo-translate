@@ -7,6 +7,7 @@ const { getScriptPath } = require('./native-helper');
 const helperScript = getScriptPath('native', 'keys.ps1');
 const copyScriptPath = getScriptPath('vbs', 'copy.vbs');
 const pasteScriptPath = getScriptPath('vbs', 'paste.vbs');
+const selectAllScriptPath = getScriptPath('vbs', 'selectall.vbs');
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -121,7 +122,10 @@ function shutdownCapture() {
 
 async function sendKeys(command) {
   if (await helper.send(command)) return true;
-  return runVbs(command === 'copy' ? copyScriptPath : pasteScriptPath);
+  if (command === 'copy') return runVbs(copyScriptPath);
+  if (command === 'paste') return runVbs(pasteScriptPath);
+  if (command === 'selectall') return runVbs(selectAllScriptPath);
+  return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -257,6 +261,8 @@ async function captureSelectedText({ restore = true } = {}) {
   return activeCapturePromise;
 }
 
+let isCapturingInput = false;
+
 /**
  * Capture currently selected text. If nothing is selected, select all text in the active field (Ctrl+A)
  * and capture it. This allows instant in-place translation in chat boxes like Telegram, WhatsApp, Discord, etc.
@@ -269,8 +275,8 @@ async function captureTextOrActiveInput({ restore = true } = {}) {
   }
 
   // Second attempt: user just typed in an input field without highlighting it
-  if (busy) return { text: '', wasSelected: false };
-  busy = true;
+  if (isCapturingInput) return { text: '', wasSelected: false };
+  isCapturingInput = true;
   try {
     const backup = await snapshotClipboard();
     const sentinel = `__APHRA_SENTINEL_${Date.now()}_${Math.random().toString(36).slice(2, 7)}__`;
@@ -292,10 +298,10 @@ async function captureTextOrActiveInput({ restore = true } = {}) {
     }
 
     await sendKeys('selectall');
-    await sleep(35);
+    await sleep(90);
     await sendKeys('copy');
 
-    const captured = await waitForClipboardChange(sentinel, 350);
+    const captured = await waitForClipboardChange(sentinel, 500);
     if (restore || !captured) {
       await restoreClipboard(backup);
     }
@@ -306,7 +312,7 @@ async function captureTextOrActiveInput({ restore = true } = {}) {
 
     return { text: (captured || '').trim(), wasSelected: false };
   } finally {
-    busy = false;
+    isCapturingInput = false;
   }
 }
 
@@ -317,13 +323,13 @@ async function replaceSelectedText(text, { restore = true } = {}) {
   if (!text) return false;
   const backup = await snapshotClipboard();
   await safeWriteClipboardText(text);
-  await sleep(40);
+  await sleep(60);
   const ok = await sendKeys('paste');
   if (restore) {
     // Slow targets (Word, Electron apps) read the clipboard a bit after Ctrl+V.
     setTimeout(async () => {
       await restoreClipboard(backup);
-    }, 450);
+    }, 800);
   }
   return ok;
 }
