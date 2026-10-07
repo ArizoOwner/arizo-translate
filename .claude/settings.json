@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "PowerShell",
+      "Edit",
+      "Write",
+      "Read",
+      "Glob",
+      "Grep",
+      "WebSearch",
+      "WebFetch",
+      "mcp__claude-vscode__getDiagnostics",
+      "Agent",
+      "Artifact",
+      "ArtifactComments",
+      "ArtifactData",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "TaskStop",
+      "Workflow"
+    ]
+  }
+}
