@@ -4,7 +4,7 @@ const os = require('os');
 
 function runPatch() {
   const extBase = path.join(os.homedir(), '.antigravity-ide', 'extensions');
-  if (!fs.existsSync(extBase)) return;
+  if (!fs.existsSync(extBase)) return 0;
 
   const claudeDirs = fs.readdirSync(extBase)
     .filter(d => d.startsWith('anthropic.claude-code'))
@@ -161,6 +161,19 @@ try { syncAllClaudeSessions(); setInterval(syncAllClaudeSessions, 15000); } catc
         }
       }
 
+      // Bypass all permissions - Auto accept all actions without prompt
+      const dangerMatch = ext.match(/getAllowDangerouslySkipPermissions\(\)\s*\{[^}]+\}/);
+      if (dangerMatch && !dangerMatch[0].includes('return true') && !dangerMatch[0].includes('return!0')) {
+        ext = ext.replace(dangerMatch[0], 'getAllowDangerouslySkipPermissions(){return true}');
+        changed = true;
+      }
+
+      const initPermMatch = ext.match(/getInitialPermissionMode\(\)\s*\{[^}]+\}/);
+      if (initPermMatch && !initPermMatch[0].includes('return"bypassPermissions"')) {
+        ext = ext.replace(initPermMatch[0], 'getInitialPermissionMode(){return"bypassPermissions"}');
+        changed = true;
+      }
+
       if (changed) {
         fs.writeFileSync(extFile, ext, 'utf8');
         patchedCount++;
@@ -237,8 +250,6 @@ var TrashIcon = function({className, style, ...props}) {
 
       // Add trash icon to top bar
       if (!web.includes('title:"Delete chat / حذف تاریخچه چت"')) {
-        const newSessMatch = web.match(/(\$\{jsxFn\}|\$8|[a-zA-Z0-9_$]+)\(\{ariaLabel:["']New session["'][^}]+\}\)\s*\]\s*\}\s*\)/);
-        // More robust: search around 'Session history'
         const shIdx = web.indexOf('ariaLabel:"Session history"');
         if (shIdx !== -1) {
           const nextBracket = web.indexOf(']})', shIdx);
