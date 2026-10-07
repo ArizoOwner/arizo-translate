@@ -308,7 +308,7 @@ async function handleMouseSelectionEvent(eventType) {
     return;
   }
 
-  // 3. User completed a deliberate selection gesture (mouse drag or multi-click):
+  // 3. User completed a deliberate selection gesture (mouse drag):
   if (eventType === 'selection_made') {
     saveTargetWindow();
     if (settings.showFloatingBubble === false) return;
@@ -331,28 +331,6 @@ async function handleMouseSelectionEvent(eventType) {
       }
     }
 
-    // Give target application a brief moment (40ms) to finalize selection state
-    await new Promise((r) => setTimeout(r, 40));
-
-    // Verify that valid text is ACTUALLY selected before showing the bubble!
-    // Using { restore: true } guarantees the user's previous clipboard is immediately
-    // restored so selection gestures never pollute or overwrite the clipboard.
-    let selectedText = '';
-    try {
-      selectedText = await captureSelectedText({ restore: true });
-    } catch (_) {
-      selectedText = '';
-    }
-
-    // If no text was actually selected (empty string, e.g. user clicked or dragged on empty space,
-    // moved an item, resized a window), NEVER show the bubble!
-    if (!selectedText || selectedText.trim().length === 0) {
-      if (bubbleWindow && bubbleWindow.isVisible()) {
-        bubbleWindow.hide();
-      }
-      return;
-    }
-
     if (!bubbleWindow) createBubbleWindow();
 
     const cursor = screen.getCursorScreenPoint();
@@ -370,13 +348,13 @@ async function handleMouseSelectionEvent(eventType) {
     bubbleWindow.showInactive(); // Show without stealing focus
     bubbleWindow.setAlwaysOnTop(true, 'screen-saver');
 
-    const payloadText = selectedText.trim();
+    // Display bubble button WITHOUT copying text (zero clipboard interference on selection!)
     if (bubbleReady) {
-      bubbleWindow.webContents.send('bubble-init', { text: payloadText });
+      bubbleWindow.webContents.send('bubble-init', { text: '' });
     } else {
       bubbleWindow.webContents.once('did-finish-load', () => {
         bubbleReady = true;
-        if (bubbleWindow) bubbleWindow.webContents.send('bubble-init', { text: payloadText });
+        if (bubbleWindow) bubbleWindow.webContents.send('bubble-init', { text: '' });
       });
     }
   }
