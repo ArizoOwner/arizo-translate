@@ -4,6 +4,7 @@ $ErrorActionPreference = 'Stop'
 $typeDef = @'
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace WinMouse {
     [StructLayout(LayoutKind.Sequential)]
@@ -12,14 +13,50 @@ namespace WinMouse {
         public int Y;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CURSORINFO {
+        public int cbSize;
+        public int flags;
+        public IntPtr hCursor;
+        public POINT ptScreenPos;
+    }
+
     public static class Listener {
         [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey);
         [DllImport("user32.dll")] public static extern bool GetCursorPos(out POINT lpPoint);
+        [DllImport("user32.dll")] public static extern bool GetCursorInfo(out CURSORINFO pci);
+        [DllImport("user32.dll")] public static extern IntPtr LoadCursor(IntPtr hInstance, int lpCursorName);
+        [DllImport("user32.dll")] public static extern IntPtr WindowFromPoint(POINT Point);
+        [DllImport("user32.dll", CharSet = CharSet.Auto)] public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
         public static POINT GetPos() {
             POINT pt;
             GetCursorPos(out pt);
             return pt;
+        }
+
+        public static bool IsArrowCursor() {
+            CURSORINFO ci = new CURSORINFO();
+            ci.cbSize = Marshal.SizeOf(typeof(CURSORINFO));
+            if (!GetCursorInfo(out ci)) return false;
+            IntPtr arrow = LoadCursor(IntPtr.Zero, 32512); // IDC_ARROW
+            return ci.hCursor == arrow;
+        }
+
+        public static bool IsIBeamCursor() {
+            CURSORINFO ci = new CURSORINFO();
+            ci.cbSize = Marshal.SizeOf(typeof(CURSORINFO));
+            if (!GetCursorInfo(out ci)) return false;
+            IntPtr ibeam = LoadCursor(IntPtr.Zero, 32513); // IDC_IBEAM
+            return ci.hCursor == ibeam;
+        }
+
+        public static string GetClassAtPoint(POINT pt) {
+            IntPtr hWnd = WindowFromPoint(pt);
+            if (hWnd == IntPtr.Zero) return "";
+            StringBuilder sb = new StringBuilder(128);
+            GetClassName(hWnd, sb, 128);
+            return sb.ToString();
         }
     }
 }
@@ -68,20 +105,36 @@ while ($true) {
         $dist = [Math]::Sqrt($dx * $dx + $dy * $dy)
         $holdTime = $now - $downTime
 
-        # Selection detected:
-        # 1) Deliberate mouse drag: moved > 15px with hold time > 70ms
-        $isDragSelection = ($dist -gt 15 -and $holdTime -gt 70)
+        # Exclude desktop icons, taskbar, Start Menu
+        $wndClass = [WinMouse.Listener]::GetClassAtPoint($pt)
+        $isSystemUI = ($wndClass -match '^(WorkerW|Progman|Shell_TrayWnd|Shell_SecondaryTrayWnd|Windows\.UI\.Core\.CoreWindow)$')
 
-        # 2) Multi-click selection: double-click / triple-click in same area (< 12px) within 400ms
+        # 1) Deliberate mouse drag selection:
+        # User held down mouse for at least 150ms and dragged at least 28px horizontally
+        # (or at least 45px total with hold time > 200ms for multiline text)
+        $isDragSelection = $false
+        if (-not $isSystemUI -and $holdTime -ge 150) {
+            if ($dx -ge 28 -and $dx -ge ($dy * 0.4)) {
+                $isDragSelection = $true
+            } elseif ($dist -ge 45 -and $holdTime -ge 200) {
+                $isDragSelection = $true
+            }
+        }
+
+        # 2) Multi-click selection (double-click / triple-click on text):
+        # Only counts if cursor is I-Beam (text cursor) or NOT an arrow cursor,
+        # ensuring double-clicks on desktop/explorer icons, buttons, etc. are NEVER classified as text selections!
         $isMultiClickSelection = $false
-        if ($dist -le 12) {
+        if ($dist -le 10 -and -not $isSystemUI) {
             $dt = $now - $lastClickTime
             $cdx = [Math]::Abs($pt.X - $lastClickX)
             $cdy = [Math]::Abs($pt.Y - $lastClickY)
             $cDist = [Math]::Sqrt($cdx * $cdx + $cdy * $cdy)
-            if ($dt -lt 400 -and $cDist -lt 12) {
+            if ($dt -lt 400 -and $cDist -lt 10) {
                 $clickCount++
-                if ($clickCount -ge 2) {
+                $isArrow = [WinMouse.Listener]::IsArrowCursor()
+                $isIBeam = [WinMouse.Listener]::IsIBeamCursor()
+                if ($clickCount -ge 2 -and ($isIBeam -or -not $isArrow)) {
                     $isMultiClickSelection = $true
                 }
             } else {
