@@ -198,13 +198,16 @@ switch ($Action) {
 
                     $curlResult = ""
                     try {
-                        $curlResult = (& curl.exe -s -L -o $null -w "%{http_code}" -X POST "$uploadUrl" `
+                        $rawCurl = & curl.exe -s -L -o $null -w "%{http_code}" -X POST "$uploadUrl" `
                             -H "Authorization: Bearer $token" `
                             -H "User-Agent: Arizo-Deployer" `
                             -H "Accept: application/vnd.github+json" `
                             -H "Content-Type: application/octet-stream" `
                             -H "Expect:" `
-                            --data-binary "@$tempAscii").Trim()
+                            --data-binary "@$tempAscii"
+                        if ($null -ne $rawCurl) { $curlResult = "$rawCurl".Trim() }
+                    } catch {
+                        Write-Host "curl execution error: $($_.Exception.Message)"
                     } finally {
                         if (Test-Path $tempAscii) { Remove-Item $tempAscii -Force -ErrorAction SilentlyContinue }
                     }
@@ -214,7 +217,8 @@ switch ($Action) {
                         $uploadedSuccessfully = $true
                         break
                     } else {
-                        Write-Host "curl upload returned: $($curlResult.Substring(0, [Math]::Min(120, $curlResult.Length)))"
+                        $preview = if ($curlResult) { $curlResult.Substring(0, [Math]::Min(120, $curlResult.Length)) } else { "(empty)" }
+                        Write-Host "curl upload returned: $preview"
                     }
 
                     # Fallback to .NET HttpClient with explicit ContentLength
