@@ -404,7 +404,7 @@
   function scheduleTranslate() {
     clearTimeout(debounceTimer);
     // The AI engine costs money per call, so it waits for the user to really stop typing.
-    debounceTimer = setTimeout(() => translate(el.input.value), state.engine === 'aphra' ? 800 : 300);
+    debounceTimer = setTimeout(() => translate(el.input.value), state.engine === 'aphra' ? 400 : 250);
   }
 
   api.onPartial((p) => {

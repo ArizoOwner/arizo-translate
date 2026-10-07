@@ -106,6 +106,13 @@ class KeyHelper {
     return res && res.msg === 'copied';
   }
 
+  saveTargetWindow() {
+    if (!this.proc) this.start();
+    if (this.ready) {
+      this.send('save_target', 300).catch(() => {});
+    }
+  }
+
   stop() {
     if (!this.proc) return;
     try {
@@ -347,5 +354,6 @@ module.exports = {
   captureSelectedText,
   captureTextOrActiveInput,
   replaceSelectedText,
+  saveTargetWindow: () => helper.saveTargetWindow(),
   sendKeys
 };

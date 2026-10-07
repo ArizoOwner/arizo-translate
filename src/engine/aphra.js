@@ -52,8 +52,10 @@ function buildPrompts({ text, srcCode, tgtCode, tone = 'auto', showBreakdown = t
   const src = languageName(srcCode);
   const tgt = languageName(tgtCode);
   const toneInstruction = TONES[tone] || TONES.auto;
+  const trimmed = text.trim();
+  const isShort = trimmed.length <= 80 || trimmed.split(/\s+/).length <= 8;
   const long = text.length > LONG_TEXT_THRESHOLD;
-  const wantExtras = showBreakdown && !long;
+  const wantExtras = showBreakdown && !long && !isShort;
 
   const system = `You are "Aphra", an elite agentic translation system with deep knowledge of ${src} and ${tgt} nuance.
 You produce natural, fluent and culturally resonant translations without robotic word-for-word literalism.
@@ -344,6 +346,12 @@ async function callGeminiNative(cfg, { messages, stream, jsonMode, maxTokens, si
       temperature: 0.3
     }
   };
+
+  // Disable thinking tokens on Gemini 2.x/3.x flash & thinking models for sub-second responses
+  if (!/gemini-1\./i.test(model)) {
+    payload.generationConfig.thinkingConfig = { thinkingBudget: 0 };
+  }
+
   if (jsonMode) {
     payload.generationConfig.responseMimeType = 'application/json';
   }
@@ -375,8 +383,23 @@ async function callGeminiNative(cfg, { messages, stream, jsonMode, maxTokens, si
   }
 
   if (!res.ok) {
-    const errText = await readProviderError(res);
-    throw describeHttpError(res.status, errText);
+    if (res.status === 400 && payload.generationConfig?.thinkingConfig) {
+      delete payload.generationConfig.thinkingConfig;
+      const retryTimeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+      res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey
+        },
+        body: JSON.stringify(payload),
+        signal: signal ? AbortSignal.any([signal, retryTimeout]) : retryTimeout
+      });
+    }
+    if (!res.ok) {
+      const errText = await readProviderError(res);
+      throw describeHttpError(res.status, errText);
+    }
   }
 
   const type = res.headers.get('content-type') || '';
@@ -417,6 +440,12 @@ async function chatOnce(cfg, { messages, stream, jsonMode, maxTokens, signal, on
   };
   if (maxTokens) body.max_tokens = maxTokens;
   if (jsonMode) body.response_format = { type: 'json_object' };
+
+  // For OpenRouter and DeepSeek models: disable thinking/reasoning latency for ultra-fast instant translations
+  if (/openrouter\.ai/i.test(baseUrl) || /deepseek/i.test(model)) {
+    body.include_reasoning = false;
+    body.thinking = { budget: 0 };
+  }
 
   let res;
   try {
@@ -544,6 +573,10 @@ async function translateWithAphra(text, config = {}, { signal, onPartial } = {})
   const tgtCode = resolveTarget(config.targetLang, srcCode, config.prefs);
   const { system, user } = buildPrompts({ text, srcCode, tgtCode, tone, showBreakdown: config.showBreakdown !== false });
 
+  const trimmed = text.trim();
+  const isShort = trimmed.length <= 80 || trimmed.split(/\s+/).length <= 8;
+  const maxTokens = isShort ? 120 : (text.length > 500 ? 2048 : 1024);
+
   let lastPartial = '';
   const raw = await chat(cfg, {
     messages: [
@@ -552,6 +585,7 @@ async function translateWithAphra(text, config = {}, { signal, onPartial } = {})
     ],
     stream: true,
     jsonMode: true,
+    maxTokens,
     signal,
     onContent: (acc) => {
       if (!onPartial) return;

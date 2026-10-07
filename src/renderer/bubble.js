@@ -38,6 +38,15 @@ window.addEventListener('mouseleave', () => {
   }
 });
 
+// Stream partial translations in real time as the AI model produces them
+window.api.onPartial((payload) => {
+  if (payload && typeof payload.text === 'string') {
+    loadingState.classList.add('hidden');
+    currentTranslated = payload.text;
+    transResult.textContent = currentTranslated;
+  }
+});
+
 // Listen for bubble initialization from main process
 window.api.onBubbleInit((data) => {
   currentText = (data && data.text) ? data.text : '';
@@ -57,10 +66,22 @@ window.api.onBubbleInit((data) => {
   resetTimer(4500);
 });
 
-// When floating button is clicked: expand to popover card and translate
+// When floating button is clicked: capture text first while target window is completely focused, then expand and translate
 bubbleBtn.addEventListener('click', async (e) => {
   e.stopPropagation();
   clearTimeout(autoDismissTimer);
+
+  // Capture selected text immediately from the active target window
+  if (!currentText || currentText.trim().length === 0) {
+    if (typeof window.api.captureSelectedText === 'function') {
+      try {
+        const captured = await window.api.captureSelectedText();
+        if (captured && captured.trim().length > 0) {
+          currentText = captured.trim();
+        }
+      } catch (_) {}
+    }
+  }
 
   document.body.classList.add('expanded');
   bubbleBtn.classList.add('hidden');
@@ -68,19 +89,9 @@ bubbleBtn.addEventListener('click', async (e) => {
 
   // Expand bubble window bounds to accommodate popover card
   window.api.setBubbleSize(330, 210);
+  sourcePreview.textContent = currentText || '';
   loadingState.classList.remove('hidden');
   transResult.textContent = '';
-
-  // If text was not captured on selection (to protect clipboard and prevent automatic copying), capture it now on user click!
-  if (!currentText || currentText.trim().length === 0) {
-    if (typeof window.api.captureSelectedText === 'function') {
-      const captured = await window.api.captureSelectedText();
-      if (captured && captured.trim().length > 0) {
-        currentText = captured.trim();
-        sourcePreview.textContent = currentText;
-      }
-    }
-  }
 
   if (!currentText || currentText.trim().length === 0) {
     loadingState.classList.add('hidden');

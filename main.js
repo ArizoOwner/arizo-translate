@@ -2,7 +2,7 @@ delete process.env.ELECTRON_RUN_AS_NODE;
 const { app, BrowserWindow, globalShortcut, ipcMain, screen, Tray, Menu, nativeImage, clipboard, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { initCapture, shutdownCapture, captureSelectedText, captureTextOrActiveInput, replaceSelectedText } = require('./src/main/capture');
+const { initCapture, shutdownCapture, captureSelectedText, captureTextOrActiveInput, replaceSelectedText, saveTargetWindow } = require('./src/main/capture');
 const { loadSettings, saveSettings, publicSettings, loadHistory, clearHistory, deleteHistoryItem, toggleFavoriteItem, addHistoryItem } = require('./src/main/store');
 const { mouseMonitor } = require('./src/main/mouse');
 const { translateText } = require('./src/engine/translator');
@@ -256,7 +256,7 @@ function createBubbleWindow() {
     skipTaskbar: true,
     resizable: false,
     show: false,
-    focusable: true,
+    focusable: false,
     hasShadow: false,
     backgroundColor: '#00000000',
     webPreferences: {
@@ -310,6 +310,7 @@ async function handleMouseSelectionEvent(eventType) {
 
   // 3. User completed a deliberate selection gesture (mouse drag or multi-click):
   if (eventType === 'selection_made') {
+    saveTargetWindow();
     if (settings.showFloatingBubble === false) return;
 
     // Don't trigger if cursor is inside the island window itself
@@ -642,9 +643,6 @@ ipcMain.on('set-bubble-size', (event, { width, height }) => {
   if (y < wa.y) y = wa.y + 8;
 
   bubbleWindow.setBounds({ x, y, width: w, height: h });
-  if (w > 60 || h > 60) {
-    bubbleWindow.focus();
-  }
 });
 
 ipcMain.handle('replace-bubble-text', async (event, text) => {

@@ -8,7 +8,28 @@ Add-Type -Namespace Win -Name Keys -MemberDefinition @'
 [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey);
 [DllImport("user32.dll")] public static extern uint MapVirtualKey(uint uCode, uint uMapType);
 [DllImport("user32.dll")] public static extern uint GetClipboardSequenceNumber();
+[DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+[DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
+[DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
+[DllImport("user32.dll")] public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+[DllImport("kernel32.dll")] public static extern uint GetCurrentThreadId();
 '@
+
+$targetHwnd = [IntPtr]::Zero
+
+function Restore-TargetForeground {
+    if ($targetHwnd -ne [IntPtr]::Zero) {
+        $curFg = [Win.Keys]::GetForegroundWindow()
+        if ($curFg -ne $targetHwnd) {
+            $curThread = [Win.Keys]::GetCurrentThreadId()
+            $targetThread = [Win.Keys]::GetWindowThreadProcessId($targetHwnd, [IntPtr]::Zero)
+            [Win.Keys]::AttachThreadInput($curThread, $targetThread, $true)
+            [Win.Keys]::SetForegroundWindow($targetHwnd)
+            [Win.Keys]::AttachThreadInput($curThread, $targetThread, $false)
+            Start-Sleep -Milliseconds 40
+        }
+    }
+}
 
 $KEYUP = 2
 $VK_CONTROL = 0x11
@@ -49,7 +70,12 @@ while (-not $done) {
         'selectall'  { Send-CtrlCombo 0x41; [Console]::Out.WriteLine('ok') }
         'cut'        { Send-CtrlCombo 0x58; [Console]::Out.WriteLine('ok') }
         'get_seq'    { [Console]::Out.WriteLine([Win.Keys]::GetClipboardSequenceNumber()) }
+        'save_target' {
+            $targetHwnd = [Win.Keys]::GetForegroundWindow()
+            [Console]::Out.WriteLine('ok')
+        }
         'smart_copy' {
+            Restore-TargetForeground
             $before = [Win.Keys]::GetClipboardSequenceNumber()
             Send-CtrlCombo 0x43
             $copied = $false
