@@ -283,48 +283,21 @@ function createBubbleWindow() {
   });
 }
 
-let cachedSelectedText = '';
-
 async function handleMouseSelectionEvent(eventType) {
   const settings = loadSettings();
-  if (settings.showFloatingBubble === false) return;
 
-  // Don't trigger if cursor is inside the island window itself
-  if (mainWindow && mainWindow.isVisible()) {
-    const cursor = screen.getCursorScreenPoint();
-    const b = mainWindow.getBounds();
-    if (cursor.x >= b.x && cursor.x <= b.x + b.width && cursor.y >= b.y && cursor.y <= b.y + b.height) {
-      return;
-    }
-  }
-
-  // Don't trigger if cursor is inside the floating bubble window itself
-  if (bubbleWindow && bubbleWindow.isVisible()) {
-    const cursor = screen.getCursorScreenPoint();
-    const b = bubbleWindow.getBounds();
-    if (cursor.x >= b.x && cursor.x <= b.x + b.width && cursor.y >= b.y && cursor.y <= b.y + b.height) {
-      return;
-    }
-  }
-
-  if (eventType === 'selection_made') {
-    // User just completed a mouse selection (drag release or double-click)
-    await new Promise((r) => setTimeout(r, 40));
-    try {
-      const text = await captureSelectedText({ restore: true });
-      if (text && text.trim().length >= 2) {
-        cachedSelectedText = text.trim();
-      } else {
-        cachedSelectedText = '';
-      }
-    } catch (_) {
-      cachedSelectedText = '';
+  // 1. Right click anywhere in Windows:
+  // ZERO INTERFERENCE! Simply hide bubble if open so native context menu works unhindered.
+  // NEVER send Ctrl+C, NEVER touch clipboard, NEVER block or intercept context menu!
+  if (eventType === 'right_clicked') {
+    if (bubbleWindow && bubbleWindow.isVisible()) {
+      bubbleWindow.hide();
     }
     return;
   }
 
+  // 2. Normal left click on empty space:
   if (eventType === 'left_clicked') {
-    // If bubble is visible and user clicked outside, hide it
     if (bubbleWindow && bubbleWindow.isVisible()) {
       const cursor = screen.getCursorScreenPoint();
       const b = bubbleWindow.getBounds();
@@ -332,29 +305,29 @@ async function handleMouseSelectionEvent(eventType) {
         bubbleWindow.hide();
       }
     }
-    // Normal single-click on empty space: clear cached selection
-    cachedSelectedText = '';
     return;
   }
 
-  if (eventType === 'right_clicked') {
-    let textToUse = cachedSelectedText;
+  // 3. User completed a deliberate selection gesture (mouse drag or multi-click):
+  if (eventType === 'selection_made') {
+    if (settings.showFloatingBubble === false) return;
 
-    // If no text was cached yet (e.g. selection via keyboard Shift+Arrows), try capturing now
-    if (!textToUse || textToUse.length < 2) {
-      await new Promise((r) => setTimeout(r, 50));
-      const text = await captureSelectedText({ restore: true });
-      if (text && text.trim().length >= 2) {
-        textToUse = text.trim();
+    // Don't trigger if cursor is inside the island window itself
+    if (mainWindow && mainWindow.isVisible()) {
+      const cursor = screen.getCursorScreenPoint();
+      const b = mainWindow.getBounds();
+      if (cursor.x >= b.x && cursor.x <= b.x + b.width && cursor.y >= b.y && cursor.y <= b.y + b.height) {
+        return;
       }
     }
 
-    // Strictly enforce: ONLY show bubble if valid text is actively selected!
-    if (!textToUse || textToUse.trim().length < 2) {
-      if (bubbleWindow && bubbleWindow.isVisible()) {
-        bubbleWindow.hide();
+    // Don't trigger if cursor is inside the floating bubble window itself
+    if (bubbleWindow && bubbleWindow.isVisible()) {
+      const cursor = screen.getCursorScreenPoint();
+      const b = bubbleWindow.getBounds();
+      if (cursor.x >= b.x && cursor.x <= b.x + b.width && cursor.y >= b.y && cursor.y <= b.y + b.height) {
+        return;
       }
-      return;
     }
 
     if (!bubbleWindow) createBubbleWindow();
@@ -363,7 +336,7 @@ async function handleMouseSelectionEvent(eventType) {
     const display = screen.getDisplayNearestPoint(cursor);
     const wa = display.workArea;
 
-    // Place floating button slightly above cursor so it doesn't collide with Windows context menu
+    // Place floating button near cursor without obstructing text
     let x = cursor.x + 14;
     let y = cursor.y - 54;
     if (y < wa.y + 10) y = cursor.y + 24;
@@ -371,15 +344,16 @@ async function handleMouseSelectionEvent(eventType) {
     y = Math.max(wa.y + 8, Math.min(y, wa.y + wa.height - 64));
 
     bubbleWindow.setBounds({ x, y, width: 54, height: 54 });
-    bubbleWindow.showInactive(); // Show without stealing focus so target app selection is preserved
+    bubbleWindow.showInactive(); // Show without stealing focus
     bubbleWindow.setAlwaysOnTop(true, 'screen-saver');
 
+    // Display bubble button WITHOUT copying text (zero clipboard interference on selection!)
     if (bubbleReady) {
-      bubbleWindow.webContents.send('bubble-init', { text: textToUse });
+      bubbleWindow.webContents.send('bubble-init', { text: '' });
     } else {
       bubbleWindow.webContents.once('did-finish-load', () => {
         bubbleReady = true;
-        if (bubbleWindow) bubbleWindow.webContents.send('bubble-init', { text: textToUse });
+        if (bubbleWindow) bubbleWindow.webContents.send('bubble-init', { text: '' });
       });
     }
   }
@@ -677,6 +651,11 @@ ipcMain.handle('replace-bubble-text', async (event, text) => {
   if (bubbleWindow) bubbleWindow.hide();
   setTimeout(() => replaceSelectedText(text, { restore: loadSettings().restoreClipboard }), 150);
   return true;
+});
+
+ipcMain.handle('capture-selected-text', async () => {
+  const settings = loadSettings();
+  return await captureSelectedText({ restore: settings.restoreClipboard });
 });
 
 ipcMain.on('open-island-with-text', (event, text) => {

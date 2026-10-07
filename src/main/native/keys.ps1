@@ -7,6 +7,7 @@ Add-Type -Namespace Win -Name Keys -MemberDefinition @'
 [DllImport("user32.dll")] public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey);
 [DllImport("user32.dll")] public static extern uint MapVirtualKey(uint uCode, uint uMapType);
+[DllImport("user32.dll")] public static extern uint GetClipboardSequenceNumber();
 '@
 
 $KEYUP = 2
@@ -43,12 +44,30 @@ while (-not $done) {
     $line = [Console]::In.ReadLine()
     if ($null -eq $line) { break }
     switch ($line.Trim()) {
-        'copy'      { Send-CtrlCombo 0x43; [Console]::Out.WriteLine('ok') }
-        'paste'     { Send-CtrlCombo 0x56; [Console]::Out.WriteLine('ok') }
-        'selectall' { Send-CtrlCombo 0x41; [Console]::Out.WriteLine('ok') }
-        'cut'       { Send-CtrlCombo 0x58; [Console]::Out.WriteLine('ok') }
-        'exit'      { $done = $true }
-        default { [Console]::Out.WriteLine('unknown') }
+        'copy'       { Send-CtrlCombo 0x43; [Console]::Out.WriteLine('ok') }
+        'paste'      { Send-CtrlCombo 0x56; [Console]::Out.WriteLine('ok') }
+        'selectall'  { Send-CtrlCombo 0x41; [Console]::Out.WriteLine('ok') }
+        'cut'        { Send-CtrlCombo 0x58; [Console]::Out.WriteLine('ok') }
+        'get_seq'    { [Console]::Out.WriteLine([Win.Keys]::GetClipboardSequenceNumber()) }
+        'smart_copy' {
+            $before = [Win.Keys]::GetClipboardSequenceNumber()
+            Send-CtrlCombo 0x43
+            $copied = $false
+            for ($i = 0; $i -lt 14; $i++) {
+                Start-Sleep -Milliseconds 25
+                if ([Win.Keys]::GetClipboardSequenceNumber() -ne $before) {
+                    $copied = $true
+                    break
+                }
+            }
+            if ($copied) {
+                [Console]::Out.WriteLine('copied')
+            } else {
+                [Console]::Out.WriteLine('no_change')
+            }
+        }
+        'exit'       { $done = $true }
+        default      { [Console]::Out.WriteLine('unknown') }
     }
     [Console]::Out.Flush()
 }

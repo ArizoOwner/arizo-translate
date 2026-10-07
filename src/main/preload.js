@@ -45,6 +45,7 @@ contextBridge.exposeInMainWorld('api', {
   setBubbleSize: (w, h) => ipcRenderer.send('set-bubble-size', { width: w, height: h }),
   replaceBubbleText: (text) => ipcRenderer.invoke('replace-bubble-text', text),
   openIslandWithText: (text) => ipcRenderer.send('open-island-with-text', text),
+  captureSelectedText: () => ipcRenderer.invoke('capture-selected-text'),
   onBubbleInit: (cb) => subscribe('bubble-init', cb),
 
   // events pushed by the main process

@@ -32,7 +32,10 @@ $rightDown = $false
 $downX = 0
 $downY = 0
 $downTime = 0
-$lastUpTime = 0
+$lastClickTime = 0
+$lastClickX = 0
+$lastClickY = 0
+$clickCount = 0
 
 [Console]::Out.WriteLine('ready')
 [Console]::Out.Flush()
@@ -62,13 +65,36 @@ while ($true) {
         $leftDown = $false
         $dx = [Math]::Abs($pt.X - $downX)
         $dy = [Math]::Abs($pt.Y - $downY)
-        $sinceLastUp = $now - $lastUpTime
-        $lastUpTime = $now
-
+        $dist = [Math]::Sqrt($dx * $dx + $dy * $dy)
         $holdTime = $now - $downTime
 
-        # Selection detected: Dragged > 3px OR held down > 150ms with movement OR double-clicked (< 450ms)
-        if (($dx -gt 3 -or $dy -gt 3) -or ($holdTime -gt 150 -and ($dx -gt 2 -or $dy -gt 2)) -or ($sinceLastUp -lt 450)) {
+        # Selection detected:
+        # 1) Deliberate mouse drag: moved > 15px with hold time > 70ms
+        $isDragSelection = ($dist -gt 15 -and $holdTime -gt 70)
+
+        # 2) Multi-click selection: double-click / triple-click in same area (< 12px) within 400ms
+        $isMultiClickSelection = $false
+        if ($dist -le 12) {
+            $dt = $now - $lastClickTime
+            $cdx = [Math]::Abs($pt.X - $lastClickX)
+            $cdy = [Math]::Abs($pt.Y - $lastClickY)
+            $cDist = [Math]::Sqrt($cdx * $cdx + $cdy * $cdy)
+            if ($dt -lt 400 -and $cDist -lt 12) {
+                $clickCount++
+                if ($clickCount -ge 2) {
+                    $isMultiClickSelection = $true
+                }
+            } else {
+                $clickCount = 1
+                $lastClickX = $pt.X
+                $lastClickY = $pt.Y
+            }
+            $lastClickTime = $now
+        } else {
+            $clickCount = 0
+        }
+
+        if ($isDragSelection -or $isMultiClickSelection) {
             [Console]::Out.WriteLine('selection_made')
             [Console]::Out.Flush()
         } else {
@@ -77,9 +103,11 @@ while ($true) {
         }
     }
 
-    # Right mouse transitions
+    # Right mouse transitions - notify when pressed or released so bubble can hide immediately
     if ($isRDown -and -not $rightDown) {
         $rightDown = $true
+        [Console]::Out.WriteLine('right_clicked')
+        [Console]::Out.Flush()
     } elseif (-not $isRDown -and $rightDown) {
         $rightDown = $false
         [Console]::Out.WriteLine('right_clicked')

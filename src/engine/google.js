@@ -1,4 +1,5 @@
 const { detectLanguage, resolveTarget, normalizeCode } = require('./languages');
+const { enhanceTranslation } = require('./idioms');
 
 const GOOGLE_ENDPOINT = 'https://translate.googleapis.com/translate_a/single';
 const GOOGLE_UA = 'GoogleTranslate/6.28.0.RC05.358249487 (Linux; U; Android 10; Pixel 4)';
@@ -132,8 +133,10 @@ async function translateWithGoogle(text, opts = {}) {
     const results = await Promise.all(chunks.map((c) => googleRequest(c, sl, tl, signal)));
     const parsed = results.map(parseGoogle);
 
-    const translation = parsed.map((p) => p.translation).join('').trim();
-    if (!translation) throw new Error('Empty translation');
+    const rawTranslation = parsed.map((p) => p.translation).join('').trim();
+    if (!rawTranslation) throw new Error('Empty translation');
+
+    const translation = enhanceTranslation(rawTranslation, text, sl, tl);
 
     return {
       translation,
@@ -166,8 +169,10 @@ async function fallbackMyMemory(text, targetLang, sourceLang, signal) {
       if (typeof t !== 'string' || !t.trim()) throw new Error('Empty MyMemory response');
       out.push(t);
     }
+    const rawTranslation = out.join('').trim();
+    const translation = enhanceTranslation(rawTranslation, text, sourceLang, targetLang);
     return {
-      translation: out.join('').trim(),
+      translation,
       detectedLang: sourceLang,
       targetLang,
       alternatives: [],

@@ -1,5 +1,6 @@
 const { translateWithGoogle } = require('./google');
 const { translateWithAphra, AphraError } = require('./aphra');
+const { enhanceTranslation } = require('./idioms');
 const { addHistoryItem, loadSettings } = require('../main/store');
 
 const CACHE_LIMIT = 200;
@@ -77,6 +78,15 @@ async function translateText({ text, engine = 'google', tone, targetLang = 'auto
     }
 
     if (isAbort(null, signal)) return { success: false, aborted: true };
+
+    if (result && result.translation) {
+      result.translation = enhanceTranslation(
+        result.translation,
+        cleanText,
+        result.detectedLang,
+        result.targetLang
+      );
+    }
 
     addHistoryItem({
       query: cleanText,

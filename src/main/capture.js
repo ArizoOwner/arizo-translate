@@ -51,16 +51,19 @@ class KeyHelper {
       const msg = line.trim();
       if (msg === 'ready') {
         this.ready = true;
-      } else if (msg === 'ok' || msg === 'unknown') {
+      } else if (msg === 'ok' || msg === 'copied' || msg === 'no_change' || msg === 'unknown') {
         const entry = this.pending.shift();
-        if (entry) entry.finish(msg === 'ok');
+        if (entry) entry.finish(msg === 'ok' || msg === 'copied', msg);
+      } else {
+        const entry = this.pending.shift();
+        if (entry) entry.finish(true, msg);
       }
     });
 
     const reset = () => {
       this.ready = false;
       this.proc = null;
-      this.pending.splice(0).forEach((e) => e.finish(false));
+      this.pending.splice(0).forEach((e) => e.finish(false, 'reset'));
     };
     this.proc.on('exit', reset);
     this.proc.on('error', reset);
@@ -69,26 +72,38 @@ class KeyHelper {
 
   send(command, timeoutMs = 1500) {
     if (!this.proc) this.start(); // lazily (re)start; the current call falls back to VBS
-    if (!this.ready) return Promise.resolve(false);
+    if (!this.ready) return Promise.resolve({ ok: false, msg: 'not_ready' });
 
     return new Promise((resolve) => {
       const entry = {
         done: false,
-        finish: (ok) => {
+        finish: (ok, msg) => {
           if (entry.done) return;
           entry.done = true;
           clearTimeout(timer);
-          resolve(ok);
+          resolve({ ok, msg });
         }
       };
-      const timer = setTimeout(() => entry.finish(false), timeoutMs);
+      const timer = setTimeout(() => entry.finish(false, 'timeout'), timeoutMs);
       this.pending.push(entry);
       try {
         this.proc.stdin.write(`${command}\n`);
       } catch (_) {
-        entry.finish(false);
+        entry.finish(false, 'write_error');
       }
     });
+  }
+
+  async smartCopy(timeoutMs = 400) {
+    if (!this.proc) this.start();
+    if (!this.ready) {
+      for (let i = 0; i < 8 && !this.ready; i++) {
+        await sleep(25);
+      }
+    }
+    if (!this.ready) return false;
+    const res = await this.send('smart_copy', timeoutMs);
+    return res && res.msg === 'copied';
   }
 
   stop() {
@@ -121,7 +136,8 @@ function shutdownCapture() {
 }
 
 async function sendKeys(command) {
-  if (await helper.send(command)) return true;
+  const res = await helper.send(command);
+  if (res && res.ok) return true;
   if (command === 'copy') return runVbs(copyScriptPath);
   if (command === 'paste') return runVbs(pasteScriptPath);
   if (command === 'selectall') return runVbs(selectAllScriptPath);
@@ -153,21 +169,24 @@ async function snapshotClipboard() {
 
 async function restoreClipboard(snap) {
   if (!snap) return;
-  try {
-    const data = {};
-    if (snap.text) data.text = snap.text;
-    if (snap.html) data.html = snap.html;
-    if (snap.rtf) data.rtf = snap.rtf;
-    if (snap.image && typeof snap.image.isEmpty === 'function' && !snap.image.isEmpty()) {
-      data.image = snap.image;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      const data = {};
+      if (snap.text) data.text = snap.text;
+      if (snap.html) data.html = snap.html;
+      if (snap.rtf) data.rtf = snap.rtf;
+      if (snap.image && typeof snap.image.isEmpty === 'function' && !snap.image.isEmpty()) {
+        data.image = snap.image;
+      }
+      if (Object.keys(data).length) {
+        await Promise.resolve(clipboard.write(data));
+      } else {
+        await Promise.resolve(clipboard.clear());
+      }
+      return;
+    } catch (_) {
+      await sleep(25);
     }
-    if (Object.keys(data).length) {
-      await Promise.resolve(clipboard.write(data));
-    } else {
-      await Promise.resolve(clipboard.clear());
-    }
-  } catch (_) {
-    /* ignore */
   }
 }
 
@@ -189,23 +208,11 @@ async function safeWriteClipboardText(text) {
   }
 }
 
-async function waitForClipboardChange(sentinel, timeoutMs) {
-  const started = Date.now();
-  while (Date.now() - started < timeoutMs) {
-    const text = await safeReadClipboardText();
-    // Only return if text is a non-empty string DIFFERENT from the sentinel
-    if (text && text !== sentinel && !text.includes('__ARIZO_SENTINEL_') && !text.includes('__APHRA_SENTINEL_')) {
-      return text;
-    }
-    await sleep(15);
-  }
-  return '';
-}
-
 let activeCapturePromise = null;
 
 /**
  * Capture currently selected text across any application in Windows.
+ * Uses Win32 GetClipboardSequenceNumber detection: zero sentinels, zero clipboard pollution.
  */
 async function captureSelectedText({ restore = true } = {}) {
   if (activeCapturePromise) {
@@ -216,41 +223,44 @@ async function captureSelectedText({ restore = true } = {}) {
     try {
       const backup = await snapshotClipboard();
 
-      // A unique sentinel allows us to verify if the target application actually copied anything.
-      const sentinel = `__ARIZO_SENTINEL_${Date.now()}_${Math.random().toString(36).slice(2, 7)}__`;
-      await safeWriteClipboardText(sentinel);
+      // Fast, safe path: Win32 clipboard sequence detection
+      // NEVER writes any sentinel string to clipboard.
+      if (helper.ready) {
+        const copied = await helper.smartCopy(320);
+        if (copied) {
+          const text = await safeReadClipboardText();
+          if (restore) {
+            await restoreClipboard(backup);
+          }
+          return (text || '').trim();
+        } else {
+          // Target app didn't copy anything (no text was highlighted).
+          // Clipboard was NEVER touched, so no restore needed.
+          return '';
+        }
+      }
 
-      // Verify sentinel was successfully written to the clipboard
-      let verified = false;
-      for (let i = 0; i < 6; i++) {
+      // Fallback path if helper is not ready (VBS / standard copy):
+      const initialText = await safeReadClipboardText();
+      const sendOk = await sendKeys('copy');
+      if (!sendOk) return '';
+
+      const started = Date.now();
+      let captured = '';
+      while (Date.now() - started < 320) {
         const cur = await safeReadClipboardText();
-        if (cur === sentinel) {
-          verified = true;
+        if (cur && cur !== initialText) {
+          captured = cur;
           break;
         }
-        await sleep(15);
+        await sleep(20);
       }
 
-      if (!verified) {
-        // Clipboard was locked by another process, abort safely
-        await restoreClipboard(backup);
-        return '';
-      }
-
-      await sendKeys('copy');
-      const captured = await waitForClipboardChange(sentinel, 320);
-
-      // If target app didn't copy anything, or if restore is requested, restore previous clipboard
-      if (restore || !captured) {
+      if (restore && captured) {
         await restoreClipboard(backup);
       }
 
-      // Safety guard: Never return the sentinel or sentinel fragments
-      if (!captured || captured === sentinel || captured.includes('__ARIZO_SENTINEL_') || captured.includes('__APHRA_SENTINEL_')) {
-        return '';
-      }
-
-      return captured.trim();
+      return (captured || '').trim();
     } catch (_) {
       return '';
     } finally {
@@ -279,35 +289,32 @@ async function captureTextOrActiveInput({ restore = true } = {}) {
   isCapturingInput = true;
   try {
     const backup = await snapshotClipboard();
-    const sentinel = `__APHRA_SENTINEL_${Date.now()}_${Math.random().toString(36).slice(2, 7)}__`;
-    await safeWriteClipboardText(sentinel);
-
-    let verified = false;
-    for (let i = 0; i < 6; i++) {
-      const cur = await safeReadClipboardText();
-      if (cur === sentinel) {
-        verified = true;
-        break;
-      }
-      await sleep(15);
-    }
-
-    if (!verified) {
-      await restoreClipboard(backup);
-      return { text: '', wasSelected: false };
-    }
 
     await sendKeys('selectall');
-    await sleep(90);
-    await sendKeys('copy');
+    await sleep(75);
 
-    const captured = await waitForClipboardChange(sentinel, 500);
-    if (restore || !captured) {
-      await restoreClipboard(backup);
+    let captured = '';
+    if (helper.ready) {
+      const copied = await helper.smartCopy(350);
+      if (copied) {
+        captured = await safeReadClipboardText();
+      }
+    } else {
+      const initialText = await safeReadClipboardText();
+      await sendKeys('copy');
+      const started = Date.now();
+      while (Date.now() - started < 350) {
+        const cur = await safeReadClipboardText();
+        if (cur && cur !== initialText) {
+          captured = cur;
+          break;
+        }
+        await sleep(25);
+      }
     }
 
-    if (!captured || captured === sentinel || captured.includes('__APHRA_SENTINEL_')) {
-      return { text: '', wasSelected: false };
+    if (restore || !captured) {
+      await restoreClipboard(backup);
     }
 
     return { text: (captured || '').trim(), wasSelected: false };

@@ -40,8 +40,7 @@ window.addEventListener('mouseleave', () => {
 
 // Listen for bubble initialization from main process
 window.api.onBubbleInit((data) => {
-  if (!data || !data.text) return;
-  currentText = data.text;
+  currentText = (data && data.text) ? data.text : '';
   currentTranslated = '';
 
   // Reset to initial compact bubble button
@@ -55,7 +54,7 @@ window.api.onBubbleInit((data) => {
 
   // Resize window to compact button: 54x54
   window.api.setBubbleSize(54, 54);
-  resetTimer(5000);
+  resetTimer(4500);
 });
 
 // When floating button is clicked: expand to popover card and translate
@@ -69,12 +68,29 @@ bubbleBtn.addEventListener('click', async (e) => {
 
   // Expand bubble window bounds to accommodate popover card
   window.api.setBubbleSize(330, 210);
+  loadingState.classList.remove('hidden');
+  transResult.textContent = '';
+
+  // If text was not captured on selection (to protect clipboard and prevent automatic copying), capture it now on user click!
+  if (!currentText || currentText.trim().length === 0) {
+    if (typeof window.api.captureSelectedText === 'function') {
+      const captured = await window.api.captureSelectedText();
+      if (captured && captured.trim().length > 0) {
+        currentText = captured.trim();
+        sourcePreview.textContent = currentText;
+      }
+    }
+  }
+
+  if (!currentText || currentText.trim().length === 0) {
+    loadingState.classList.add('hidden');
+    transResult.textContent = 'متنی برای ترجمه انتخاب نشده است';
+    resetTimer(3500);
+    return;
+  }
 
   // Perform translation
   try {
-    loadingState.classList.remove('hidden');
-    transResult.textContent = '';
-
     const settings = await window.api.getSettings();
     const result = await window.api.translate({
       text: currentText,
