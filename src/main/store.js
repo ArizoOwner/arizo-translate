@@ -57,8 +57,17 @@ function ensureDir() {
 function writeJsonAtomic(file, data) {
   ensureDir();
   const tmp = `${file}.${process.pid}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
-  fs.renameSync(tmp, file);
+  try {
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tmp, file);
+  } catch (err) {
+    // Windows renameSync can fail with EPERM if the file is being read by explorer or antivirus.
+    // Fall back to direct writeFileSync to ensure data persistence:
+    fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
+    try {
+      if (fs.existsSync(tmp)) fs.unlinkSync(tmp);
+    } catch (_) {}
+  }
 }
 
 function readJson(file, fallback) {

@@ -541,13 +541,24 @@
     searchTimer = setTimeout(renderHistory, 120);
   });
 
-  histEl.clear.addEventListener('click', async () => {
-    if (clearArmed) {
-      clearTimeout(clearArmed);
-      clearArmed = null;
-    }
-    await api.clearHistory();
-    await renderHistory();
-    showToast('تاریخچه ترجمه‌ها پاکسازی شد');
-  });
+  if (histEl.clear) {
+    histEl.clear.addEventListener('click', async (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (clearArmed) {
+        clearTimeout(clearArmed);
+        clearArmed = null;
+      }
+      try {
+        await api.clearHistory();
+        await renderHistory();
+        showToast(window.I18n ? window.I18n.t('toastHistoryCleared') : 'تاریخچه ترجمه‌ها پاکسازی شد');
+      } catch (err) {
+        console.error('Failed to clear history:', err);
+        showToast('خطا در پاکسازی تاریخچه');
+      }
+    });
+  }
 })();
