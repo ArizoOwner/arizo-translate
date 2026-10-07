@@ -541,21 +541,13 @@
     searchTimer = setTimeout(renderHistory, 120);
   });
 
-  // Two-step confirmation instead of a blocking native confirm() dialog.
   histEl.clear.addEventListener('click', async () => {
-    if (!clearArmed) {
-      histEl.clear.textContent = 'مطمئنید؟ دوباره بزنید';
-      clearArmed = setTimeout(() => {
-        clearArmed = null;
-        histEl.clear.textContent = 'پاکسازی همه';
-      }, 3000);
-      return;
+    if (clearArmed) {
+      clearTimeout(clearArmed);
+      clearArmed = null;
     }
-    clearTimeout(clearArmed);
-    clearArmed = null;
-    histEl.clear.textContent = 'پاکسازی همه';
     await api.clearHistory();
     await renderHistory();
-    showToast('تاریخچه پاکسازی شد');
+    showToast('تاریخچه ترجمه‌ها پاکسازی شد');
   });
 })();

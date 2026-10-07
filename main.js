@@ -2,7 +2,18 @@ delete process.env.ELECTRON_RUN_AS_NODE;
 const { app, BrowserWindow, globalShortcut, ipcMain, screen, Tray, Menu, nativeImage, clipboard, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { initCapture, shutdownCapture, captureSelectedText, captureTextOrActiveInput, replaceSelectedText, saveTargetWindow } = require('./src/main/capture');
+const {
+  initCapture,
+  shutdownCapture,
+  captureSelectedText,
+  captureTextOrActiveInput,
+  replaceSelectedText,
+  saveTargetWindow,
+  restoreTargetWindow,
+  waitModifiers,
+  snapshotClipboard,
+  restoreClipboard
+} = require('./src/main/capture');
 const { loadSettings, saveSettings, publicSettings, loadHistory, clearHistory, deleteHistoryItem, toggleFavoriteItem, addHistoryItem } = require('./src/main/store');
 const { mouseMonitor } = require('./src/main/mouse');
 const { translateText } = require('./src/engine/translator');
@@ -192,12 +203,27 @@ function registerHotkey(hotkey) {
 async function onInlineTranslate() {
   const settings = loadSettings();
   try {
-    // Give physical modifiers and keys (Ctrl, Alt, Shift, letters) a moment to release
-    await new Promise((resolve) => setTimeout(resolve, 120));
+    // 1. Immediately pin the foreground window where the hotkey was triggered
+    saveTargetWindow();
 
+    // 2. Snapshot the user's original clipboard before any key simulation
+    const originalClipboard = await snapshotClipboard();
+
+    // 3. Wait for physical modifier keys (Alt, Shift, D) to be released to prevent keystroke collisions
+    await waitModifiers(600);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // 4. Capture selected text (or select-all if in an active input field)
     const { text } = await captureTextOrActiveInput({ restore: false });
-    if (!text || text.trim().length === 0) return;
+    if (!text || text.trim().length === 0) {
+      toast('متنی برای ترجمه درجا یافت نشد');
+      if (settings.restoreClipboard) {
+        await restoreClipboard(originalClipboard);
+      }
+      return;
+    }
 
+    // 5. Request translation
     const res = await translateText({
       text: text.trim(),
       engine: settings.defaultEngine === 'aphra' ? 'aphra' : 'google',
@@ -209,10 +235,23 @@ async function onInlineTranslate() {
       : (res && res.translation ? res.translation : '');
 
     if (translatedText) {
-      await replaceSelectedText(translatedText, { restore: settings.restoreClipboard });
+      // 6. Restore target window focus and paste the translated text in-place
+      await restoreTargetWindow();
+      await new Promise((resolve) => setTimeout(resolve, 40));
+
+      await replaceSelectedText(translatedText, {
+        restore: settings.restoreClipboard,
+        originalClipboard
+      });
+    } else {
+      toast('خطا در دریافت ترجمه درجا');
+      if (settings.restoreClipboard) {
+        await restoreClipboard(originalClipboard);
+      }
     }
   } catch (err) {
     console.warn('In-place translate failed:', err.message);
+    toast('خطا در ترجمه درجا');
   }
 }
 

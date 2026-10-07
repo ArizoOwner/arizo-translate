@@ -109,8 +109,26 @@ class KeyHelper {
   saveTargetWindow() {
     if (!this.proc) this.start();
     if (this.ready) {
-      this.send('save_target', 300).catch(() => {});
+      return this.send('save_target', 300).catch(() => {});
     }
+    return Promise.resolve({ ok: false });
+  }
+
+  restoreTargetWindow(timeoutMs = 400) {
+    if (!this.proc) this.start();
+    if (this.ready) {
+      return this.send('restore_target', timeoutMs).catch(() => {});
+    }
+    return Promise.resolve({ ok: false });
+  }
+
+  async waitModifiers(timeoutMs = 600) {
+    if (!this.proc) this.start();
+    if (this.ready) {
+      return this.send('wait_modifiers', timeoutMs).catch(() => {});
+    }
+    await sleep(120);
+    return { ok: true };
   }
 
   stop() {
@@ -345,17 +363,22 @@ async function captureTextOrActiveInput({ restore = true } = {}) {
 /**
  * Replace selected text in the active application by writing to the clipboard and sending Ctrl+V.
  */
-async function replaceSelectedText(text, { restore = true } = {}) {
+async function replaceSelectedText(text, { restore = true, originalClipboard = null } = {}) {
   if (!text) return false;
-  const backup = await snapshotClipboard();
+  const backup = originalClipboard || (await snapshotClipboard());
+
+  // Ensure the target window has active foreground focus before pasting
+  await helper.restoreTargetWindow();
+  await sleep(40);
+
   await safeWriteClipboardText(text);
-  await sleep(60);
+  await sleep(70);
   const ok = await sendKeys('paste');
   if (restore) {
     // Slow targets (Word, Electron apps) read the clipboard a bit after Ctrl+V.
     setTimeout(async () => {
       await restoreClipboard(backup);
-    }, 800);
+    }, 900);
   }
   return ok;
 }
@@ -367,5 +390,11 @@ module.exports = {
   captureTextOrActiveInput,
   replaceSelectedText,
   saveTargetWindow: () => helper.saveTargetWindow(),
+  restoreTargetWindow: (timeoutMs) => helper.restoreTargetWindow(timeoutMs),
+  waitModifiers: (timeoutMs) => helper.waitModifiers(timeoutMs),
+  snapshotClipboard,
+  restoreClipboard,
+  safeWriteClipboardText,
+  safeReadClipboardText,
   sendKeys
 };
