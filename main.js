@@ -652,8 +652,9 @@ ipcMain.handle('replace-bubble-text', async (event, text) => {
 });
 
 ipcMain.handle('capture-selected-text', async () => {
-  const settings = loadSettings();
-  return await captureSelectedText({ restore: settings.restoreClipboard });
+  // Always restore previous clipboard when capturing text via the bubble icon,
+  // guaranteeing the user's clipboard is NEVER polluted or overwritten by selected text!
+  return await captureSelectedText({ restore: true });
 });
 
 ipcMain.on('open-island-with-text', (event, text) => {

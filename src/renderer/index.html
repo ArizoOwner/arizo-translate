@@ -369,12 +369,17 @@
 
           <div class="setting-item">
             <div class="setting-text">
-              <label for="setting-model" data-i18n="settingModelLabel">نام مدل (Model Name)</label>
-              <span data-i18n="settingModelDesc">مثال: gemini-3.8-flash یا انتخاب از لیست مدل‌های API</span>
+              <label for="setting-model-select" data-i18n="settingModelLabel">نام مدل (Model Name)</label>
+              <span data-i18n="settingModelDesc">انتخاب از لیست مدل‌های API یا وارد کردن نام مدل دلخواه</span>
             </div>
-            <div class="model-input-box">
-              <input type="text" id="setting-model" list="model-suggestions" placeholder="gemini-3.8-flash" class="sleek-input ltr-input" spellcheck="false">
-              <button id="btn-fetch-models" class="btn-mini-action" type="button" title="دریافت لیست تمام مدل‌های موجود از API" data-i18n="settingFetchModelsBtn">🔄 دریافت مدل‌ها</button>
+            <div class="model-control-wrap" style="display: flex; flex-direction: column; gap: 6px; flex: 1; max-width: 250px;">
+              <div class="model-input-box">
+                <select id="setting-model-select" class="sleek-select ltr-input" style="flex: 1; min-width: 0;"></select>
+                <button id="btn-fetch-models" class="btn-mini-action" type="button" title="دریافت لیست تمام مدل‌های موجود از API" data-i18n="settingFetchModelsBtn">🔄 دریافت مدل‌ها</button>
+              </div>
+              <div id="custom-model-container" class="hidden">
+                <input type="text" id="setting-model" list="model-suggestions" placeholder="نام مدل دلخواه (مثال: gemini-3.8-flash)" class="sleek-input ltr-input" style="width: 100%; box-sizing: border-box;" spellcheck="false">
+              </div>
             </div>
             <datalist id="model-suggestions"></datalist>
           </div>

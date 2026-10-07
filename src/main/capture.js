@@ -170,13 +170,19 @@ async function snapshotClipboard() {
       image: image || null
     };
   } catch (_) {
-    return null;
+    return { text: '', html: '', rtf: '', image: null };
   }
 }
 
 async function restoreClipboard(snap) {
-  if (!snap) return;
-  for (let attempt = 0; attempt < 5; attempt++) {
+  if (!snap) snap = { text: '', html: '', rtf: '', image: null };
+  const targetText = snap.text || '';
+
+  // Give the target application (Chrome/Word/Notepad) a brief moment (70ms)
+  // to complete WM_COPY processing and close the Win32 clipboard handle.
+  await sleep(70);
+
+  for (let attempt = 0; attempt < 8; attempt++) {
     try {
       const data = {};
       if (snap.text) data.text = snap.text;
@@ -185,16 +191,22 @@ async function restoreClipboard(snap) {
       if (snap.image && typeof snap.image.isEmpty === 'function' && !snap.image.isEmpty()) {
         data.image = snap.image;
       }
-      if (Object.keys(data).length) {
-        await Promise.resolve(clipboard.write(data));
+      if (Object.keys(data).length > 0) {
+        clipboard.write(data);
       } else {
-        await Promise.resolve(clipboard.clear());
+        clipboard.clear();
       }
-      return;
-    } catch (_) {
-      await sleep(25);
-    }
+
+      // Explicitly verify that the clipboard no longer contains the newly captured text
+      // and has reverted to the pre-capture state:
+      const current = clipboard.readText();
+      if (current === targetText) {
+        return true; // Successfully restored!
+      }
+    } catch (_) {}
+    await sleep(40);
   }
+  return false;
 }
 
 async function safeReadClipboardText() {

@@ -1271,7 +1271,8 @@ kbd {
   width: 100%;
 }
 
-.model-input-box input {
+.model-input-box input,
+.model-input-box select {
   flex: 1;
   min-width: 0;
 }

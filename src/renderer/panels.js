@@ -18,7 +18,9 @@
     showFloatingBubble: $('setting-show-floating-bubble'),
     native: $('setting-native-lang'), second: $('setting-second-lang'),
     preset: $('setting-provider-preset'), baseUrl: $('setting-base-url'), apiKey: $('setting-api-key'),
-    keyHint: $('api-key-hint'), eye: $('btn-toggle-apikey-visibility'), model: $('setting-model'),
+    keyHint: $('api-key-hint'), eye: $('btn-toggle-apikey-visibility'),
+    modelSelect: $('setting-model-select'), customModelBox: $('custom-model-container'),
+    model: $('setting-model'),
     models: $('model-suggestions'), btnFetchModels: $('btn-fetch-models'), test: $('btn-test-aphra'), testResult: $('test-result'),
     clearKey: $('btn-clear-apikey'), breakdown: $('setting-show-breakdown'), autoCopy: $('setting-auto-copy'),
     restore: $('setting-restore-clipboard'), hideBlur: $('setting-hide-on-blur'),
@@ -43,18 +45,84 @@
     select.value = value;
   }
 
-  function setSuggestions(models) {
-    f.models.textContent = '';
-    (models || []).forEach((m) => {
-      const o = document.createElement('option');
-      if (typeof m === 'string') {
-        o.value = m;
-        o.textContent = m;
-      } else if (m && m.id) {
-        o.value = m.id;
-        o.textContent = m.displayName && m.displayName !== m.id ? `${m.displayName} (${m.id})` : m.id;
+  function setSuggestions(models, currentVal) {
+    if (f.models) f.models.textContent = '';
+    if (f.modelSelect) f.modelSelect.textContent = '';
+
+    const list = Array.isArray(models) ? models : [];
+    const target = (currentVal !== undefined ? currentVal : (f.model ? f.model.value : '')).trim();
+    let matched = false;
+
+    list.forEach((m) => {
+      const id = typeof m === 'string' ? m : (m && m.id ? m.id : '');
+      if (!id) return;
+      const label = typeof m === 'string'
+        ? m
+        : (m.displayName && m.displayName !== m.id ? `${m.displayName} (${m.id})` : m.id);
+
+      if (f.models) {
+        const o = document.createElement('option');
+        o.value = id;
+        o.textContent = label;
+        f.models.appendChild(o);
       }
-      f.models.appendChild(o);
+
+      if (f.modelSelect) {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = label;
+        if (id === target) {
+          opt.selected = true;
+          matched = true;
+        }
+        f.modelSelect.appendChild(opt);
+      }
+    });
+
+    if (f.modelSelect) {
+      if (target && !matched) {
+        const customOpt = document.createElement('option');
+        customOpt.value = target;
+        customOpt.textContent = `${target} (فعلی)`;
+        customOpt.selected = true;
+        f.modelSelect.insertBefore(customOpt, f.modelSelect.firstChild);
+        matched = true;
+      }
+
+      const manualOpt = document.createElement('option');
+      manualOpt.value = '__custom__';
+      manualOpt.textContent = '✏️ ورود دستی نام مدل (Custom)...';
+      f.modelSelect.appendChild(manualOpt);
+
+      if (!matched && list.length > 0) {
+        f.modelSelect.selectedIndex = 0;
+        if (f.model) f.model.value = f.modelSelect.value;
+      } else if (matched && f.modelSelect.value && f.model) {
+        f.model.value = f.modelSelect.value;
+      }
+    }
+  }
+
+  if (f.modelSelect) {
+    f.modelSelect.addEventListener('change', () => {
+      if (f.modelSelect.value === '__custom__') {
+        if (f.customModelBox) f.customModelBox.classList.remove('hidden');
+        if (f.model) f.model.focus();
+      } else {
+        if (f.customModelBox) f.customModelBox.classList.add('hidden');
+        if (f.model) f.model.value = f.modelSelect.value;
+      }
+    });
+  }
+
+  if (f.model) {
+    f.model.addEventListener('input', () => {
+      if (f.modelSelect && f.modelSelect.value !== '__custom__') {
+        const match = [...f.modelSelect.options].find((o) => o.value === f.model.value.trim());
+        if (match) {
+          f.modelSelect.value = match.value;
+        }
+      }
     });
   }
 
@@ -72,10 +140,12 @@
     try {
       const res = await api.fetchModels({ baseUrl, apiKey });
       if (res.ok && Array.isArray(res.models) && res.models.length > 0) {
-        setSuggestions(res.models);
-        if (!f.model.value.trim() && res.models[0]?.id) {
-          f.model.value = res.models[0].id;
+        setSuggestions(res.models, f.model ? f.model.value : '');
+        if ((!f.model || !f.model.value.trim()) && res.models[0]?.id) {
+          if (f.model) f.model.value = res.models[0].id;
+          if (f.modelSelect) f.modelSelect.value = res.models[0].id;
         }
+        if (f.customModelBox) f.customModelBox.classList.add('hidden');
         const countMsg = `${res.models.length} ${window.I18n ? window.I18n.t('settingModelsLoadedSuccess') : 'مدل از API بارگذاری شد'}`;
         if (!silent) {
           showToast(`✓ ${countMsg}`);
@@ -135,7 +205,14 @@
     f.baseUrl.value = initialBase;
     f.model.value = initialModel;
     f.preset.value = detectPreset(f.baseUrl.value);
-    setSuggestions((PROVIDERS[f.preset.value] || { models: [] }).models);
+    setSuggestions((PROVIDERS[f.preset.value] || { models: [] }).models, initialModel);
+    if (f.customModelBox) {
+      if (f.modelSelect && f.modelSelect.value === '__custom__') {
+        f.customModelBox.classList.remove('hidden');
+      } else {
+        f.customModelBox.classList.add('hidden');
+      }
+    }
 
     clearKeyRequested = false;
     f.apiKey.value = '';
@@ -199,7 +276,8 @@
     if (!p) return;
     f.baseUrl.value = p.url;
     f.model.value = p.model;
-    setSuggestions(p.models);
+    setSuggestions(p.models, p.model);
+    if (f.customModelBox) f.customModelBox.classList.add('hidden');
   });
   f.baseUrl.addEventListener('input', () => {
     f.preset.value = detectPreset(f.baseUrl.value);
@@ -225,13 +303,16 @@
     f.testResult.textContent = window.I18n ? window.I18n.t('settingTesting') : 'در حال آزمایش…';
 
     let testBase = f.baseUrl.value.trim();
-    let testModel = f.model.value.trim();
+    let testModel = (f.modelSelect && f.modelSelect.value !== '__custom__'
+      ? f.modelSelect.value
+      : f.model.value).trim();
     if (/generativelanguage\.googleapis\.com/i.test(testBase)) {
       testBase = PROVIDERS.gemini.url;
       f.baseUrl.value = testBase;
       if (/gemini-(?:1\.[0-9]+|2\.[0-9]+)-(?:pro|flash)/i.test(testModel) || /gemini-1\.[0-9]+/i.test(testModel) || /gemini-2\.[0-9]+/i.test(testModel) || !testModel || testModel === 'gemini') {
         testModel = 'gemini-3.8-flash';
         f.model.value = testModel;
+        if (f.modelSelect) f.modelSelect.value = testModel;
       }
     }
 
@@ -252,7 +333,9 @@
   f.save.addEventListener('click', async () => {
     const engine = [...document.getElementsByName('setting-engine')].find((r) => r.checked);
     let aphraBase = f.baseUrl.value.trim();
-    let aphraModel = f.model.value.trim();
+    let aphraModel = (f.modelSelect && f.modelSelect.value !== '__custom__'
+      ? f.modelSelect.value
+      : f.model.value).trim();
     if (/generativelanguage\.googleapis\.com/i.test(aphraBase)) {
       aphraBase = PROVIDERS.gemini.url;
       if (!aphraModel || aphraModel === 'gemini') {
